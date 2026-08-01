@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MyMasteryLab | The Portal Puzzle — Algebra Escape</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --white:#FFFFFF;
+  --teal:#00A7B2;
+  --orange:#FAA71C;
+  --burnt:#D77F28;
+  --ink:#161A1D;
+  --portal-deep:#0B1E22;
+  --portal-mid:#12333A;
+  --danger:#E4483C;
+  --good:#1FAE6B;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--white);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.app{
+  width:100%;
+  max-width:720px;
+  background:var(--white);
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.18);
+  overflow:hidden;
+  border:1px solid #eee;
+}
+.topbar{
+  background:linear-gradient(135deg, var(--teal), #007e87);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#fff;
+}
+.brand{
+  font-weight:800;
+  font-size:15px;
+  letter-spacing:0.5px;
+}
+.brand span{color:var(--orange);}
+.progress-wrap{
+  flex:1;
+  margin-left:24px;
+  height:8px;
+  background:rgba(255,255,255,0.25);
+  border-radius:10px;
+  overflow:hidden;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--orange);
+  transition:width .5s ease;
+}
+.stage{
+  min-height:460px;
+  padding:36px 32px;
+  position:relative;
+}
+.stage.portal{
+  background:radial-gradient(ellipse at top, var(--portal-mid), var(--portal-deep));
+  color:#F2F7F7;
+}
+.hidden{display:none !important;}
+
+/* ---- Welcome Screen ---- */
+.welcome-icon{font-size:52px;text-align:center;margin-bottom:6px;}
+h1{font-size:26px;margin:0 0 6px;text-align:center;}
+.subtitle{text-align:center;color:#555;font-size:15px;margin-bottom:26px;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.field input, .field select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:2px solid #e2e2e2;
+  font-size:15px;
+  outline:none;
+  transition:border-color .2s;
+}
+.field input:focus, .field select:focus{border-color:var(--teal);}
+.btn{
+  display:inline-block;
+  background:var(--teal);
+  color:#fff;
+  border:none;
+  padding:13px 26px;
+  border-radius:30px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  transition:transform .15s, background .2s;
+}
+.btn:hover{background:var(--burnt);transform:translateY(-2px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-row{text-align:center;margin-top:8px;}
+.btn-secondary{background:transparent;color:var(--teal);border:2px solid var(--teal);}
+.btn-secondary:hover{background:var(--teal);color:#fff;}
+
+/* ---- Portal / Level screens ---- */
+.level-badge{
+  display:inline-block;
+  background:rgba(250,167,28,0.15);
+  border:1px solid var(--orange);
+  color:var(--orange);
+  padding:4px 14px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1px;
+  margin-bottom:14px;
+}
+.level-title{font-size:24px;font-weight:800;margin:0 0 8px;color:#fff;}
+.level-story{font-size:14.5px;color:#c9dede;line-height:1.6;margin-bottom:22px;font-style:italic;}
+.qcard{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:16px;
+}
+.qmeta{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--orange);font-weight:700;margin-bottom:8px;}
+.qtext{font-size:19px;font-weight:600;color:#fff;margin-bottom:16px;line-height:1.5;}
+.answer-row{display:flex;gap:10px;}
+.answer-row input{
+  flex:1;
+  padding:12px 14px;
+  border-radius:10px;
+  border:2px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-size:16px;
+}
+.answer-row input::placeholder{color:#8fa9ac;}
+.mc-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mc-opt{
+  padding:14px;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+  cursor:pointer;
+  text-align:center;
+  font-weight:600;
+  transition:all .15s;
+}
+.mc-opt:hover{border-color:var(--orange);}
+.mc-opt.selected{border-color:var(--teal);background:rgba(0,167,178,0.25);}
+.feedback{
+  margin-top:14px;
+  font-weight:700;
+  font-size:14px;
+  min-height:20px;
+}
+.feedback.correct{color:#5EE6A8;}
+.feedback.wrong{color:#FF8C7A;}
+.qcard.shake{animation:shake .4s;}
+.qcard.pulse{animation:pulse .6s;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-8px);}
+  40%{transform:translateX(8px);}
+  60%{transform:translateX(-6px);}
+  80%{transform:translateX(6px);}
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(31,174,107,0.6);}
+  70%{box-shadow:0 0 0 18px rgba(31,174,107,0);}
+  100%{box-shadow:0 0 0 0 rgba(31,174,107,0);}
+}
+.stage-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.score-pill{
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:700;
+}
+
+/* Confetti */
+.confetti-piece{
+  position:absolute;
+  width:8px;height:14px;
+  top:-20px;
+  border-radius:2px;
+  animation:fall 1.4s ease-in forwards;
+  pointer-events:none;
+}
+@keyframes fall{
+  to{transform:translateY(480px) rotate(400deg);opacity:0;}
+}
+
+/* Lock screen */
+.lock-icon{font-size:56px;text-align:center;margin-bottom:10px;}
+.lock-title{text-align:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;}
+.lock-sub{text-align:center;color:#c9dede;font-size:14px;margin-bottom:24px;line-height:1.6;}
+.code-input{
+  width:100%;
+  text-align:center;
+  letter-spacing:4px;
+  font-size:20px;
+  font-weight:800;
+  padding:14px;
+  border-radius:12px;
+  border:2px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.08);
+  color:var(--orange);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.code-msg{text-align:center;font-weight:700;min-height:22px;font-size:13px;}
+
+/* Final certificate */
+.cert-icon{font-size:60px;text-align:center;margin-bottom:10px;}
+.cert-box{
+  border:2px dashed var(--orange);
+  border-radius:16px;
+  padding:26px;
+  text-align:center;
+  margin:20px 0;
+  background:rgba(250,167,28,0.06);
+}
+.cert-box h2{margin:6px 0;color:var(--teal);font-size:22px;}
+.cert-box p{margin:4px 0;color:#444;font-size:14px;}
+.stat-row{display:flex;justify-content:center;gap:24px;margin-top:16px;}
+.stat{text-align:center;}
+.stat .num{font-size:26px;font-weight:800;color:var(--burnt);}
+.stat .lbl{font-size:11px;text-transform:uppercase;color:#777;letter-spacing:0.5px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">MyMastery<span>Lab</span> · Portal Puzzle</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+
+  <!-- WELCOME SCREEN -->
+  <div class="stage" id="screen-welcome">
+    <div class="welcome-icon">🌀</div>
+    <h1>The Portal Puzzle</h1>
+    <p class="subtitle">An Algebra Adventure Between Two Worlds — Grades 8 &amp; 9</p>
+    <div class="field">
+      <label for="playerName">Your Name</label>
+      <input type="text" id="playerName" placeholder="Enter your name">
+    </div>
+    <div class="field">
+      <label for="playerGrade">Your Grade</label>
+      <select id="playerGrade">
+        <option value="">Select your grade</option>
+        <option value="8">Grade 8</option>
+        <option value="9">Grade 9</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="startBtn" disabled>Open the Portal →</button>
+    </div>
+  </div>
+
+  <!-- LOCK / CODE SCREEN -->
+  <div class="stage portal hidden" id="screen-lock">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title" id="lockTitle">Portal Sealed</div>
+    <div class="lock-sub">Ask your mentor for the unlock code to step through to the next chamber.</div>
+    <input type="text" class="code-input" id="codeInput" placeholder="ENTER CODE">
+    <div class="btn-row"><button class="btn" id="unlockBtn">Unlock Portal</button></div>
+    <div class="code-msg" id="codeMsg"></div>
+  </div>
+
+  <!-- LEVEL / GAME SCREEN -->
+  <div class="stage portal hidden" id="screen-level">
+    <div class="level-badge" id="levelBadge">CHAMBER 1</div>
+    <div class="level-title" id="levelTitle"></div>
+    <div class="level-story" id="levelStory"></div>
+    <div class="qcard" id="qcard">
+      <div class="qmeta" id="qmeta"></div>
+      <div class="qtext" id="qtext"></div>
+      <div id="answerArea"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="stage-footer">
+      <div class="score-pill" id="scorePill">Score: 0</div>
+      <button class="btn" id="submitBtn">Submit Answer</button>
+    </div>
+  </div>
+
+  <!-- CERTIFICATE SCREEN -->
+  <div class="stage hidden" id="screen-cert">
+    <div class="cert-icon">🏆</div>
+    <h1>The Portal Has Closed</h1>
+    <p class="subtitle">You restored the real world through the power of algebraic thinking.</p>
+    <div class="cert-box">
+      <div style="font-size:13px;color:#999;">CERTIFICATE OF MASTERY</div>
+      <h2 id="certName">Learner Name</h2>
+      <p id="certGrade">Grade —</p>
+      <p>has successfully escaped <strong>The Portal Puzzle</strong> — Algebra Edition</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="certScore">0</div><div class="lbl">Correct</div></div>
+        <div class="stat"><div class="num" id="certTotal">0</div><div class="lbl">Total</div></div>
+        <div class="stat"><div class="num" id="certAccuracy">0%</div><div class="lbl">Accuracy</div></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="location.reload()">Play Again</button></div>
+  </div>
+</div>
+
+<script>
+/* ================= AUDIO (synthesized, no external files) ================= */
+let audioCtx;
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, start, duration, type='sine', vol=0.18){
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, ctx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(ctx.currentTime + start);
+  osc.stop(ctx.currentTime + start + duration);
+}
+function playCorrect(){
+  playTone(523.25, 0, 0.15);
+  playTone(659.25, 0.12, 0.15);
+  playTone(783.99, 0.24, 0.25);
+}
+function playWrong(){
+  playTone(180, 0, 0.25, 'sawtooth', 0.15);
+  playTone(120, 0.15, 0.3, 'sawtooth', 0.15);
+}
+function playUnlock(){
+  playTone(392, 0, 0.12);
+  playTone(494, 0.1, 0.12);
+  playTone(587, 0.2, 0.12);
+  playTone(784, 0.3, 0.3);
+}
+
+/* ================= CONFETTI ================= */
+function launchConfetti(container){
+  const colors = ['#00A7B2','#FAA71C','#D77F28','#5EE6A8','#FFFFFF'];
+  for(let i=0;i<24;i++){
+    const p = document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay = (Math.random()*0.3)+'s';
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    container.appendChild(p);
+    setTimeout(()=>p.remove(), 1600);
+  }
+}
+
+/* ================= GAME DATA ================= */
+// Levels follow the same conceptual pattern as the source lesson plan:
+// Variables -> Expressions vs Equations -> Writing Expressions -> Solving Equations -> Final Escape -> Mastery Check
+// Grade 9 learners receive additional "extension" questions layered into each chamber.
+
+const LEVELS = [
+  {
+    id: 1,
+    code: "VARIABLE7",
+    title: "Chamber 1: The Vault of Variables",
+    story: "The real world flickers. Numbers have vanished, replaced by mystery symbols. Find the hidden value to stabilize each equation and keep the vault from collapsing.",
+    questions: [
+      { type:'input', meta:'Grade 8', q:'x + 6 = 14. What is x?', answers:['8'] },
+      { type:'input', meta:'Grade 8', q:'y − 5 = 9. What is y?', answers:['14'] },
+      { type:'input', meta:'Grade 8', q:'4 + n = 11. What is n?', answers:['7'] },
+      { type:'input', meta:'Grade 8', q:'t − 3 = 10. What is t?', answers:['13'] },
+      { type:'input', meta:'Grade 9 Extension', grade9:true, q:'3x + 2 = 17. What is x?', answers:['5'] }
+    ]
+  },
+  {
+    id: 2,
+    code: "PORTAL22",
+    title: "Chamber 2: The Scanner Room",
+    story: "A scanner hums nearby, sorting every math code into two types: Energy Codes (expressions) and Portal Locks (equations). Sort each one correctly to keep the scanner calm.",
+    questions: [
+      { type:'mc', meta:'Grade 8', q:'x + 3', options:['Expression','Equation'], correct:0 },
+      { type:'mc', meta:'Grade 8', q:'5y − 2 = 13', options:['Expression','Equation'], correct:1 },
+      { type:'mc', meta:'Grade 8', q:'7a', options:['Expression','Equation'], correct:0 },
+      { type:'mc', meta:'Grade 8', q:'3x + 4 = 19', options:['Expression','Equation'], correct:1 },
+      { type:'mc', meta:'Grade 9 Extension', grade9:true, q:'4(m − 2)', options:['Expression','Equation'], correct:0 },
+      { type:'mc', meta:'Grade 9 Extension', grade9:true, q:'4(m − 2) = 16', options:['Expression','Equation'], correct:1 }
+    ]
+  },
+  {
+    id: 3,
+    code: "CIPHER15",
+    title: "Chamber 3: The Monster Language",
+    story: "The creatures on the other side speak only in Algebra. Translate their whispered phrases into expressions to earn their trust.",
+    questions: [
+      { type:'input', meta:'Grade 8', q:'Translate: "Six more than a number"', answers:['x+6','x + 6'] },
+      { type:'input', meta:'Grade 8', q:'Translate: "Four less than a number"', answers:['x-4','x - 4'] },
+      { type:'input', meta:'Grade 8', q:'Translate: "Triple a number"', answers:['3x'] },
+      { type:'input', meta:'Grade 8', q:'Translate: "A number divided by two"', answers:['x/2'] },
+      { type:'input', meta:'Grade 9 Extension', grade9:true, q:'Translate: "Twice a number increased by seven"', answers:['2x+7','2x + 7'] },
+      { type:'input', meta:'Grade 9 Extension', grade9:true, q:'Translate: "Five times a number decreased by three"', answers:['5x-3','5x - 3'] }
+    ]
+  },
+  {
+    id: 4,
+    code: "BALANCE9",
+    title: "Chamber 4: The Balanced Bridge",
+    story: "A bridge stretches across the divide, balanced perfectly on both sides. Whatever you do to one side, you must do to the other. Cross carefully.",
+    questions: [
+      { type:'input', meta:'Grade 8', q:'x + 7 = 15. What is x?', answers:['8'] },
+      { type:'input', meta:'Grade 8', q:'x − 6 = 9. What is x?', answers:['15'] },
+      { type:'input', meta:'Grade 8', q:'x ÷ 4 = 5. What is x?', answers:['20'] },
+      { type:'input', meta:'Grade 8', q:'5x = 35. What is x?', answers:['7'] },
+      { type:'input', meta:'Grade 9 Extension', grade9:true, q:'2(x + 3) = 16. What is x?', answers:['5'] },
+      { type:'input', meta:'Grade 9 Extension', grade9:true, q:'3x − 4 = 11. What is x?', answers:['5'] }
+    ]
+  },
+  {
+    id: 5,
+    code: "ESCAPE42",
+    title: "Chamber 5: The Final Escape",
+    story: "One last stretch of tunnel stands between you and the real world. Solve each puzzle to collect the digits that will seal the portal for good.",
+    questions: [
+      { type:'input', meta:'Level 1', q:'x + 12 = 25. What is x?', answers:['13'] },
+      { type:'input', meta:'Level 2', q:'3x = 27. What is x?', answers:['9'] },
+      { type:'input', meta:'Level 3', q:'x ÷ 6 = 4. What is x?', answers:['24'] },
+      { type:'input', meta:'Grade 9 Boss', grade9:true, q:'4x − 5 = 23. What is x?', answers:['7'] },
+      { type:'input', meta:'Elite Grade 9 Boss', grade9:true, q:'2(x + 4) + 3 = 21. What is x?', answers:['5'] },
+      { type:'input', meta:'Ultimate Escape Puzzle', grade9:true, q:'3x + 5 = 26. What is x?', answers:['7'] }
+    ]
+  },
+  {
+    id: 6,
+    code: null, // final level, no lock needed after — leads straight to certificate
+    title: "Mastery Check: The Real World Returns",
+    story: "The portal begins to close. Answer these final checks to confirm your understanding before you step back into the real world.",
+    questions: [
+      { type:'mc', meta:'Grade 8', q:'What is a variable?', options:['A fixed number','A symbol representing an unknown value','A type of equation','A math operation'], correct:1 },
+      { type:'mc', meta:'Grade 8', q:'Is "x + 8" an expression or equation?', options:['Expression','Equation'], correct:0 },
+      { type:'mc', meta:'Grade 8', q:'Is "x + 8 = 15" an expression or equation?', options:['Expression','Equation'], correct:1 },
+      { type:'input', meta:'Grade 8', q:'Write: "Five more than a number"', answers:['x+5','x + 5'] },
+      { type:'input', meta:'Grade 8', q:'Solve: x + 9 = 14', answers:['5'] },
+      { type:'input', meta:'Grade 8', q:'Solve: 3x = 21', answers:['7'] },
+      { type:'input', meta:'Grade 9 Bonus', grade9:true, q:'Solve: 2x + 6 = 20', answers:['7'] }
+    ]
+  }
+];
+
+/* ================= STATE ================= */
+let state = {
+  name:'',
+  grade:'',
+  levelIndex:0,
+  qIndex:0,
+  score:0,
+  total:0,
+  currentQuestions:[],
+  selectedMc:null
+};
+
+/* ================= DOM ================= */
+const screenWelcome = document.getElementById('screen-welcome');
+const screenLock = document.getElementById('screen-lock');
+const screenLevel = document.getElementById('screen-level');
+const screenCert = document.getElementById('screen-cert');
+const progressBar = document.getElementById('progressBar');
+
+document.getElementById('playerName').addEventListener('input', validateWelcome);
+document.getElementById('playerGrade').addEventListener('change', validateWelcome);
+function validateWelcome(){
+  const name = document.getElementById('playerName').value.trim();
+  const grade = document.getElementById('playerGrade').value;
+  document.getElementById('startBtn').disabled = !(name && grade);
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  state.name = document.getElementById('playerName').value.trim();
+  state.grade = document.getElementById('playerGrade').value;
+  getCtx(); // unlock audio context on user gesture
+  goToLevel(0);
+});
+
+function questionsForGrade(level){
+  return level.questions.filter(q => !q.grade9 || state.grade === '9');
+}
+
+function goToLevel(index){
+  state.levelIndex = index;
+  const level = LEVELS[index];
+  state.currentQuestions = questionsForGrade(level);
+  state.qIndex = 0;
+  state.selectedMc = null;
+
+  screenWelcome.classList.add('hidden');
+  screenLock.classList.add('hidden');
+  screenCert.classList.add('hidden');
+  screenLevel.classList.remove('hidden');
+
+  document.getElementById('levelBadge').textContent = 'CHAMBER ' + level.id;
+  document.getElementById('levelTitle').textContent = level.title;
+  document.getElementById('levelStory').textContent = level.story;
+
+  renderQuestion();
+  updateProgress();
+}
+
+function updateProgress(){
+  const totalLevels = LEVELS.length;
+  const pct = Math.round(((state.levelIndex) / totalLevels) * 100 + (state.qIndex / (state.currentQuestions.length||1)) * (100/totalLevels));
+  progressBar.style.width = Math.min(pct,100) + '%';
+}
+
+function renderQuestion(){
+  const q = state.currentQuestions[state.qIndex];
+  const qcard = document.getElementById('qcard');
+  qcard.classList.remove('shake','pulse');
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('qmeta').textContent = q.meta || '';
+  document.getElementById('qtext').textContent = q.q;
+  document.getElementById('scorePill').textContent = 'Score: ' + state.score + '/' + state.total;
+
+  const area = document.getElementById('answerArea');
+  area.innerHTML = '';
+  state.selectedMc = null;
+
+  if(q.type === 'input'){
+    area.innerHTML = `<div class="answer-row">
+      <input type="text" id="freeAnswer" placeholder="Type your answer">
+    </div>`;
+    document.getElementById('freeAnswer').addEventListener('keydown', e=>{
+      if(e.key === 'Enter') checkAnswer();
+    });
+  } else if(q.type === 'mc'){
+    const wrap = document.createElement('div');
+    wrap.className = 'mc-options';
+    q.options.forEach((opt, i)=>{
+      const btn = document.createElement('div');
+      btn.className = 'mc-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.mc-opt').forEach(o=>o.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.selectedMc = i;
+      });
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  }
+}
+
+function normalize(str){
+  return str.toLowerCase().replace(/\s+/g,'').trim();
+}
+
+document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+
+function checkAnswer(){
+  const q = state.currentQuestions[state.qIndex];
+  let correct = false;
+
+  if(q.type === 'input'){
+    const val = document.getElementById('freeAnswer').value;
+    if(!val.trim()) return;
+    correct = q.answers.some(a => normalize(a) === normalize(val));
+  } else if(q.type === 'mc'){
+    if(state.selectedMc === null) return;
+    correct = state.selectedMc === q.correct;
+  }
+
+  state.total++;
+  const qcard = document.getElementById('qcard');
+  const feedback = document.getElementById('feedback');
+
+  if(correct){
+    state.score++;
+    playCorrect();
+    qcard.classList.add('pulse');
+    feedback.textContent = '✅ Correct! The portal flickers with light.';
+    feedback.className = 'feedback correct';
+    launchConfetti(screenLevel);
+  } else {
+    playWrong();
+    qcard.classList.add('shake');
+    const correctText = q.type==='input' ? q.answers[0] : q.options[q.correct];
+    feedback.textContent = '❌ Not quite. Correct answer: ' + correctText;
+    feedback.className = 'feedback wrong';
+  }
+
+  document.getElementById('scorePill').textContent = 'Score: ' + state.score + '/' + state.total;
+
+  setTimeout(()=>{
+    state.qIndex++;
+    if(state.qIndex < state.currentQuestions.length){
+      renderQuestion();
+      updateProgress();
+    } else {
+      // level complete
+      const level = LEVELS[state.levelIndex];
+      if(level.code){
+        showLock(level);
+      } else {
+        showCertificate();
+      }
+    }
+  }, correct ? 1400 : 2000);
+}
+
+function showLock(level){
+  screenLevel.classList.add('hidden');
+  screenLock.classList.remove('hidden');
+  document.getElementById('lockTitle').textContent = 'Chamber ' + level.id + ' Sealed';
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeMsg').textContent = '';
+  document.getElementById('codeMsg').className = 'code-msg';
+  document.getElementById('codeInput').focus();
+  state.pendingCode = level.code;
+}
+
+document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+document.getElementById('codeInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter') tryUnlock();
+});
+
+function tryUnlock(){
+  const val = document.getElementById('codeInput').value.trim().toUpperCase();
+  const msg = document.getElementById('codeMsg');
+  if(val === state.pendingCode){
+    playUnlock();
+    msg.textContent = '✨ Portal unlocked! Stepping through...';
+    msg.style.color = '#5EE6A8';
+    setTimeout(()=> goToLevel(state.levelIndex + 1), 900);
+  } else {
+    playWrong();
+    msg.textContent = '⚠️ Incorrect code. Ask your mentor for the correct portal code.';
+    msg.style.color = '#FF8C7A';
+  }
+}
+
+function showCertificate(){
+  screenLevel.classList.add('hidden');
+  screenLock.classList.add('hidden');
+  screenCert.classList.remove('hidden');
+  progressBar.style.width = '100%';
+
+  document.getElementById('certName').textContent = state.name;
+  document.getElementById('certGrade').textContent = 'Grade ' + state.grade;
+  document.getElementById('certScore').textContent = state.score;
+  document.getElementById('certTotal').textContent = state.total;
+  const acc = state.total ? Math.round((state.score/state.total)*100) : 0;
+  document.getElementById('certAccuracy').textContent = acc + '%';
+  playUnlock();
+  launchConfetti(screenCert);
+}
+</script>
+</body>
+</html>
