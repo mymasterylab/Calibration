@@ -1,0 +1,1278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Factor & Multiple Code Breaker — Interactive Mission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Brand requires a light/white background in every theme, so dark-mode tokens intentionally keep the light values. */
+:root{
+  --teal:#00A7B2; --teal-2:#32cdc8; --teal-3:#21ded7; --teal-deep:#00928e; --teal-soft:#E6F7F8; --teal-mist:#F2FBFB;
+  --orange:#FAA71C; --orange-soft:#FFF4E0; --burnt:#D77F28; --crimson:#C92426; --flame:#ff5900; --red:#ff4200;
+  --ink:#1a1a1a; --ink-2:#4a4a4a; --line:#e3e8ea; --paper:#FFFFFF;
+  --good:#00a9a5; --bad:#C92426;
+  --display:"Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Lexend", "Segoe UI", system-ui, sans-serif;
+  --r-sm:10px; --r-md:16px; --r-lg:26px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#FFFFFF; --ink:#1a1a1a; } }
+:root[data-theme="dark"]{ --paper:#FFFFFF; --ink:#1a1a1a; }
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden}
+button{font:inherit;cursor:pointer;color:inherit}
+input,textarea,select{font:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:8px}
+h1,h2,h3,h4{font-family:var(--display);margin:0;line-height:1.1}
+
+/* ---------- App frame ---------- */
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:3px solid var(--teal);background:var(--paper);position:relative;z-index:30;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand .lock{width:40px;height:40px;flex:none}
+.brand h1{font-size:1.45rem;font-weight:800;color:var(--ink);white-space:nowrap}
+.brand small{display:block;font-family:var(--body);font-size:.72rem;color:var(--teal-deep);font-weight:600;letter-spacing:.01em}
+.agentchip{display:flex;align-items:center;gap:8px;background:var(--teal-soft);border-radius:999px;padding:4px 14px 4px 4px;font-weight:600}
+.agentchip .av{width:34px;height:34px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:20px;border:2px solid var(--teal)}
+.letters{display:flex;gap:6px;align-items:center}
+.letters .lt{width:34px;height:40px;border-radius:9px;border:2px dashed #c9d4d7;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.3rem;color:#b9c4c7;background:var(--paper)}
+.letters .lt.on{border:2px solid var(--burnt);background:var(--orange);color:var(--paper);box-shadow:0 3px 0 var(--burnt);animation:flipin .6s}
+.letters .cap{font-size:.72rem;color:var(--ink-2);margin-right:4px;line-height:1.1;max-width:70px}
+@keyframes flipin{0%{transform:rotateY(90deg) scale(1.3)}100%{transform:none}}
+.tools{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.tbtn{display:flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:6px 12px;font-weight:600;font-size:.9rem}
+.tbtn:hover{border-color:var(--teal)}
+.tbtn.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.tbtn.mentor.on{background:var(--burnt);border-color:var(--burnt)}
+
+.main{display:grid;grid-template-columns:230px 1fr;min-height:0}
+.rail{border-right:2px solid var(--line);padding:16px 12px;overflow:auto;background:linear-gradient(180deg,var(--teal-mist),var(--paper))}
+.rail h2{font-size:1rem;color:var(--teal-deep);margin:0 6px 10px}
+.path{list-style:none;margin:0;padding:0;position:relative}
+.path::before{content:"";position:absolute;left:27px;top:20px;bottom:20px;border-left:4px dotted #b7dfe2}
+.stn{position:relative;display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;padding:7px 6px;border-radius:14px;text-align:left}
+.stn .dot{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:21px;background:#eef2f3;border:3px solid #d5dde0;position:relative;z-index:1}
+.stn .nm{font-weight:600;font-size:.88rem;line-height:1.15}
+.stn .tm{display:block;font-size:.72rem;color:var(--ink-2);font-weight:400}
+.stn.locked{opacity:.55;cursor:not-allowed}
+.stn.locked .dot::after{content:"🔒";position:absolute;right:-6px;bottom:-6px;font-size:14px}
+.stn.open .dot{background:var(--paper);border-color:var(--teal)}
+.stn.done .dot{background:var(--teal);border-color:var(--teal-deep)}
+.stn.done .dot::after{content:"✓";position:absolute;right:-5px;bottom:-5px;background:var(--orange);color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;display:grid;place-items:center;font-weight:800}
+.stn.cur{background:var(--paper);box-shadow:0 0 0 3px var(--orange) inset}
+.stn.cur .dot{transform:scale(1.08);border-color:var(--orange)}
+
+.stagewrap{position:relative;min-height:0;overflow:hidden}
+.stage{height:100%;overflow:auto;padding:22px 28px 60px;position:relative}
+.bottom{display:flex;align-items:center;gap:14px;padding:10px 18px;border-top:3px solid var(--teal-soft);background:var(--paper);flex-wrap:wrap;z-index:25;position:relative}
+.tasks{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1}
+.tasks .lab{font-weight:600;font-size:.85rem;color:var(--ink-2)}
+.tk{display:flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px 4px 6px;background:#f1f4f5;font-size:.82rem;font-weight:500}
+.tk i{width:20px;height:20px;border-radius:50%;border:2px solid #c5cfd2;display:grid;place-items:center;font-style:normal;font-size:12px}
+.tk.ok{background:var(--teal-soft)} .tk.ok i{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn{border:0;border-radius:14px;padding:11px 20px;font-weight:700;font-family:var(--display);font-size:1.08rem;background:var(--teal);color:#fff;box-shadow:0 4px 0 var(--teal-deep);transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--teal-deep)}
+.btn.alt{background:var(--orange);box-shadow:0 4px 0 var(--burnt);color:var(--ink)}
+.btn.ghost{background:var(--paper);color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
+.btn.small{padding:7px 14px;font-size:.95rem}
+.btn[disabled]{background:#dfe5e7;color:#8a9699;box-shadow:0 4px 0 #c8d0d2;cursor:not-allowed}
+.btn.pulse:not([disabled]){animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 4px 0 var(--teal-deep),0 0 0 0 rgba(0,167,178,.5)}50%{box-shadow:0 4px 0 var(--teal-deep),0 0 0 12px rgba(0,167,178,0)}}
+.mentor-only{display:none!important}
+body.mentor .mentor-only{display:revert!important}
+body.mentor .mentor-only.flex{display:flex!important}
+body.mentor .mentor-only.hide{display:none!important}
+
+/* ---------- Story ---------- */
+.scene{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:end;background:linear-gradient(120deg,var(--teal-soft),var(--orange-soft));border-radius:var(--r-lg);padding:18px 24px 18px 18px;position:relative;overflow:hidden;margin-bottom:18px}
+.scene::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;border:22px solid rgba(255,255,255,.55)}
+.scene .who{width:128px;text-align:center}
+.scene .who svg{width:118px;height:138px;display:block;margin:0 auto;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.scene .who b{font-family:var(--display);font-size:.95rem;display:block;margin-top:2px}
+.chapter{font-family:var(--display);color:var(--teal-deep);font-weight:700;font-size:.95rem}
+.scene h2{font-size:2.1rem;font-weight:800;margin:0 0 8px}
+.bubble{background:var(--paper);border-radius:20px;padding:14px 18px;position:relative;font-size:1.08rem;min-height:64px;box-shadow:0 3px 0 rgba(0,146,142,.18);max-width:760px}
+.bubble::before{content:"";position:absolute;left:-12px;bottom:18px;border:12px solid transparent;border-right-color:var(--paper);border-left:0}
+.bubble.villain{background:#fff;box-shadow:0 0 0 3px var(--crimson)}
+.bubble.villain::before{border-right-color:var(--crimson)}
+.dlgnav{display:flex;align-items:center;gap:10px;margin-top:10px;position:relative;z-index:1}
+.dlgnav .dots{display:flex;gap:5px}
+.dlgnav .dots span{width:9px;height:9px;border-radius:50%;background:rgba(0,146,142,.25)}
+.dlgnav .dots span.on{background:var(--teal);width:22px;border-radius:9px}
+.speaker-tag{font-family:var(--display);font-weight:700;color:var(--teal-deep);display:block;font-size:.95rem}
+.villain .speaker-tag{color:var(--crimson)}
+
+.notes{background:var(--orange-soft);border:2px dashed var(--burnt);border-radius:var(--r-md);padding:12px 16px;margin-bottom:16px;font-size:.92rem}
+.notes b{color:var(--burnt);font-family:var(--display);font-size:1.02rem}
+.notes ul{margin:6px 0 0;padding-left:18px}
+
+/* ---------- Activity cards ---------- */
+.card{background:var(--paper);border-radius:var(--r-lg);border:3px solid var(--teal-soft);padding:20px 22px;margin-bottom:18px;position:relative}
+.card.o{border-color:var(--orange-soft)}
+.card.c{border-color:#f6d3d3}
+.card h3{font-size:1.5rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card h3 .ico{font-size:1.5rem}
+.card .sub{color:var(--ink-2);margin:0 0 14px}
+.tag{font-family:var(--body);font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--orange);color:var(--ink)}
+.tag.t{background:var(--teal);color:#fff}
+.tag.done{background:var(--teal-soft);color:var(--teal-deep)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.why{background:var(--teal-soft);border-left:8px solid var(--teal);border-radius:14px;padding:12px 16px;margin-top:14px}
+.why b.h{font-family:var(--display);color:var(--teal-deep);font-size:1.1rem;display:block}
+.fb{min-height:28px;margin-top:10px;font-weight:600;border-radius:12px;padding:0}
+.fb.ok{color:var(--teal-deep);background:var(--teal-soft);padding:8px 14px}
+.fb.no{color:var(--crimson);background:#fdecec;padding:8px 14px}
+.fb.info{color:var(--burnt);background:var(--orange-soft);padding:8px 14px}
+.fb.pop{animation:popin .35s}
+@keyframes popin{0%{transform:scale(.9);opacity:0}100%{transform:none;opacity:1}}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab{border:3px solid var(--line);background:var(--paper);border-radius:14px;padding:8px 16px;font-family:var(--display);font-weight:700;font-size:1.1rem}
+.tab.on{border-color:var(--teal);background:var(--teal-soft)}
+.tab.ok::after{content:" ✓";color:var(--teal-deep)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:700;font-size:1.2rem;padding:0 10px}
+.chip:hover{border-color:var(--teal)}
+.chip.sel{background:var(--teal);color:#fff;border-color:var(--teal-deep)}
+.chip.good{background:var(--teal-soft);border-color:var(--teal)}
+.chip.x{text-decoration:line-through;opacity:.4}
+.ask{font-weight:600;margin:8px 0}
+.in{width:74px;height:48px;border:3px dashed var(--teal-2);border-radius:12px;text-align:center;font-family:var(--display);font-weight:700;font-size:1.3rem;background:var(--teal-mist);color:var(--ink)}
+.in.wide{width:100%;text-align:left;padding:8px 12px;font-family:var(--body);font-size:1rem;font-weight:500;height:auto;min-height:48px}
+.in.ok{border-style:solid;border-color:var(--teal);background:var(--teal-soft)}
+.in.no{border-style:solid;border-color:var(--crimson);background:#fdecec}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.opt{display:block;width:100%;text-align:left;border:3px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 14px;margin:8px 0;font-weight:500}
+.opt:hover{border-color:var(--teal-2)}
+.opt.right{border-color:var(--teal);background:var(--teal-soft)}
+.opt.wrong{border-color:var(--crimson);background:#fdecec}
+.tf{display:flex;align-items:center;gap:10px;justify-content:space-between;border-bottom:2px dashed var(--line);padding:10px 0;flex-wrap:wrap}
+.tf .q{flex:1;min-width:220px;font-weight:500}
+.thumb{border:3px solid var(--line);background:var(--paper);border-radius:12px;font-size:1.5rem;width:58px;height:48px}
+.thumb.right{border-color:var(--teal);background:var(--teal-soft)}
+.thumb.wrong{border-color:var(--crimson);background:#fdecec}
+
+/* Rectangle builder */
+.tray{min-height:180px;border-radius:20px;background:repeating-linear-gradient(45deg,var(--orange-soft),var(--orange-soft) 14px,#fff9ee 14px,#fff9ee 28px);border:4px solid var(--orange);padding:16px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;margin-top:10px;overflow:auto}
+.tray .r{display:flex;gap:6px}
+.tile{width:40px;height:40px;border-radius:10px;background:var(--paper);display:grid;place-items:center;font-size:24px;box-shadow:0 3px 0 rgba(215,127,40,.35);animation:drop .35s backwards}
+.tile.left{box-shadow:0 0 0 3px var(--crimson);background:#fdecec}
+.tray .cap{font-family:var(--display);font-weight:700;font-size:1.2rem;margin-top:6px}
+.tray .cap.bad{color:var(--crimson)}
+@keyframes drop{from{transform:translateY(-16px) scale(.6);opacity:0}}
+.slots{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.slot{min-width:92px;height:44px;border-radius:12px;border:3px dashed #c5cfd2;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.15rem;color:#aab5b8;padding:0 10px}
+.slot.on{border:3px solid var(--teal);background:var(--teal);color:#fff;animation:popin .4s}
+
+/* Frog */
+.river{background:linear-gradient(180deg,#e6f7f8,#d6f3f4);border-radius:22px;padding:16px;border:3px solid var(--teal-2)}
+.pads{display:grid;grid-template-columns:repeat(20,1fr);gap:5px}
+.pad{aspect-ratio:1;border-radius:50%;border:2px solid #b7dfe2;background:rgba(255,255,255,.8);font-weight:700;font-size:.82rem;display:grid;place-items:center;position:relative;padding:0;min-width:0}
+.pad:hover{border-color:var(--teal)}
+.pad.hit{background:var(--teal-3);border-color:var(--teal-deep);color:var(--ink)}
+.pad.hit::before{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid rgba(0,146,142,.35);clip-path:polygon(0 0,100% 0,100% 100%,55% 55%,0 100%)}
+.pad.frog{background:var(--orange)}
+.pad .fg{position:absolute;top:-24px;font-size:24px;animation:hop .4s}
+@keyframes hop{0%{transform:translateY(20px) scale(.6)}60%{transform:translateY(-10px)}100%{transform:none}}
+.pads + .pads{margin-top:30px}
+.hopbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.ring{width:130px;height:130px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:2.2rem}
+.hopbtn{width:130px;height:130px;border-radius:50%;border:0;background:var(--teal-3);font-size:3rem;box-shadow:0 6px 0 var(--teal-deep)}
+.hopbtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--teal-deep)}
+.bigcount{font-family:var(--display);font-size:2rem;font-weight:800}
+
+/* Rainbow */
+.rb{width:100%;max-width:720px;display:block;margin:6px auto}
+.rb text{font-family:"Baloo 2",system-ui,sans-serif;font-weight:800}
+.closed{background:linear-gradient(90deg,var(--teal),var(--teal-3));color:#fff;border-radius:14px;padding:10px 16px;font-family:var(--display);font-size:1.2rem;font-weight:700;margin-top:8px;animation:popin .5s}
+
+/* Grid 1-50 */
+.g50{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-width:560px}
+.g50 button{aspect-ratio:1.25;border-radius:10px;border:2px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:700;font-size:1.1rem;position:relative;padding:0}
+.g50 button.t10{background:var(--teal);color:#fff;border-color:var(--teal-deep)}
+.g50 button.f5{box-shadow:0 0 0 3px var(--orange) inset}
+.g50 button.f2::after{content:"";position:absolute;right:5px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--burnt)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.88rem;margin-top:10px}
+.legend span{display:flex;gap:6px;align-items:center}
+.legend i{width:18px;height:18px;border-radius:5px;display:inline-block}
+.blocks{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;margin:10px 0}
+.rods{display:flex;gap:4px}
+.rods i{width:12px;height:80px;border-radius:3px;background:repeating-linear-gradient(0deg,var(--teal) 0 7px,var(--teal-3) 7px 8px)}
+.cubes{display:flex;gap:4px;flex-wrap:wrap;width:60px}
+.cubes i{width:12px;height:12px;border-radius:3px;background:var(--orange)}
+.bags{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.bag{width:74px;height:84px;border-radius:12px 12px 26px 26px;background:var(--orange);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:var(--ink);position:relative;font-size:1.3rem;box-shadow:0 4px 0 var(--burnt)}
+.bag::before{content:"";position:absolute;top:-8px;left:22px;right:22px;height:12px;border:4px solid var(--burnt);border-bottom:0;border-radius:10px 10px 0 0}
+.bag em{position:absolute;right:-14px;top:-12px;background:var(--crimson);color:#fff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:.9rem}
+.loose{display:flex;gap:4px}
+.loose i{width:22px;height:22px;border-radius:50%;background:var(--crimson)}
+
+.calc{background:#1f2b2d;border-radius:22px;padding:16px;width:260px;box-shadow:0 6px 0 #0d1415}
+.calc .disp{background:#dff7f6;border-radius:12px;height:62px;font-family:"Courier New",monospace;font-weight:700;font-size:1.5rem;display:flex;align-items:center;justify-content:flex-end;padding:0 12px;overflow:hidden;color:#123}
+.calc .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.calc .keys span{height:34px;border-radius:8px;background:#35464a;color:#fff;display:grid;place-items:center;font-size:.9rem}
+.calc .keys span.hl{background:var(--orange);color:var(--ink)}
+.race{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.qbig{font-family:var(--display);font-size:2rem;font-weight:800}
+.score{font-family:var(--display);font-size:1.2rem;font-weight:700;color:var(--teal-deep)}
+.speed{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.flash{font-family:var(--display);font-size:4.5rem;font-weight:800;text-align:center;background:var(--teal-mist);border-radius:22px;padding:10px;border:4px solid var(--teal-2)}
+.det{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.det button{width:90px;height:76px;border-radius:18px;border:3px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:800;font-size:1.6rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.det button small{font-family:var(--body);font-size:.66rem;font-weight:600;color:var(--ink-2);margin-top:4px}
+.det button.sel{background:var(--orange);border-color:var(--burnt);animation:beep .3s}
+@keyframes beep{50%{transform:scale(1.08)}}
+.bar{height:14px;border-radius:9px;background:#eef2f3;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--orange));width:100%;transition:width 1s linear}
+
+/* Real world */
+.missions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.mcard{border:3px solid var(--line);border-radius:22px;background:var(--paper);padding:14px;text-align:left;position:relative}
+.mcard .art{font-size:2.6rem;height:64px;display:flex;align-items:center;gap:4px}
+.mcard h4{font-size:1.25rem}
+.mcard p{margin:4px 0 0;font-size:.88rem;color:var(--ink-2)}
+.mcard.on{border-color:var(--teal);box-shadow:0 5px 0 var(--teal-2)}
+.mcard.ok::after{content:"✓ Done";position:absolute;top:10px;right:10px;background:var(--teal);color:#fff;border-radius:999px;padding:2px 10px;font-weight:700;font-size:.8rem}
+.tl{display:grid;grid-template-columns:70px repeat(25,1fr);gap:3px;align-items:center;margin:6px 0}
+.tl button{height:34px;border-radius:7px;border:2px solid var(--line);background:var(--paper);font-size:.72rem;font-weight:700;padding:0;min-width:0}
+.tl button.blue{background:var(--teal);color:#fff;border-color:var(--teal-deep)}
+.tl button.redb{background:var(--crimson);color:#fff;border-color:var(--crimson)}
+.tl .nm{font-weight:700;font-size:.85rem}
+.beds{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bed{border:3px solid var(--line);border-radius:14px;background:#fff8ec;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bed .gd{display:grid;gap:3px}
+.bed .gd i{width:9px;height:9px;border-radius:50%;background:var(--crimson)}
+.bed.right{border-color:var(--teal);background:var(--teal-soft)}
+.bed.wrong{border-color:var(--orange)}
+
+/* Vault */
+.vaultwrap{display:grid;grid-template-columns:1.05fr 1fr;gap:18px}
+.clue{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:2px dashed var(--line);font-weight:500}
+.clue input{width:22px;height:22px;accent-color:var(--teal)}
+.clue.ticked span{text-decoration:line-through;color:var(--ink-2)}
+.vault{position:relative;perspective:900px;width:100%;max-width:340px;margin:0 auto}
+.vault .treasure{position:absolute;inset:8% 8%;border-radius:50%;background:radial-gradient(circle,var(--orange-soft),var(--orange));display:grid;place-items:center;font-size:4rem}
+.vault .door{position:relative;transform-origin:left center;transition:transform 1.6s cubic-bezier(.5,-.2,.3,1.3)}
+.vault.open .door{transform:rotateY(-105deg)}
+.vault svg{width:100%;display:block}
+.dial{transform-origin:170px 170px;transition:transform 1.2s}
+.vault.c1 .dial{transform:rotate(540deg)}
+.keypad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin-top:12px}
+.keypad button{height:52px;border-radius:14px;border:0;background:var(--teal-soft);font-family:var(--display);font-size:1.5rem;font-weight:800;box-shadow:0 3px 0 var(--teal-2)}
+.keypad button.en{background:var(--teal);color:#fff;box-shadow:0 3px 0 var(--teal-deep)}
+.codebox{display:flex;gap:8px;justify-content:center}
+.codebox span{width:64px;height:76px;border-radius:14px;border:4px solid var(--ink);background:#fff;font-family:var(--display);font-size:2.8rem;font-weight:800;display:grid;place-items:center}
+.lettiles{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.lettiles button{width:56px;height:62px;border-radius:12px;border:0;background:var(--orange);font-family:var(--display);font-size:2rem;font-weight:800;box-shadow:0 4px 0 var(--burnt)}
+.lettiles button.gift{background:var(--paper);box-shadow:0 0 0 3px var(--orange) inset}
+.lettiles button.used{opacity:.25;pointer-events:none}
+.pwslots{display:flex;gap:8px;justify-content:center}
+.pwslots button{width:56px;height:62px;border-radius:12px;border:3px dashed var(--burnt);background:var(--orange-soft);font-family:var(--display);font-size:2rem;font-weight:800;padding:0}
+
+/* Debrief */
+.stars{display:flex;gap:6px}
+.stars button{font-size:2.1rem;border:0;background:none;filter:grayscale(1);opacity:.4;padding:0 2px;transition:transform .15s}
+.stars button.on{filter:none;opacity:1;transform:scale(1.1)}
+.riddle{background:var(--orange-soft);border:3px solid var(--orange);border-radius:18px;padding:14px 18px;font-weight:500}
+.riddle ol{margin:6px 0 0;padding-left:22px}
+.avatars{display:flex;gap:8px;flex-wrap:wrap}
+.avatars button{width:56px;height:56px;border-radius:50%;border:3px solid var(--line);background:var(--paper);font-size:1.8rem}
+.avatars button.sel{border-color:var(--teal);background:var(--teal-soft);transform:scale(1.08)}
+.idcard{border-radius:20px;background:linear-gradient(135deg,var(--teal),var(--teal-3));padding:16px;color:#fff;display:flex;gap:16px;align-items:center;box-shadow:0 6px 0 var(--teal-deep)}
+.idcard .ph{width:86px;height:86px;border-radius:18px;background:#fff;display:grid;place-items:center;font-size:3rem;flex:none}
+.idcard .nm{font-family:var(--display);font-size:1.7rem;font-weight:800;line-height:1}
+.idcard .lbl{font-size:.75rem;opacity:.9}
+.idcard .stamp{margin-left:auto;border:3px solid #fff;border-radius:10px;padding:4px 8px;transform:rotate(-8deg);font-family:var(--display);font-weight:800}
+
+/* Overlays */
+.ov{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(0,120,128,.28);padding:20px}
+.ov.show{display:flex}
+.modal{background:var(--paper);border-radius:30px;padding:26px 30px;max-width:520px;width:100%;text-align:center;box-shadow:0 12px 0 rgba(0,146,142,.25);animation:zoom .45s cubic-bezier(.3,1.5,.5,1)}
+@keyframes zoom{from{transform:scale(.6);opacity:0}}
+.modal h2{font-size:2.2rem;font-weight:800}
+.badgeart{width:170px;height:170px;margin:0 auto 6px;display:block;animation:spinin 1s cubic-bezier(.3,1.4,.5,1)}
+@keyframes spinin{from{transform:rotate(-200deg) scale(.2)}}
+.bigletter{width:84px;height:96px;margin:10px auto;border-radius:16px;background:var(--orange);font-family:var(--display);font-size:3.6rem;font-weight:800;display:grid;place-items:center;box-shadow:0 6px 0 var(--burnt);animation:flipin 1s .5s backwards}
+.chap{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:var(--paper)}
+.chap.show{display:flex;animation:fadeout 1.9s forwards}
+@keyframes fadeout{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0;visibility:hidden}}
+.chap .in2{text-align:center}
+.chap .n{font-family:var(--display);font-size:1.3rem;color:var(--teal-deep);font-weight:700}
+.chap .t{font-family:var(--display);font-size:clamp(2.6rem,7vw,5.2rem);font-weight:800;line-height:1}
+.chap .ic{font-size:5rem;animation:zoom .6s}
+
+/* Finale */
+.finale{position:fixed;inset:0;z-index:90;display:none;overflow:auto;background:radial-gradient(circle at 50% 0%,var(--orange-soft),var(--paper) 60%);padding:24px}
+.finale.show{display:block}
+.fin{max-width:1000px;margin:0 auto;text-align:center}
+.fin h2{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:800;line-height:1}
+.fin .lead{font-size:1.2rem;margin:8px 0 18px}
+.trophy{width:170px;animation:spinin 1.2s cubic-bezier(.3,1.4,.5,1)}
+.cert{border:6px double var(--teal);border-radius:24px;padding:22px;margin:18px auto;background:#fff;max-width:760px;position:relative}
+.cert::before{content:"";position:absolute;inset:8px;border:2px dashed var(--orange);border-radius:18px;pointer-events:none}
+.cert .aw{font-family:var(--display);color:var(--burnt);font-size:1.2rem;font-weight:700}
+.cert .who{font-family:var(--display);font-size:clamp(2rem,5vw,3.2rem);font-weight:800;color:var(--teal-deep);line-height:1.1}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:18px 0}
+.award{border-radius:20px;padding:12px;background:var(--teal-soft);animation:zoom .5s backwards}
+.award .e{font-size:2.4rem}
+.award b{font-family:var(--display);display:block;font-size:1.1rem}
+.award small{font-size:.78rem;color:var(--ink-2)}
+.award.gold{background:var(--orange-soft);box-shadow:0 0 0 3px var(--orange) inset}
+.cast{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.cast svg{width:92px;height:108px;animation:bob 1.2s ease-in-out infinite}
+.cast div:nth-child(2) svg{animation-delay:.2s}.cast div:nth-child(3) svg{animation-delay:.4s}.cast div:nth-child(4) svg{animation-delay:.6s}.cast div:nth-child(5) svg{animation-delay:.8s}
+.cast small{display:block;font-weight:600;font-size:.78rem}
+.msg{background:var(--teal-soft);border-radius:22px;padding:18px 22px;text-align:left;display:flex;gap:16px;align-items:center;max-width:760px;margin:0 auto 18px}
+.msg svg{width:90px;flex:none}
+.msg p{margin:0;font-size:1.08rem}
+.stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.stats div{background:#fff;border:3px solid var(--line);border-radius:16px;padding:8px 16px}
+.stats b{font-family:var(--display);font-size:1.6rem;display:block;color:var(--teal-deep)}
+
+/* Whiteboard */
+#wb{position:absolute;left:0;top:0;z-index:20;display:none;touch-action:none;cursor:crosshair}
+#wb.show{display:block}
+#wb.board{background-color:#fff;background-image:linear-gradient(#eaf5f6 1px,transparent 1px),linear-gradient(90deg,#eaf5f6 1px,transparent 1px);background-size:32px 32px}
+#wb.pass{pointer-events:none}
+.wbbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:22;display:none;gap:6px;align-items:center;background:var(--paper);border-radius:18px;padding:8px 10px;box-shadow:0 4px 0 var(--teal-2),0 0 0 2px var(--teal-soft);flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px)}
+.wbbar.show{display:flex}
+.wbbar button{border:2px solid var(--line);background:var(--paper);border-radius:10px;height:38px;min-width:38px;padding:0 8px;font-weight:600;font-size:.85rem}
+.wbbar button.on{border-color:var(--teal);background:var(--teal-soft)}
+.wbbar .sw{width:28px;height:28px;min-width:28px;border-radius:50%;padding:0;border:3px solid #fff;box-shadow:0 0 0 2px var(--line)}
+.wbbar .sw.on{box-shadow:0 0 0 3px var(--ink)}
+.wbbar .sep{width:2px;height:28px;background:var(--line)}
+.wbtext{position:absolute;z-index:23;border:2px dashed var(--teal);background:rgba(255,255,255,.9);font-family:var(--display);font-weight:700;font-size:26px;padding:2px 6px;min-width:120px;outline:none}
+
+/* Timer */
+.timer{position:fixed;right:18px;bottom:84px;z-index:60;background:var(--paper);border-radius:22px;padding:12px 14px;box-shadow:0 5px 0 var(--orange),0 0 0 3px var(--orange-soft);display:none;width:230px;text-align:center}
+.timer.show{display:block}
+.timer .t{font-family:var(--display);font-size:3rem;font-weight:800;line-height:1}
+.timer .t.end{color:var(--crimson);animation:shake .5s 3}
+.timer .row{justify-content:center;margin-top:6px}
+.timer .row button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:4px 9px;font-weight:600;font-size:.82rem}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:120}
+
+@media (max-width:1440px){ .tbtn span{display:none} .tbtn{padding:6px 10px} }
+@media (max-width:980px){
+  .main{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:2px solid var(--line);padding:8px}
+  .rail h2{display:none}
+  .path{display:flex;gap:4px;overflow-x:auto}
+  .path::before{display:none}
+  .stn .nm{display:none}
+  .grid2,.vaultwrap{grid-template-columns:1fr}
+  .missions{grid-template-columns:1fr}
+  .beds{grid-template-columns:1fr 1fr}
+  .scene{grid-template-columns:1fr}
+  .scene .who{display:flex;align-items:center;gap:8px;width:auto}
+  .scene .who svg{width:70px;height:82px;margin:0}
+  .bubble::before{display:none}
+  .pads{grid-template-columns:repeat(10,1fr)}
+  .stage{padding:16px 14px 60px}
+}
+@media (max-width:560px){ .brand h1{font-size:1.1rem} .letters .cap{display:none} .tbtn span{display:none} }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important} }
+@media print{
+  body *{visibility:hidden} .cert,.cert *{visibility:visible} .cert{position:absolute;left:0;top:0;width:100%}
+  body{overflow:visible}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="lock" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="17" width="28" height="21" rx="6" fill="#00A7B2"/><path d="M12 17v-4a8 8 0 0 1 16 0v4" fill="none" stroke="#FAA71C" stroke-width="4.5" stroke-linecap="round"/><circle cx="20" cy="26" r="3.5" fill="#fff"/><rect x="18.6" y="27" width="2.8" height="6" rx="1.4" fill="#fff"/></svg>
+      <div><h1>Factor &amp; Multiple Code Breaker</h1><small>MyMasteryLab trial mission</small></div>
+    </div>
+    <div class="agentchip" id="agentchip"><span class="av" id="chipAv">🦊</span><span id="chipName">New Agent</span></div>
+    <div class="letters" id="letters" aria-label="Secret letters collected"><span class="cap">Secret letters</span></div>
+    <div class="tools">
+      <button class="tbtn" id="bWB" title="Whiteboard"><b>✏️</b><span>Whiteboard</span></button>
+      <button class="tbtn" id="bTimer" title="Timer"><b>⏱️</b><span>Timer</span></button>
+      <button class="tbtn on" id="bSound" title="Sound"><b id="sIco">🔊</b><span>Sound</span></button>
+      <button class="tbtn mentor" id="bMentor" title="Mentor controls"><b>🎓</b><span>Mentor</span></button>
+      <button class="tbtn mentor-only flex" id="bReset" title="Reset mission"><b>↺</b><span>Reset</span></button>
+    </div>
+  </header>
+
+  <div class="main">
+    <nav class="rail" aria-label="Mission map">
+      <h2>Mission map</h2>
+      <ol class="path" id="path"></ol>
+    </nav>
+    <div class="stagewrap" id="stagewrap">
+      <main class="stage" id="stage"><div id="stageInner"></div><canvas id="wb"></canvas></main>
+      <div class="wbbar" id="wbbar">
+        <button data-tool="pen" class="on" title="Pen">✏️ Pen</button>
+        <button data-tool="hl" title="Highlighter">🖍️</button>
+        <button data-tool="text" title="Type text">Aa</button>
+        <button data-tool="eraser" title="Eraser">🧽</button>
+        <button data-tool="hand" title="Use the activity without drawing">✋ Click activity</button>
+        <span class="sep"></span>
+        <button class="sw on" data-c="#1a1a1a" style="background:#1a1a1a" title="Black"></button>
+        <button class="sw" data-c="#00A7B2" style="background:#00A7B2" title="Teal"></button>
+        <button class="sw" data-c="#FAA71C" style="background:#FAA71C" title="Orange"></button>
+        <button class="sw" data-c="#D77F28" style="background:#D77F28" title="Burnt orange"></button>
+        <button class="sw" data-c="#C92426" style="background:#C92426" title="Crimson"></button>
+        <span class="sep"></span>
+        <button data-size="3" title="Thin">•</button>
+        <button data-size="6" class="on" title="Medium">●</button>
+        <button data-size="12" title="Thick">⬤</button>
+        <span class="sep"></span>
+        <button id="wbMode" title="Switch between drawing over the activity and a blank board">📋 Blank board</button>
+        <button id="wbUndo" title="Undo">↶</button>
+        <button id="wbClear" title="Clear page">🗑️</button>
+        <button id="wbClose" title="Close whiteboard">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button class="btn ghost small" id="bBack">◀ Back</button>
+    <div class="tasks" id="tasks"></div>
+    <button class="btn alt small mentor-only" id="bForce" title="Mentor override">Unlock anyway</button>
+    <button class="btn pulse" id="bNext" disabled>Unlock next mission 🔓</button>
+  </footer>
+</div>
+
+<div class="timer" id="timer">
+  <div class="row" style="justify-content:space-between;margin:0 0 4px"><b style="font-family:var(--display)">Mission timer</b><button id="tClose" aria-label="Close timer">✕</button></div>
+  <div class="t" id="tDisp">1:00</div>
+  <div class="row"><button data-s="30">30s</button><button data-s="60">1m</button><button data-s="120">2m</button><button data-s="300">5m</button></div>
+  <div class="row"><button id="tGo">▶ Start</button><button id="tReset">↺ Reset</button></div>
+</div>
+
+<div class="ov" id="badgeOv"><div class="modal" id="badgeModal"></div></div>
+<div class="chap" id="chap"><div class="in2" id="chapIn"></div></div>
+<div class="finale" id="finale"></div>
+<canvas id="fx"></canvas>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='mml-codebreaker-v2';
+function fresh(){return{v:2,phase:0,max:0,tasks:{},agent:'',snack:'',avatar:'🦊',conf0:0,conf1:0,letters:[],badges:[],sound:true,data:{},stats:{calcWins:0,speedBest:0}}}
+let S=null; try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||S.v!==2) S=fresh();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const nm=()=>esc(S.agent?('Agent '+S.agent):'Agent');
+const snack=()=>esc(S.snack||'favourite snack');
+
+/* ================= SOUND ================= */
+const SND=(()=>{let ctx=null;
+  function C(){ if(!ctx){const A=window.AudioContext||window.webkitAudioContext; if(!A) return null; ctx=new A();} if(ctx.state==='suspended') ctx.resume(); return ctx; }
+  function tone(f,t,d,type,v,slide){const c=C(); if(!c||!S.sound) return; const n=c.currentTime+t; const o=c.createOscillator(), g=c.createGain(); o.type=type||'triangle'; o.frequency.setValueAtTime(f,n); if(slide) o.frequency.exponentialRampToValueAtTime(slide,n+d); g.gain.setValueAtTime(.0001,n); g.gain.exponentialRampToValueAtTime(v||.15,n+.02); g.gain.exponentialRampToValueAtTime(.0001,n+d); o.connect(g).connect(c.destination); o.start(n); o.stop(n+d+.05);}
+  function noise(t,d,v,freq){const c=C(); if(!c||!S.sound) return; const len=Math.max(1,Math.floor(c.sampleRate*d)); const b=c.createBuffer(1,len,c.sampleRate); const a=b.getChannelData(0); for(let i=0;i<len;i++) a[i]=(Math.random()*2-1)*Math.pow(1-i/len,3); const s=c.createBufferSource(); s.buffer=b; const f=c.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq||1200; const g=c.createGain(); g.gain.value=v||.2; s.connect(f).connect(g).connect(c.destination); s.start(c.currentTime+t);}
+  return{
+    click(){tone(900,0,.05,'square',.035)},
+    ok(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,i*.07,.24,'triangle',.16))},
+    miss(){tone(262,0,.18,'sawtooth',.08,180);tone(196,.17,.32,'sawtooth',.08,110)},
+    info(){tone(660,0,.12,'sine',.12);tone(880,.1,.16,'sine',.1)},
+    hop(){tone(320,0,.14,'sine',.2,760)},
+    plop(){tone(500,0,.12,'sine',.2,1100);tone(880,.08,.1,'triangle',.08)},
+    tick(){tone(1400,0,.03,'square',.025)},
+    villain(){tone(196,0,.3,'sawtooth',.08,165);tone(147,.25,.5,'sawtooth',.08,98)},
+    badge(){[784,988,1175,1568,1976].forEach((f,i)=>tone(f,i*.09,.45,'triangle',.13));noise(.5,.5,.06,7000)},
+    unlock(){[392,523.25,659.25,783.99].forEach((f,i)=>tone(f,i*.11,.28,'square',.06));tone(1046.5,.48,.8,'triangle',.18);tone(783.99,.48,.8,'triangle',.1);tone(659.25,.48,.8,'triangle',.08)},
+    vault(){for(let i=0;i<6;i++) tone(120+i*20,i*.12,.12,'square',.05); tone(523,.8,.6,'triangle',.15); tone(784,.9,.8,'triangle',.15)},
+    grand(){
+      const mel=[[523.25,0,.18],[523.25,.2,.18],[523.25,.4,.18],[698.46,.6,.5],[880,1.1,.25],[783.99,1.35,.25],[880,1.6,.25],[1046.5,1.85,1.1]];
+      mel.forEach(([f,t,d])=>{tone(f,t,d,'square',.07);tone(f/2,t,d,'triangle',.08)});
+      [[261.63,329.63,392],[349.23,440,523.25],[392,493.88,587.33],[523.25,659.25,783.99]].forEach((ch,i)=>ch.forEach(f=>tone(f,i*.55,.6,'triangle',.05)));
+      [2.2,2.6,3.0,3.3,3.8,4.2].forEach((t,i)=>{tone(300,t-.25,.25,'sine',.05,1800);noise(t,.9,.35,800+i*300);noise(t+.1,.6,.12,5000)});
+    }
+  };
+})();
+
+/* ================= CONFETTI ================= */
+const FX=(()=>{const cv=$('#fx'), c=cv.getContext('2d'); let P=[], raf=0, rainUntil=0; const COLS=['#00A7B2','#FAA71C','#D77F28','#C92426','#21ded7','#ff5900','#32cdc8'];
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size(){const d=devicePixelRatio||1; cv.width=innerWidth*d; cv.height=innerHeight*d; c.setTransform(d,0,0,d,0,0);} size(); addEventListener('resize',size);
+  function add(x,y,vx,vy){P.push({x,y,vx,vy,r:4+Math.random()*6,col:COLS[Math.random()*COLS.length|0],rot:Math.random()*6,vr:(Math.random()-.5)*.3,life:1,sh:Math.random()<.5?0:(Math.random()<.5?1:2)})}
+  function burst(x,y,n){n=reduce?Math.min(n,15):n; for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2, s=3+Math.random()*7; add(x,y,Math.cos(a)*s,Math.sin(a)*s-4);} go();}
+  function rain(ms){rainUntil=performance.now()+ms; go();}
+  function go(){ if(!raf) raf=requestAnimationFrame(loop); }
+  function loop(t){ c.clearRect(0,0,innerWidth,innerHeight);
+    if(t<rainUntil && !reduce) for(let i=0;i<4;i++) add(Math.random()*innerWidth,-10,(Math.random()-.5)*2,2+Math.random()*3);
+    P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.16;p.vx*=.99;p.rot+=p.vr;if(p.y>innerHeight+20)p.life=0; c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.fillStyle=p.col;
+      if(p.sh===0) c.fillRect(-p.r/2,-p.r,p.r,p.r*2); else if(p.sh===1){c.beginPath();c.arc(0,0,p.r/2,0,7);c.fill()} else {c.beginPath();for(let k=0;k<5;k++){const a=k*1.2566-1.57;c.lineTo(Math.cos(a)*p.r*.8,Math.sin(a)*p.r*.8);const b=a+.628;c.lineTo(Math.cos(b)*p.r*.35,Math.sin(b)*p.r*.35)}c.fill()}
+      c.restore();});
+    P=P.filter(p=>p.life>0);
+    if(P.length||t<rainUntil) raf=requestAnimationFrame(loop); else {raf=0;c.clearRect(0,0,innerWidth,innerHeight);}
+  }
+  return{burst,rain,at(el,n){const r=el.getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/2,n||40);}};
+})();
+
+/* ================= CHARACTERS ================= */
+const CH={
+ max:{name:'Agent Max',svg:()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="36" ry="5" fill="#cfeef0"/><path d="M20 140Q20 92 60 92Q100 92 100 140Z" fill="#00A7B2"/><path d="M48 93L60 122L72 93Z" fill="#fff"/><path d="M57 97h6l-1 20-2 5-2-5Z" fill="#FAA71C"/><path d="M40 96L52 132M80 96L68 132" stroke="#00928e" stroke-width="3"/><circle cx="60" cy="58" r="30" fill="#FFDDB0"/><path d="M29 55Q30 22 60 22Q92 22 91 54Q84 36 62 38Q44 38 29 55Z" fill="#D77F28"/><rect x="37" y="51" width="19" height="11" rx="4" fill="#1a1a1a"/><rect x="64" y="51" width="19" height="11" rx="4" fill="#1a1a1a"/><rect x="55" y="54" width="10" height="3" fill="#1a1a1a"/><rect x="40" y="53" width="6" height="3" rx="1.5" fill="#fff" opacity=".6"/><path d="M49 74Q60 83 71 74" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="41" cy="69" r="4" fill="#FAA71C" opacity=".45"/><circle cx="79" cy="69" r="4" fill="#FAA71C" opacity=".45"/><rect x="82" y="104" width="12" height="16" rx="3" fill="#FAA71C"/><circle cx="88" cy="110" r="3" fill="#fff"/></svg>`},
+ scramble:{name:'Professor Scramble',villain:true,svg:()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="36" ry="5" fill="#f6d3d3"/><path d="M18 140Q18 90 60 90Q102 90 102 140Z" fill="#C92426"/><path d="M50 92L60 126L70 92Z" fill="#fff"/><path d="M56 100l4-4 4 4-4 4Z" fill="#FAA71C"/><path d="M26 44L18 20L36 34L38 10L50 30L60 6L70 30L82 10L84 34L102 20L94 44Z" fill="#ff5900"/><circle cx="60" cy="58" r="29" fill="#FFDDB0"/><path d="M40 46L54 50M80 46L66 50" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/><circle cx="48" cy="57" r="3.5" fill="#1a1a1a"/><circle cx="72" cy="57" r="3.5" fill="#1a1a1a"/><circle cx="72" cy="57" r="10" fill="none" stroke="#FAA71C" stroke-width="3"/><path d="M82 60Q92 74 86 92" stroke="#FAA71C" stroke-width="2" fill="none"/><path d="M40 70Q50 64 60 70Q70 64 80 70Q74 76 60 72Q46 76 40 70Z" fill="#1a1a1a"/><path d="M47 76Q60 88 73 76Z" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><path d="M54 77v5M60 78v6M66 77v5" stroke="#1a1a1a" stroke-width="1.5"/></svg>`},
+ freddie:{name:'Freddie the Frog',svg:()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="40" ry="5" fill="#cfeef0"/><ellipse cx="30" cy="128" rx="16" ry="8" fill="#00a9a5"/><ellipse cx="90" cy="128" rx="16" ry="8" fill="#00a9a5"/><ellipse cx="60" cy="98" rx="44" ry="34" fill="#21ded7"/><ellipse cx="60" cy="108" rx="27" ry="20" fill="#E6F7F8"/><circle cx="38" cy="60" r="19" fill="#21ded7"/><circle cx="82" cy="60" r="19" fill="#21ded7"/><circle cx="38" cy="60" r="12" fill="#fff"/><circle cx="82" cy="60" r="12" fill="#fff"/><circle cx="40" cy="62" r="6" fill="#1a1a1a"/><circle cx="84" cy="62" r="6" fill="#1a1a1a"/><circle cx="42" cy="59" r="2" fill="#fff"/><circle cx="86" cy="59" r="2" fill="#fff"/><path d="M34 88Q60 106 86 88" stroke="#00928e" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="28" cy="84" r="5" fill="#FAA71C" opacity=".7"/><circle cx="92" cy="84" r="5" fill="#FAA71C" opacity=".7"/><text x="60" y="118" text-anchor="middle" font-size="18" font-weight="800" fill="#00928e" font-family="Baloo 2,sans-serif">3</text></svg>`},
+ emma:{name:'Emma',svg:()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="34" ry="5" fill="#cfeef0"/><path d="M28 140L40 94H80L92 140Z" fill="#00A7B2"/><path d="M40 112H80" stroke="#fff" stroke-width="3" stroke-dasharray="4 5"/><circle cx="60" cy="60" r="28" fill="#FFDDB0"/><circle cx="26" cy="64" r="12" fill="#FAA71C"/><circle cx="94" cy="64" r="12" fill="#FAA71C"/><path d="M32 58Q34 28 60 28Q86 28 88 58Q80 42 60 42Q40 42 32 58Z" fill="#FAA71C"/><circle cx="26" cy="52" r="5" fill="#C92426"/><circle cx="94" cy="52" r="5" fill="#C92426"/><circle cx="50" cy="62" r="3.5" fill="#1a1a1a"/><circle cx="70" cy="62" r="3.5" fill="#1a1a1a"/><path d="M50 74Q60 82 70 74" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="44" cy="71" r="4" fill="#ff5900" opacity=".3"/><circle cx="76" cy="71" r="4" fill="#ff5900" opacity=".3"/><path d="M78 104h24l-3 16h-18Z" fill="#D77F28"/><path d="M76 104Q78 92 90 92Q102 92 104 104Z" fill="#fff" stroke="#FAA71C" stroke-width="2"/><circle cx="90" cy="89" r="4" fill="#C92426"/></svg>`},
+ lily:{name:'Lily',svg:()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="34" ry="5" fill="#cfeef0"/><path d="M30 140L42 94H78L90 140Z" fill="#FAA71C"/><circle cx="60" cy="60" r="28" fill="#FFDDB0"/><path d="M30 70Q26 30 60 28Q94 30 90 70L86 50Q76 40 60 42Q42 42 34 52Z" fill="#D77F28"/><circle cx="50" cy="62" r="3.5" fill="#1a1a1a"/><circle cx="70" cy="62" r="3.5" fill="#1a1a1a"/><path d="M52 74Q60 80 68 74" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M20 140V96" stroke="#00a9a5" stroke-width="4"/><path d="M12 96Q12 80 20 78Q28 80 28 96Q20 102 12 96Z" fill="#C92426"/><path d="M20 118Q10 110 12 104Q20 108 20 118Z" fill="#21ded7"/></svg>`},
+};
+const avatarSVG=()=>`<svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="134" rx="34" ry="5" fill="#cfeef0"/><circle cx="60" cy="70" r="52" fill="#E6F7F8" stroke="#00A7B2" stroke-width="5"/><text x="60" y="92" text-anchor="middle" font-size="58">${S.avatar}</text></svg>`;
+
+/* ================= PHASES ================= */
+const TASKLAB={id:'Agent ID',scan:'Entry scan',warm:'Warm-up',guess:'Cupcake guess',p12:'12 trays',p7:'Stubborn 7',p18:'18 bricks',egg:'Egg mystery',jumps:'Frog path',hop:'Frog Hop',forever:'Forever?',flip:'The flip',thumbs:'Thumbs quiz',r24:'Rainbow 24',why:'Why stop?',r36:'Rainbow 36',sab:'Sabotage',grid:'Tap 10s',pattern:'Spot the rule',calc:'Beat calc',speed:'Speed round',two:'2 field missions',code:'Number lock',pairs:'Bonus lock',pw:'Password',stump:'Stump mentor',exit:'Exit ticket',scan2:'Exit scan'};
+const PH=[
+ {key:'brief',title:'Mission Briefing',time:'0–5 min',icon:'🔐',tasks:['id','scan','warm','guess'],
+  lines:()=>[['max',`Welcome to Code Breaker HQ! I'm Agent Max, and I need a brilliant new partner.`],['scramble',`Mwahaha! I'm Professor Scramble. I've locked the Maths Museum vault — and scrambled the password too!`],['max',`The vault only opens for someone who understands the secret structure of numbers. Every mission earns you a badge and a secret letter.`],['max',`First, make your Agent ID. Then crack two warm-up mysteries.`]],
+  notes:['Build rapport; use the agent name all session.','Entry scan = before-number for the parent debrief.','Do NOT say “factor” or “multiple” yet — curiosity first.'],render:rBrief},
+ {key:'rect',title:'Rectangle Builder',time:'5–12 min',icon:'🧁',tasks:['p12','p7','p18','egg'],badge:{name:'Builder',icon:'🧱',letter:'N'},
+  lines:()=>[['emma',`Hi ${nm()}! I'm Emma. I baked 12 cupcakes and I want them in neat, equal rows on my tray. How many different trays can I make?`],['max',`Pick a number of rows and watch the tiles arrange. Equal rows only — no leftovers allowed!`],['scramble',`Hah! Try building a rectangle with 7. I bet you can't make a second one!`]],
+  notes:['Name it after 12: side numbers are FACTORS; each rectangle is a FACTOR PAIR.','WHY: a number has a hidden skeleton of equal groups.','7 = prime (“stubborn number”). Stretch: test 11 and 13 on the whiteboard.'],render:rRect},
+ {key:'frog',title:'Freddie’s Frog Jumps',time:'12–17 min',icon:'🐸',tasks:['jumps','hop','forever','flip','thumbs'],badge:{name:'Jumper',icon:'🐸',letter:'I'},
+  lines:()=>[['freddie',`Ribbit! I'm Freddie. I jump 3 steps every time, starting at 0. Tap every lily pad where I land!`],['max',`Freddie's landing spots are called multiples. Watch carefully — do they ever stop?`]],
+  notes:['Child taps to 18, then mentor can fill the rest.','Brain break: child stands and hops alone (seated option: clap).','Anchor: Factors Fit inside · Multiples March on.'],render:rFrog},
+ {key:'rainbow',title:'The Factor Rainbow',time:'17–23 min',icon:'🌈',tasks:['r24','why','r36','sab'],badge:{name:'Rainbow',icon:'🌈',letter:'A'},
+  lines:()=>[['max',`Code breakers don't guess — guessing means forgetting factors. We use the Factor Rainbow.`],['max',`Test numbers from 1 upwards. Every number that fits gets a partner on the other side. When they meet… the rainbow closes!`],['scramble',`My rainbow for 30 is PERFECT. Go on, check it… mwahaha!`]],
+  notes:['Model 24 on the whiteboard first if needed; child picks colours.','WHY stop: after 4×6 the pairs just turn around.','36 → 6×6 builds a perfect square: square number.'],render:rRainbow},
+ {key:'detect',title:'Clue Detectors',time:'23–31 min',icon:'🔎',tasks:['grid','pattern','calc','speed'],badge:{name:'Detector',icon:'🔎',letter:'R'},
+  lines:()=>[['scramble',`I talk FAST! Is 3,470 in the 10 times table? Too slow, too slow!`],['max',`You don't need to divide. Real code breakers look for clues — and know WHY the clues work.`]],
+  notes:['Heart of the lesson: split into tens + ones — tens always share into 2s, 5s and 10s.','Candy Bag (3 and 9) is a STRETCH task — use it only if the learner is ready.','Trap: 13 ends in 3 but is not a multiple of 3; 27 is.'],render:rDetect},
+ {key:'real',title:'Real-World Missions',time:'31–36 min',icon:'🌍',tasks:['two'],badge:{name:'Field Agent',icon:'🌍',letter:null},
+  lines:()=>[['lily',`Hi, I'm Lily! I have 30 tulip bulbs and a long, thin garden bed. Can you help?`],['max',`Field missions, ${nm()}. Choose any two — real life is full of equal groups.`]],
+  notes:['Let the child choose — ownership matters.','Mission A uses the child’s own snack.','Ask: where else have you seen equal groups this week?'],render:rReal},
+ {key:'vault',title:'Crack the Vault',time:'36–40 min',icon:'🏦',tasks:['code','pairs','pw'],badge:{name:'Vault Master',icon:'🏆',letter:'B'},
+  lines:()=>[['scramble',`You'll NEVER open my vault! Two locks: a number code and my scrambled password!`],['max',`Use every clue and say each one out loud. I'll just listen, ${nm()} — you've got this.`]],
+  notes:['Mentor only listens and celebrates.','Answer: 45 → factor pairs 1×45, 3×15, 5×9 (3 pairs) → BRAIN.','Stretch vault: 3 factors, odd, under 20 → 9.'],render:rVault},
+ {key:'debrief',title:'Stump the Mentor',time:'40–45 min',icon:'🎯',tasks:['stump','exit','scan2'],
+  lines:()=>[['max',`The vault is open! Now YOU are the Professor. Write a riddle to stump your mentor.`],['scramble',`Hmph. I suppose you're… rather clever. Just this once.`]],
+  notes:['Think aloud while solving; “struggle” a little.','If two answers fit: “Real code makers test their codes!”','Compare exit scan with entry scan.'],render:rDebrief},
+];
+
+/* ================= SHELL ================= */
+function renderTop(){
+  $('#chipAv').textContent=S.avatar; $('#chipName').textContent=S.agent?('Agent '+S.agent):'New Agent';
+  const L=$('#letters'); L.innerHTML='<span class="cap">Secret letters</span>'+range(0,4).map(i=>S.letters[i]?`<span class="lt on">${S.letters[i]}</span>`:`<span class="lt">?</span>`).join('');
+  $('#bSound').classList.toggle('on',S.sound); $('#sIco').textContent=S.sound?'🔊':'🔇';
+}
+function renderRail(){
+  $('#path').innerHTML=PH.map((p,i)=>{const cls=['stn']; if(i>S.max) cls.push('locked'); else cls.push('open'); if(isComplete(i)) cls.push('done'); if(i===S.phase) cls.push('cur');
+    return `<li><button class="${cls.join(' ')}" data-i="${i}" ${i>S.max?'aria-disabled="true"':''} title="${esc(p.title)}"><span class="dot">${p.icon}</span><span class="nm">${esc(p.title)}<span class="tm">${p.time}</span></span></button></li>`}).join('');
+  $$('#path .stn').forEach(b=>b.onclick=()=>{const i=+b.dataset.i; if(i<=S.max){SND.click();goTo(i,false);} else {SND.miss(); b.classList.add('shake'); setTimeout(()=>b.classList.remove('shake'),400);}});
+}
+function T(i){const k=PH[i].key; return S.tasks[k]||(S.tasks[k]={});}
+function isComplete(i){return PH[i].tasks.every(k=>T(i)[k]);}
+function renderFooter(){
+  const i=S.phase, P=PH[i], t=T(i);
+  $('#tasks').innerHTML=`<span class="lab">To unlock:</span>`+P.tasks.map(k=>`<span class="tk ${t[k]?'ok':''}"><i>${t[k]?'✓':''}</i>${TASKLAB[k]}</span>`).join('');
+  const nb=$('#bNext'), last=i===PH.length-1, comp=isComplete(i);
+  $('#bBack').disabled=i===0; $('#bBack').style.visibility=i===0?'hidden':'visible';
+  if(last){ nb.textContent='🎉 Grand celebration'; nb.disabled=!comp; $('#bForce').textContent='Celebrate anyway'; }
+  else { nb.textContent=(S.max>i?'Next mission: ':'Unlock: ')+PH[i+1].title+(S.max>i?' ▶':' 🔓'); nb.disabled=!(comp||S.max>i); $('#bForce').textContent='Unlock anyway'; }
+  $('#bForce').classList.toggle('hide',comp||S.max>i);
+}
+function done(k){ /* task keys are unique, so a delayed call still marks the right chapter */
+  let i=PH.findIndex(p=>p.tasks.includes(k)); if(i<0) i=S.phase; const t=T(i); if(t[k]) return; t[k]=true; save(); renderFooter(); renderRail();
+  if(isComplete(i)) setTimeout(()=>completePhase(i),700);}
+function addLetter(L){ if(L && !S.letters.includes(L)){ S.letters.push(L); save(); renderTop(); } }
+function completePhase(i){
+  const P=PH[i]; if(!isComplete(i)) return;
+  if(P.badge && !S.badges.includes(P.badge.name)){ S.badges.push(P.badge.name); addLetter(P.badge.letter); save(); if(S.phase===i) showBadge(P.badge); else SND.badge(); }
+  else if(i===PH.length-1){ SND.unlock(); FX.at($('#bNext'),50); }
+  renderFooter(); renderRail();
+}
+function showBadge(b){
+  const m=$('#badgeModal');
+  m.innerHTML=`<svg class="badgeart" viewBox="0 0 170 170" aria-hidden="true"><defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#21ded7"/><stop offset="1" stop-color="#00928e"/></linearGradient></defs>
+   <path d="M60 110L40 165L62 152L74 170L85 120Z" fill="#C92426"/><path d="M110 110L130 165L108 152L96 170L85 120Z" fill="#D77F28"/>
+   ${range(0,11).map(k=>{const a=k*Math.PI/6;return `<circle cx="${85+Math.cos(a)*64}" cy="${80+Math.sin(a)*64}" r="16" fill="#FAA71C"/>`}).join('')}
+   <circle cx="85" cy="80" r="64" fill="#FAA71C"/><circle cx="85" cy="80" r="54" fill="url(#bg)"/><circle cx="85" cy="80" r="46" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 6"/>
+   <text x="85" y="100" text-anchor="middle" font-size="52">${b.icon}</text></svg>
+   <h2>${esc(b.name)} Badge!</h2>
+   <p>Brilliant work, ${nm()}. ${b.letter?'Professor Scramble dropped a secret letter:':'Field Agent status unlocked — no letter here, but the vault is getting closer.'}</p>
+   ${b.letter?`<div class="bigletter">${b.letter}</div>`:''}
+   <button class="btn" id="badgeClose">Back to the mission</button>`;
+  $('#badgeOv').classList.add('show'); SND.badge(); setTimeout(()=>FX.burst(innerWidth/2,innerHeight/2-60,120),150);
+  $('#badgeClose').onclick=()=>{$('#badgeOv').classList.remove('show'); SND.click(); const nb=$('#bNext'); if(!nb.disabled) FX.at(nb,25);};
+  $('#badgeClose').focus();
+}
+function chapter(i){
+  const P=PH[i]; const c=$('#chap');
+  $('#chapIn').innerHTML=`<div class="ic">${P.icon}</div><div class="n">Chapter ${i+1} of ${PH.length}</div><div class="t">${esc(P.title)}</div>`;
+  c.classList.remove('show'); void c.offsetWidth; c.classList.add('show'); c.onclick=()=>c.classList.remove('show');
+  setTimeout(()=>c.classList.remove('show'),1950);
+}
+function goTo(i,fanfare){
+  S.phase=i; if(i>S.max) S.max=i; save();
+  if(fanfare){ SND.unlock(); chapter(i); }
+  renderAll(); $('#stage').scrollTop=0; WB.redraw();
+}
+function renderAll(){renderTop();renderRail();renderStage();renderFooter();}
+function renderStage(){
+  const P=PH[S.phase]; const st=$('#stageInner');
+  st.innerHTML=`<section class="scene" id="scene"></section>
+   <div class="notes mentor-only"><b>🎓 Mentor notes</b><ul>${P.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>
+   <div id="acts"></div>`;
+  renderScene(); P.render($('#acts'));
+}
+function renderScene(){
+  const P=PH[S.phase]; const lines=P.lines(); const D=S.data.dlg||(S.data.dlg={}); let k=Math.min(D[P.key]||0,lines.length-1);
+  const [who,txt]=lines[k]; const ch=CH[who];
+  $('#scene').innerHTML=`<div class="who">${ch.svg()}<b>${esc(ch.name)}</b></div>
+   <div><div class="chapter">Chapter ${S.phase+1} · ${P.time}</div><h2>${P.icon} ${esc(P.title)}</h2>
+   <div class="bubble ${ch.villain?'villain':''}" aria-live="polite"><span class="speaker-tag">${esc(ch.name)}</span>${txt}</div>
+   <div class="dlgnav"><button class="btn ghost small" id="dPrev" ${k===0?'disabled':''}>◀</button><div class="dots">${lines.map((_,j)=>`<span class="${j===k?'on':''}"></span>`).join('')}</div><button class="btn small ${k<lines.length-1?'alt':'ghost'}" id="dNext" ${k===lines.length-1?'disabled':''}>Next line ▶</button></div></div>`;
+  $('#dPrev').onclick=()=>{D[P.key]=Math.max(0,k-1);save();SND.click();renderScene();};
+  $('#dNext').onclick=()=>{D[P.key]=Math.min(lines.length-1,k+1);save();const nw=lines[D[P.key]][0]; CH[nw].villain?SND.villain():SND.click(); renderScene();};
+}
+/* feedback helper */
+function fb(el,type,msg){ if(!el) return; el.className='fb '+type; el.innerHTML=msg; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  if(type==='ok'){SND.ok(); FX.at(el,28);} else if(type==='no') SND.miss(); else SND.info(); }
+function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function markIn(inp,ok){inp.classList.remove('ok','no'); inp.classList.add(ok?'ok':'no'); if(!ok) shake(inp);}
+function dat(k,def){ return S.data[k]||(S.data[k]=def); }
+
+/* ================= PHASE 1: BRIEFING ================= */
+function rBrief(root){
+  const D=dat('brief',{warm:'',guess:'',egg:''});
+  const AV=['🦊','🦉','🐯','🐼','🚀','⚡','🦄','🐙'];
+  root.innerHTML=`
+  <div class="grid2">
+   <section class="card"><h3><span class="ico">🪪</span>Create your Agent ID</h3><p class="sub">Every code breaker needs a secret name.</p>
+    <label class="ask" for="aName">Agent name</label><input class="in wide" id="aName" maxlength="18" placeholder="e.g. Lightning" value="${esc(S.agent)}">
+    <label class="ask" for="aSnack" style="display:block;margin-top:10px">Favourite snack (agents need fuel!)</label><input class="in wide" id="aSnack" maxlength="22" placeholder="e.g. cookies" value="${esc(S.snack)}">
+    <p class="ask">Pick your agent icon</p><div class="avatars">${AV.map(a=>`<button data-a="${a}" class="${S.avatar===a?'sel':''}" aria-label="Icon ${a}">${a}</button>`).join('')}</div>
+    <div style="margin-top:14px" class="row"><button class="btn" id="aSave">Print my ID card</button></div>
+    <div class="fb" id="fbId"></div>
+   </section>
+   <section class="card o"><h3><span class="ico">📇</span>Your ID card</h3><div id="idc"></div>
+    <p class="ask" style="margin-top:16px">Entry scan: how confident do you feel about times tables and factors?</p>
+    <div class="stars" id="st0">${range(1,5).map(n=>`<button data-n="${n}" class="${S.conf0>=n?'on':''}" aria-label="${n} stars">⭐</button>`).join('')}</div>
+    <div class="fb" id="fbScan"></div>
+   </section>
+  </div>
+  <section class="card"><h3><span class="ico">🍬</span>Warm-up scan</h3>
+   <p class="ask">Share 12 sweets equally between 3 friends. How many sweets does each friend get?</p>
+   <div class="row" style="font-size:2rem">${'🍬'.repeat(12)}</div>
+   <div class="row" style="margin-top:8px">Each friend gets <input class="in" id="warm" inputmode="numeric" value="${esc(D.warm)}"> sweets <button class="btn small" id="warmGo">Check</button></div>
+   <div class="fb" id="fbWarm"></div>
+  </section>
+  <div class="grid2">
+   <section class="card o"><h3><span class="ico">🥚</span>Mystery 1: The Egg Box</h3>
+    <p>Eggs come in boxes of <b>6</b> or <b>12</b>. Why do you never see a box of <b>7</b> or <b>11</b>?</p>
+    <div class="row" style="font-size:1.7rem;gap:18px"><span>🥚🥚🥚<br>🥚🥚🥚</span><span>🥚🥚🥚🥚<br>🥚🥚🥚🥚<br>🥚🥚🥚🥚</span><span style="opacity:.5">❓7</span></div>
+    <p class="ask">Your guess (any idea is welcome!)</p><textarea class="in wide" id="eggG" rows="2" placeholder="I think…">${esc(D.egg)}</textarea>
+    <p class="sub" style="margin-top:8px">Hold that thought — you'll solve it in Chapter 2.</p>
+   </section>
+   <section class="card"><h3><span class="ico">🧁</span>Mystery 2: Emma's Cupcake Tray</h3>
+    <p>Emma baked <b>12 cupcakes</b>. She wants them in neat, equal rows. How many <b>different trays</b> can she make?</p>
+    <div style="font-size:1.6rem">${'🧁'.repeat(12)}</div>
+    <div class="row" style="margin-top:8px">My guess: <input class="in" id="guess" inputmode="numeric" value="${esc(D.guess)}"> trays <button class="btn small alt" id="guessGo">Lock in guess</button></div>
+    <div class="fb" id="fbGuess"></div>
+   </section>
+  </div>`;
+  const idc=()=>{$('#idc').innerHTML=`<div class="idcard"><div class="ph">${S.avatar}</div><div><div class="lbl">Junior Code Breaker</div><div class="nm">${S.agent?nm():'Agent ???'}</div><div class="lbl">Fuel: ${S.snack?snack():'—'} · Clearance: Level 1</div></div><div class="stamp">HQ ✓</div></div>`;};
+  idc();
+  $$('.avatars button',root).forEach(b=>b.onclick=()=>{S.avatar=b.dataset.a;save();SND.click();$$('.avatars button',root).forEach(x=>x.classList.toggle('sel',x===b));renderTop();idc();});
+  $('#aSave').onclick=()=>{const n=$('#aName').value.trim(), s=$('#aSnack').value.trim(); if(!n){markIn($('#aName'),false);return fb($('#fbId'),'no','Type an agent name first.');}
+    S.agent=n; S.snack=s; save(); renderTop(); idc(); FX.at($('#idc'),60); fb($('#fbId'),'ok',`Welcome to HQ, ${nm()}!`); done('id'); renderScene();};
+  $$('#st0 button').forEach(b=>b.onclick=()=>{S.conf0=+b.dataset.n;save();$$('#st0 button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=S.conf0));fb($('#fbScan'),'info',`Scan saved: ${S.conf0} of 5. Let's see how that changes by the end!`);done('scan');});
+  $('#warmGo').onclick=()=>{const v=$('#warm').value.trim(); D.warm=v; save(); if(+v===4){markIn($('#warm'),true);fb($('#fbWarm'),'ok','Yes! 3 groups of 4 make 12. Equal groups — remember that idea.');done('warm');} else {markIn($('#warm'),false);fb($('#fbWarm'),'no','Not quite — try dealing the sweets out one at a time to each friend.');}};
+  $('#eggG').oninput=e=>{D.egg=e.target.value;save();};
+  $('#guessGo').onclick=()=>{const v=$('#guess').value.trim(); if(!v||isNaN(+v)){markIn($('#guess'),false);return fb($('#fbGuess'),'no','Type a number for your guess.');} D.guess=v; save(); markIn($('#guess'),true); fb($('#fbGuess'),'info',`Guess locked: ${esc(v)} trays. We'll check it with real tiles next!`); done('guess');};
+  if(T(0).id) $('#fbId').innerHTML='';
+}
+
+/* ================= PHASE 2: RECTANGLE BUILDER ================= */
+function rRect(root){
+  const D=dat('rect',{found:{12:[],7:[],18:[]},egg:null}); if(!D.found) D.found={12:[],7:[],18:[]};
+  const NUM={
+    12:{e:'🧁',t:'Step 1 · Emma’s 12 cupcakes',sub:'How many equal rows can Emma make?',need:3},
+    7:{e:'🥚',t:'Step 2 · The stubborn 7',sub:'Professor Scramble bets you can’t make a second rectangle with 7 eggs!',need:1},
+    18:{e:'🧱',t:'Step 3 · 18 bricks — your turn!',sub:'Find every tray for 18 all by yourself.',need:3}};
+  const EGG=[['7 eggs only make one long, wobbly line — no neat box shape',1],['7 is an unlucky number',0],['Chickens can only count to 6',0]];
+  root.innerHTML=[12,7,18].map(n=>`<section class="card ${n===7?'c':''}" id="rc${n}">
+    <h3><span class="ico">${NUM[n].e}</span>${NUM[n].t}<span class="tag done" id="rt${n}" style="display:none">✓ Done</span></h3>
+    <p class="sub">${NUM[n].sub} Tap a number of rows — equal rows only, no leftovers!</p>
+    <div class="chips" id="rr${n}"></div>
+    <div class="tray" id="tr${n}"><span class="sub">Your tray appears here</span></div>
+    <div class="fb" id="fb${n}"></div>
+    <p class="ask">Factor pairs found for ${n}:</p><div class="slots" id="sl${n}"></div>
+    <div id="rv${n}"></div></section>`).join('')+`
+  <section class="card o" id="rcEgg"><h3><span class="ico">🥚</span>Step 4 · Solve the Egg Box Mystery</h3>
+   <p>12 eggs sit as 2 × 6 or 3 × 4. 6 eggs sit as 2 × 3. So why is there never a box of 7?</p>
+   <div id="eggOpts">${EGG.map((o,i)=>`<button class="opt ${D.egg&&o[1]?'right':''}" data-i="${i}">${o[0]}</button>`).join('')}</div><div class="fb" id="fbEgg"></div>
+  </section>`;
+  function draw(n){
+    $(`#rr${n}`).innerHTML=range(1,n).map(r=>`<button class="chip" data-r="${r}">${r}</button>`).join('');
+    $$(`#rr${n} .chip`).forEach(b=>b.onclick=()=>pick(n,+b.dataset.r));
+    const f=D.found[n]; $(`#sl${n}`).innerHTML=range(0,NUM[n].need-1).map(i=>f[i]?`<span class="slot on">${f[i]}</span>`:`<span class="slot">? × ?</span>`).join('');
+    $(`#rt${n}`).style.display=f.length>=NUM[n].need?'':'none';
+    reveal(n);
+  }
+  function reveal(n){
+    const R=$(`#rv${n}`); if(D.found[n].length<NUM[n].need){R.innerHTML='';return;}
+    if(n===12){ R.innerHTML=`<div class="why"><b class="h">💡 You found the factors of 12!</b>The numbers along the sides are called <b>factors</b>: ${[1,2,3,4,6,12].map(x=>`<span class="chip good" style="display:inline-grid;place-items:center;margin:2px">${x}</span>`).join('')}<br>Each rectangle is a <b>factor pair</b>. A factor fits into a number exactly — nothing left over. Every number has a hidden <b>skeleton of equal groups</b>.${S.data.brief&&S.data.brief.guess?`<br><br>Your guess was <b>${esc(S.data.brief.guess)}</b> trays. The real answer: <b>3 different trays</b> (1×12, 2×6, 3×4)!`:''}</div>`; }
+    if(n===7) R.innerHTML=`<div class="why" style="border-color:var(--crimson);background:#fdecec"><b class="h" style="color:var(--crimson)">😤 7 is a stubborn number!</b>It only makes one long line: 1 × 7. A number with only one rectangle is called a <b>prime number</b>.</div>`;
+    if(n===18) R.innerHTML=`<div class="why"><b class="h">💡 18’s skeleton</b>1 × 18, 2 × 9, 3 × 6 — so the factors of 18 are 1, 2, 3, 6, 9 and 18. You did that one all by yourself!</div>`;
+  }
+  function pick(n,r){
+    const tray=$(`#tr${n}`), c=Math.floor(n/r), left=n%r, e=NUM[n].e; let h='';
+    for(let i=0;i<r;i++) h+=`<div class="r">${range(1,c).map((_,j)=>`<span class="tile" style="animation-delay:${Math.min((i*c+j)*18,400)}ms">${e}</span>`).join('')}</div>`;
+    if(left) h+=`<div class="r">${range(1,left).map(()=>`<span class="tile left">${e}</span>`).join('')}</div><div class="cap bad">${r} rows of ${c} … and ${left} left over!</div>`;
+    else h+=`<div class="cap">${r} row${r>1?'s':''} of ${c} = ${n} ✓</div>`;
+    tray.innerHTML=h; $$(`#rr${n} .chip`).forEach(b=>b.classList.toggle('sel',+b.dataset.r===r));
+    const F=$(`#fb${n}`);
+    if(left) return fb(F,'no',`${r} doesn’t fit into ${n} exactly — ${left} would be left alone. Try another number!`);
+    const key=Math.min(r,c)+' × '+Math.max(r,c), f=D.found[n];
+    if(f.includes(key)) return fb(F,'info',`Same tray, just turned around! ${r} × ${c} is the same pair as ${c} × ${r}.`);
+    f.push(key); f.sort((a,b)=>parseInt(a)-parseInt(b)); save(); draw(n);
+    const need=NUM[n].need;
+    if(f.length>=need){
+      fb(F,'ok',n===7?'Only one rectangle — 7 really is stubborn!':`All ${need} trays found for ${n}! Brilliant building.`);
+      done('p'+n);
+      const nxt={12:'#rc7',7:'#rc18',18:'#rcEgg'}[n]; setTimeout(()=>{const el=$(nxt); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});},1400);
+    } else fb(F,'ok',`New factor pair: ${key}! ${need-f.length} more to find.`);
+  }
+  $$('#eggOpts .opt').forEach(b=>b.onclick=()=>{const ok=EGG[+b.dataset.i][1]; $$('#eggOpts .opt').forEach(x=>x.classList.remove('right','wrong')); b.classList.add(ok?'right':'wrong');
+    if(ok){D.egg=1;save();fb($('#fbEgg'),'ok','Mystery solved! Numbers with lots of factors pack into neat, strong boxes. 7 can only make one wobbly line.');done('egg');}
+    else fb($('#fbEgg'),'no','Funny idea! Think about the shape 7 eggs would have to make.');});
+  [12,7,18].forEach(draw);
+}
+
+/* ================= PHASE 3: FROG ================= */
+function rFrog(root){
+  const D=dat('frog',{hit:[],cur:0,hops:0,forever:null,flip:{}});
+  const targets=range(1,13).map(x=>x*3);
+  root.innerHTML=`
+  <section class="card"><h3><span class="ico">🐸</span>Tap where Freddie lands</h3><p class="sub">Freddie starts at 0 and jumps 3 every time. Tap each landing spot in order.</p>
+   <div class="river"><div class="pads" id="pa"></div><div class="pads" id="pb"></div></div>
+   <div class="row" style="margin-top:10px"><span class="score" id="fCount"></span><button class="btn small alt" id="fFill" style="display:none">Mentor colours the rest</button></div>
+   <div class="fb" id="fbF"></div>
+   <div id="fName"></div>
+  </section>
+  <div class="grid2">
+   <section class="card o"><h3><span class="ico">🦘</span>Frog Hop brain break</h3><p class="sub">Stand up! Hop like Freddie and count in 3s out loud for 30 seconds. Tap the frog each hop.</p>
+    <div class="hopbox"><div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#eef2f3" stroke-width="12"/><circle id="hRing" cx="60" cy="60" r="52" fill="none" stroke="#FAA71C" stroke-width="12" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="0"/></svg><b id="hT">30</b></div>
+     <button class="hopbtn" id="hopB" aria-label="Count a hop">🐸</button>
+     <div><div class="bigcount" id="hC">0 hops</div><div class="sub" id="hM">= 0 in 3s</div></div></div>
+    <div class="row" style="margin-top:10px"><button class="btn small" id="hGo">▶ Start 30 seconds</button><button class="btn small ghost" id="hSkip">Skip break</button></div>
+    <div class="fb" id="fbH"></div>
+   </section>
+   <section class="card"><h3><span class="ico">♾️</span>Does Freddie ever stop?</h3><p>If the river went on forever, would Freddie ever run out of landing spots?</p>
+    <button class="opt" data-v="0">Yes — he stops at 36, like the times table</button><button class="opt" data-v="1">No — multiples go on forever!</button>
+    <div class="fb" id="fbEver"></div>
+   </section>
+  </div>
+  <section class="card"><h3><span class="ico">🔄</span>The Flip: same fact, two sides</h3><p class="sub">Choose the right word for each sentence, then answer the thumbs quiz below.</p>
+   <div class="tf"><span class="q">3 fits into 12 exactly → 3 is a <b id="fa">____</b> of 12</span><span class="row"><button class="chip" data-f="a" data-v="factor">factor</button><button class="chip" data-f="a" data-v="multiple">multiple</button></span></div>
+   <div class="tf"><span class="q">Freddie jumping in 3s lands on 12 → 12 is a <b id="fb2">____</b> of 3</span><span class="row"><button class="chip" data-f="b" data-v="factor">factor</button><button class="chip" data-f="b" data-v="multiple">multiple</button></span></div>
+   <div class="fb" id="fbFlip1"></div>
+   <div class="why"><b class="h">Memory anchor</b><b>Factors Fit inside</b> (rectangles) · <b>Multiples March on</b> (jumps that never stop).</div>
+   <p class="ask" style="margin-top:14px">Thumbs up or thumbs down?</p>
+   ${[['t1','5 is a multiple of 20.',false],['t2','24 is a multiple of 4.',true],['t3','8 is a factor of 4.',false]].map(([k,q])=>`<div class="tf"><span class="q">${q}</span><span class="row"><button class="thumb" data-k="${k}" data-v="1" aria-label="True">👍</button><button class="thumb" data-k="${k}" data-v="0" aria-label="False">👎</button></span></div>`).join('')}
+   <div class="fb" id="fbFlip"></div>
+  </section>`;
+  function pads(){
+    const mk=n=>`<button class="pad ${D.hit.includes(n)?'hit':''} ${D.cur===n?'frog':''}" data-n="${n}">${D.cur===n?'<span class="fg">🐸</span>':''}${n}</button>`;
+    $('#pa').innerHTML=range(0,19).map(mk).join(''); $('#pb').innerHTML=range(20,39).map(mk).join('');
+    $$('.pad',root).forEach(p=>p.onclick=()=>tap(+p.dataset.n,p));
+    $('#fCount').textContent=`${D.hit.length} of ${targets.length} landing spots`;
+    $('#fFill').style.display=(D.hit.length>=6&&D.hit.length<targets.length)?'':'none';
+    if(D.hit.length===targets.length) $('#fName').innerHTML=`<div class="why"><b class="h">💡 These are the multiples of 3</b>3, 6, 9, 12, 15 … 39 — every landing spot is a <b>multiple</b>. The list never ends; it just runs off the edge of our river!</div>`;
+  }
+  function tap(n,el){
+    if(n===0) return fb($('#fbF'),'info','Freddie starts here at 0. Where does his first jump land?');
+    if(D.hit.includes(n)) return;
+    if(n%3===0){ D.hit.push(n); D.cur=n; save(); SND.plop(); pads(); if(D.hit.length===targets.length){fb($('#fbF'),'ok','Every landing spot found! Ribbit-tastic!');done('jumps');} else {const e=$('#fbF'); e.className='fb ok'; e.textContent=`Plop! ${n} is a landing spot.`;} }
+    else { shake(el); fb($('#fbF'),'no',`Splash! Freddie jumps 3 at a time, so he skips ${n}. Count on 3 from his last spot.`); }
+  }
+  $('#fFill').onclick=()=>{D.hit=targets.slice(); D.cur=39; save(); pads(); fb($('#fbF'),'ok','Mentor filled the rest — all 13 landing spots!'); done('jumps');};
+  pads();
+  // hop break
+  let hTimer=null, left=30;
+  const ring=$('#hRing');
+  const upd=()=>{$('#hT').textContent=left; ring.setAttribute('stroke-dashoffset',String(327*(1-left/30))); $('#hC').textContent=`${D.hops} hops`; $('#hM').textContent=`= ${D.hops*3} in 3s`;};
+  upd();
+  $('#hopB').onclick=()=>{D.hops++; save(); SND.hop(); upd(); const b=$('#hopB'); b.style.transform='translateY(-12px)'; setTimeout(()=>b.style.transform='',120);};
+  $('#hGo').onclick=()=>{ if(hTimer) return; left=30; D.hops=0; upd(); hTimer=setInterval(()=>{left--; upd(); if(left<=3&&left>0) SND.tick(); if(left<=0){clearInterval(hTimer);hTimer=null; fb($('#fbH'),'ok',`Time! ${D.hops} hops = ${D.hops*3} counting in 3s. Could you keep going forever?`); done('hop');}},1000); };
+  $('#hSkip').onclick=()=>{ if(hTimer){clearInterval(hTimer);hTimer=null;} fb($('#fbH'),'info','Break skipped — back to the mission!'); done('hop'); };
+  PHASE_CLEANUP=()=>{ if(hTimer) clearInterval(hTimer); };
+  $$('.card .opt[data-v]',root).forEach(b=>b.onclick=()=>{ $$('.card .opt[data-v]',root).forEach(x=>x.classList.remove('right','wrong'));
+    if(b.dataset.v==='1'){b.classList.add('right');D.forever=1;save();fb($('#fbEver'),'ok','Exactly! Multiples march on forever. But 12 has only six factors — a list that ends.');done('forever');}
+    else {b.classList.add('wrong');fb($('#fbEver'),'no','The times table stops at 36, but Freddie doesn’t! Would 39, 42, 45… be landing spots too?');}});
+  if(D.forever) $$('.card .opt[data-v="1"]',root)[0].classList.add('right');
+  const ANS={a:'factor',b:'multiple',t1:'0',t2:'1',t3:'0'};
+  function checkFlip(){
+    if(!T(2).flip && ['a','b'].every(k=>D.flip[k]===ANS[k])){ fb($('#fbFlip1'),'ok','Flip master! 3 is a factor of 12, and 12 is a multiple of 3 — the same fact seen from two sides.'); done('flip'); }
+    if(!T(2).thumbs && ['t1','t2','t3'].every(k=>D.flip[k]===ANS[k])){ setTimeout(()=>{fb($('#fbFlip'),'ok','All three thumbs correct! Factors Fit inside, Multiples March on.'); done('thumbs');},700); } }
+  function paintFlip(){
+    ['a','b'].forEach(k=>{ const v=D.flip[k]; const lab=k==='a'?$('#fa'):$('#fb2'); lab.textContent=v||'____'; lab.style.color=v?(v===ANS[k]?'var(--teal-deep)':'var(--crimson)'):''; $$(`[data-f="${k}"]`,root).forEach(c=>c.classList.toggle('sel',c.dataset.v===v)); });
+    ['t1','t2','t3'].forEach(k=>$$(`[data-k="${k}"]`,root).forEach(t=>{t.classList.remove('right','wrong'); if(D.flip[k]===t.dataset.v) t.classList.add(t.dataset.v===ANS[k]?'right':'wrong');}));
+  }
+  $$('[data-f]',root).forEach(c=>c.onclick=()=>{const k=c.dataset.f; D.flip[k]=c.dataset.v; save(); paintFlip(); if(c.dataset.v===ANS[k]){ const e=$('#fbFlip1'); e.className='fb ok'; e.textContent=k==='a'?'Yes — 3 fits inside 12, so it is a factor.':'Yes — 12 is a landing spot, so it is a multiple.'; SND.ok(); } else fb($('#fbFlip1'),'no', k==='a'?'Does 3 fit inside 12, or does it march on past it?':'Freddie lands on 12 — landing spots are…?'); checkFlip();});
+  const EXPL={t1:'Flip it: 20 is a multiple of 5.',t2:'A jump-4 frog lands on 24.',t3:'8 is too big to fit inside 4.'};
+  $$('.thumb',root).forEach(t=>t.onclick=()=>{const k=t.dataset.k; D.flip[k]=t.dataset.v; save(); paintFlip(); if(t.dataset.v===ANS[k]){ const e=$('#fbFlip'); fb(e,'ok','Correct! '+EXPL[k]); } else fb($('#fbFlip'),'no','Hmm — '+EXPL[k].replace(/^Flip it: /,'Try flipping it. ')); checkFlip();});
+  paintFlip();
+}
+let PHASE_CLEANUP=null;
+
+/* ================= PHASE 4: RAINBOW ================= */
+const factors=n=>range(1,n).filter(d=>n%d===0);
+const RBC=['#00A7B2','#FAA71C','#D77F28','#C92426','#21ded7','#ff5900','#00928e','#32cdc8'];
+function rainbowSVG(all,found,opts={}){
+  const W=700,H=opts.h||230,pad=40,base=H-40; const xs=all.map((_,i)=>pad+i*(W-2*pad)/Math.max(1,all.length-1));
+  let arcs=''; const n=opts.n; const pairs=[];
+  all.forEach((a,i)=>{const b=n/a; if(a<=b && found.includes(a) && found.includes(b)) pairs.push([i,all.indexOf(b)]);});
+  (opts.pairs||pairs).forEach(([i,j],k)=>{ const x1=xs[i],x2=xs[j]; if(i===j){ arcs+=`<circle cx="${x1}" cy="${base}" r="30" fill="none" stroke="#FAA71C" stroke-width="7" stroke-dasharray="6 5"/>`; return;}
+    const r=(x2-x1)/2; arcs+=`<path d="M${x1} ${base-18} A ${r} ${Math.min(r,base-30)} 0 0 1 ${x2} ${base-18}" fill="none" stroke="${RBC[k%RBC.length]}" stroke-width="9" stroke-linecap="round" style="stroke-dasharray:1200;stroke-dashoffset:0;animation:drawarc 1s"/>`; });
+  const nodes=all.map((a,i)=>{ const f=found.includes(a); const miss=opts.missing&&opts.missing.includes(a);
+    return `<g><circle cx="${xs[i]}" cy="${base}" r="20" fill="${f?'#fff':(miss?'#fdecec':'#f4f7f8')}" stroke="${f?'#00A7B2':(miss?'#C92426':'#c5cfd2')}" stroke-width="3" ${f?'':'stroke-dasharray="4 4"'}/><text x="${xs[i]}" y="${base+7}" text-anchor="middle" font-size="19" fill="${f?'#1a1a1a':(miss?'#C92426':'#aab5b8')}">${f?a:'?'}</text></g>`;}).join('');
+  return `<svg class="rb" viewBox="0 0 ${W} ${H}" role="img" aria-label="Factor rainbow"><style>@keyframes drawarc{from{stroke-dashoffset:1200}}</style>${opts.extra||''}${arcs}${nodes}</svg>`;
+}
+function rRainbow(root){
+  const D=dat('rain',{tab:24,f:{24:[],36:[]},why:0,sab:''});
+  root.innerHTML=`
+  <section class="card"><h3><span class="ico">🌈</span>Build the Factor Rainbow</h3><p class="sub">Test numbers from 1 upwards. If a number fits, it gets a partner on the other side. Empty circles show how many factors are hiding.</p>
+   <div class="tabs" id="rbTabs"><button class="tab" data-t="24">🌈 24</button><button class="tab" data-t="36">🌈 36</button><button class="tab" data-t="30">😈 Scramble's 30</button></div>
+   <div id="rbBody"></div>
+  </section>
+  <section class="card o" id="whyCard"></section>`;
+  function body(){
+    $$('#rbTabs .tab').forEach(t=>{t.classList.toggle('on',+t.dataset.t===D.tab); const n=+t.dataset.t; t.classList.toggle('ok', n===30?!!T(3).sab:!!T(3)['r'+n]);});
+    const B=$('#rbBody');
+    if(D.tab===30) return sab(B);
+    const n=D.tab, all=factors(n), f=D.f[n]; const complete=f.length===all.length;
+    const nextTest=range(1,n).find(t=>!f.includes(t)&&t*t<=n);
+    B.innerHTML=`${rainbowSVG(all,f,{n})}
+     <div class="row" style="justify-content:center;margin-top:6px"><label class="ask" for="rbIn">Test a number:</label><input class="in" id="rbIn" inputmode="numeric" ${complete?'disabled':''}><button class="btn small" id="rbGo" ${complete?'disabled':''}>Test it</button><span class="mentor-only sub">Next to test: ${nextTest||'—'}</span></div>
+     <div class="fb" id="fbRb"></div>
+     <div id="rbMore"></div>`;
+    $('#rbGo').onclick=()=>test(n);
+    more();
+  }
+  function test(n){
+    const inp=$('#rbIn'), v=parseInt(inp.value,10), f=D.f[n];
+    if(!v||v<1){markIn(inp,false);return fb($('#fbRb'),'no','Type a whole number to test.');}
+    if(v>n){markIn(inp,false);return fb($('#fbRb'),'no',`${v} is bigger than ${n} — it can't fit inside!`);}
+    if(f.includes(v)){return fb($('#fbRb'),'info',`${v} is already on the rainbow! ${v*v>=n?'Notice: the numbers have met — the rainbow is closing.':''}`);}
+    if(n%v){markIn(inp,false);return fb($('#fbRb'),'no',`${v} doesn't fit into ${n} exactly — there'd be ${n%v} left over. No arc for ${v}.`);}
+    const p=n/v; f.push(v); if(!f.includes(p)) f.push(p); save(); inp.value=''; markIn(inp,true);
+    const all=factors(n);
+    if(f.length===all.length){ fb($('#fbRb'),'ok',`${v} × ${p}! The rainbow has closed — all ${all.length} factors of ${n} found!`); done('r'+n); if(n===24) setTimeout(()=>{whyCard(); const w=$('#whyCard'); if(w) w.scrollIntoView({behavior:'smooth',block:'center'});},900); }
+    else fb($('#fbRb'),'ok',`${v} × ${p} = ${n}. New arc!`);
+    const k=D.tab; D.tab=k; body(); setTimeout(()=>$('#rbIn')&&!$('#rbIn').disabled&&$('#rbIn').focus(),50);
+  }
+  function more(){
+    const n=D.tab, all=factors(n), f=D.f[n], M=$('#rbMore'); if(f.length<all.length){M.innerHTML='';return;}
+    if(n===24){
+      M.innerHTML=`<div class="closed">🌈 The rainbow has closed: 1 · 2 · 3 · 4 | 6 · 8 · 12 · 24</div><div class="row" style="margin-top:10px"><button class="btn small alt" id="go36">Next: build the rainbow for 36 ▶</button></div>`;
+      $('#go36').onclick=()=>{D.tab=36;save();SND.click();body();};
+      return;
+      const O=[['The next pairs are just the same rectangles turned around (6 × 4 is 4 × 6)',1],['6 is a lucky number',0],['Rainbows only have 4 colours',0]];
+      M.innerHTML=`<div class="closed">🌈 The rainbow has closed: 1 · 2 · 3 · 4 | 6 · 8 · 12 · 24</div>
+       <p class="ask" style="margin-top:12px">After 4 × 6, the next number to test is 6 — and it's already there! Why can we stop?</p>
+       ${O.map((o,i)=>`<button class="opt ${D.why&&o[1]?'right':''}" data-i="${i}">${o[0]}</button>`).join('')}<div class="fb" id="fbWhy"></div>
+       <div class="why"><b class="h">💡 Why the rainbow closes</b>The left numbers grow and the right numbers shrink, so they must meet in the middle. The long thin rectangles sit on the outside; the squarest one sits in the middle.</div>`;
+      $$('#rbMore .opt').forEach(b=>b.onclick=()=>{const ok=O[+b.dataset.i][1]; $$('#rbMore .opt').forEach(x=>x.classList.remove('right','wrong')); b.classList.add(ok?'right':'wrong'); if(ok){D.why=1;save();fb($('#fbWhy'),'ok','Exactly! Every pair after that is a repeat.');done('why');} else fb($('#fbWhy'),'no','Think back to Emma’s trays — was 4 rows of 3 a new tray?');});
+    } else {
+      M.innerHTML=`<div class="closed">🌈 36 closed — and 6 is paired with itself!</div><div class="why"><b class="h">💡 A square number</b>6 × 6 builds a perfect square, so 36 is called a <b>square number</b>. Its rainbow has a middle that stands alone. <span class="mentor-only">Stretch: try 48 on the whiteboard (1, 2, 3, 4, 6, 8, 12, 16, 24, 48).</span></div>`;
+    }
+  }
+  function whyCard(){
+    const W=$('#whyCard'); if(!W) return; const O=[['The next pairs are just the same rectangles turned around (6 × 4 is 4 × 6)',1],['6 is a lucky number',0],['Rainbows only have 4 colours',0]];
+    if(!T(3).r24){ W.innerHTML=`<h3><span class="ico">🤔</span>Why can we stop?</h3><p class="sub">🔒 Finish the rainbow for 24 above to open this question.</p>`; return; }
+    W.innerHTML=`<h3><span class="ico">🤔</span>Why can we stop?${T(3).why?'<span class="tag done">✓ Done</span>':''}</h3>
+      <p>For 24 we tested 1, 2, 3, 4… then the next number, 6, was already on the rainbow. Why can we stop testing there?</p>
+      ${O.map((o,i)=>`<button class="opt ${D.why&&o[1]?'right':''}" data-i="${i}">${o[0]}</button>`).join('')}<div class="fb" id="fbWhy"></div>
+      <div class="why" ${D.why?'':'style="display:none"'} id="whyEx"><b class="h">💡 Why the rainbow closes</b>The left numbers grow and the right numbers shrink, so they must meet in the middle. After they meet, every pair is a repeat — just turned around. Long thin rectangles sit on the outside; the squarest one sits in the middle.</div>`;
+    $$('#whyCard .opt').forEach(b=>b.onclick=()=>{const ok=O[+b.dataset.i][1]; $$('#whyCard .opt').forEach(x=>x.classList.remove('right','wrong')); b.classList.add(ok?'right':'wrong');
+      if(ok){D.why=1;save();$('#whyEx').style.display='';fb($('#fbWhy'),'ok','Exactly! Every pair after that is a repeat.');done('why');} else fb($('#fbWhy'),'no','Think back to Emma’s trays — was 4 rows of 3 a new tray?');});
+  }
+  function sab(B){
+    const all=[1,2,3,5,6,10,15,30], shown=[1,2,3,5,6,15,30]; const solved=!!T(3).sab;
+    const fshown=solved?all:shown;
+    const pairs=solved?[[0,7],[1,6],[2,5],[3,4]]:[[0,7],[1,6],[3,4]];
+    B.innerHTML=`<div class="row" style="align-items:flex-start;gap:16px"><div style="width:90px;flex:none">${CH.scramble.svg()}</div>
+      <div class="bubble villain" style="flex:1"><span class="speaker-tag">Professor Scramble</span>Behold my rainbow for 30: <b>1, 2, 3, 5, 6, 15, 30</b>. Absolutely perfect. Mwahaha!</div></div>
+     ${rainbowSVG(all,fshown,{n:30,pairs,missing:solved?[]:[10]})}
+     <p class="ask">Check every arc. Which number is Scramble hiding?</p>
+     <div class="row">Missing factor: <input class="in" id="sabIn" inputmode="numeric" value="${esc(D.sab)}" ${solved?'disabled':''}> <button class="btn small" id="sabGo" ${solved?'disabled':''}>Catch him!</button></div>
+     <div class="fb" id="fbSab"></div>
+     <p class="sub mentor-only">Stretch sabotage after Chapter 5: “51 is prime because it isn't even and doesn't end in 5.” (5 + 1 = 6, so 51 = 3 × 17.)</p>`;
+    $('#sabGo').onclick=()=>{const v=+$('#sabIn').value; D.sab=$('#sabIn').value; save();
+      if(v===10){ SND.villain(); setTimeout(()=>{fb($('#fbSab'),'ok','Foiled! 3 had no partner — 3 × 10 = 30. Every number on the left needs a partner on the right.'); done('sab'); setTimeout(body,1200);},500); }
+      else { markIn($('#sabIn'),false); fb($('#fbSab'),'no','Look for a number on the left with no arc to a partner. What times 3 makes 30?'); }};
+  }
+  $$('#rbTabs .tab').forEach(t=>t.onclick=()=>{D.tab=+t.dataset.t;save();SND.click();body();});
+  body(); whyCard();
+}
+
+/* ================= PHASE 5: DETECTORS ================= */
+function rDetect(root){
+  const D=dat('det',{t10:[],reveal:0,pat:{a:'',b:'',c:''},candy:{a:'',b:'',c:'',d:''},calc:{i:0,ans:{}},use3:true,best:0});
+  root.innerHTML=`
+  <section class="card"><h3><span class="ico">🟦</span>Spot the pattern</h3><p class="sub">Tap every multiple of 10 on the grid. Then reveal the 5s and 2s.</p>
+   <div class="g50" id="g50"></div>
+   <div class="row" style="margin-top:10px"><button class="btn small alt" id="rev">Reveal 5s and 2s</button></div>
+   <div class="legend"><span><i style="background:var(--teal)"></i>Multiples of 10</span><span><i style="box-shadow:0 0 0 3px var(--orange) inset"></i>Multiples of 5</span><span><i style="background:var(--burnt);border-radius:50%;width:12px;height:12px"></i>Multiples of 2</span></div>
+   <div class="fb" id="fbG"></div>
+   <p class="ask" style="margin-top:14px">Look at the last digits. Fill in the clues:</p>
+   <div class="tf"><span class="q">Multiples of 10 end in…</span><input class="in" id="pa1" value="${esc(D.pat.a)}" placeholder="?"></div>
+   <div class="tf"><span class="q">Multiples of 5 end in… (two digits)</span><input class="in" style="width:130px" id="pa2" value="${esc(D.pat.b)}" placeholder="? or ?"></div>
+   <div class="tf"><span class="q">Multiples of 2 end in… (five digits)</span><input class="in" style="width:200px" id="pa3" value="${esc(D.pat.c)}" placeholder="?, ?, ?, ?, ?"></div>
+   <div class="row" style="margin-top:10px"><button class="btn small" id="paGo">Check my clues</button></div><div class="fb" id="fbP"></div>
+  </section>
+  <section class="card"><h3><span class="ico">💡</span>Why only the last digit matters</h3>
+   <p>Split any number into <b>tens</b> and <b>ones</b>. Here is 146 = 14 tens + 6 ones:</p>
+   <div class="blocks"><div class="rods">${'<i></i>'.repeat(14)}</div><b style="font-size:1.6rem">+</b><div class="cubes">${'<i></i>'.repeat(6)}</div></div>
+   <div class="why"><b class="h">The big idea</b>Every ten shares perfectly into 2s (five 2s) or 5s (two 5s) — and of course into 10s. So the tens part never causes a problem. Only the <b>ones digit</b> can leave something over. 146: the tens are safe, and 6 shares into 2s → 146 is a multiple of 2!</div>
+  </section>
+  <section class="card o"><h3><span class="ico">🍬</span>The Candy Bag trick for 3 <span class="tag">Stretch</span></h3>
+   <p>Candies come in bags of 10. Repack them into groups of 3: each bag makes three 3s — and <b>1 candy is left over</b>. Is <b>42</b> a multiple of 3?</p>
+   <div class="bags">${'<div class="bag">10<em>1</em></div>'.repeat(4)}<span style="font-size:1.4rem;font-weight:800">+</span><div class="loose"><i></i><i></i></div></div>
+   <div class="row" style="margin-top:12px">Leftovers from bags <input class="in" id="c1" value="${esc(D.candy.a)}"> + loose candies <input class="in" id="c2" value="${esc(D.candy.b)}"> = <input class="in" id="c3" value="${esc(D.candy.c)}"> <button class="btn small alt" id="cGo">Share into 3s?</button></div>
+   <div class="fb" id="fbC"></div>
+  </section>
+  <section class="card"><h3><span class="ico">🧮</span>Beat the Calculator</h3><p class="sub">The mentor's calculator types slowly. Use your detectors and answer before it hits “=”!</p>
+   <div class="race"><div class="calc"><div class="disp" id="cd">0</div><div class="keys">${['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','=','+'].map(k=>`<span data-k="${k}">${k}</span>`).join('')}</div></div>
+    <div style="flex:1;min-width:240px"><div class="sub" id="cq"></div><div class="qbig" id="cQ"></div>
+     <div class="row" style="margin-top:12px"><button class="btn" id="cStart">▶ Start race</button><button class="btn alt" id="cYes" disabled>Yes!</button><button class="btn alt" id="cNo" disabled>No!</button></div>
+     <div class="fb" id="fbCalc"></div><div class="row"><span class="score" id="cScore"></span><button class="btn small ghost" id="cNext" style="display:none">Next question ▶</button></div>
+    </div></div>
+  </section>
+  <section class="card o"><h3><span class="ico">⚡</span>Detector Speed Round</h3><p class="sub">60 seconds! For each number, switch on every detector that beeps, then lock it in. No beeps? Lock in with none switched on.</p>
+   <label class="row mentor-only flex" style="margin-bottom:8px"><input type="checkbox" id="use3" ${D.use3?'checked':''}> Include the 3-detector (turn off for the support path)</label>
+   <div class="speed"><div><div class="flash" id="sN">Ready?</div><div class="bar"><i id="sBar"></i></div></div>
+    <div style="text-align:center"><div class="score" id="sSc">Score: –</div><div class="sub" id="sBest"></div></div></div>
+   <div class="det" id="dets"></div>
+   <div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="sGo">▶ Start round</button><button class="btn alt" id="sLock" disabled>🔒 Lock in</button></div>
+   <div class="fb" id="fbS"></div>
+   <div class="why" style="border-color:var(--crimson);background:#fdecec"><b class="h" style="color:var(--crimson)">Trap alert!</b>13 ends in 3 — is it a multiple of 3? No! 1 + 3 = 4. But 27 ends in 7 and 2 + 7 = 9, so it is. The 3-detector checks the <b>digit sum</b>, not the last digit.</div>
+  </section>`;
+  // grid
+  function grid(){ $('#g50').innerHTML=range(1,50).map(n=>{const c=[]; if(D.t10.includes(n)) c.push('t10'); if(D.reveal){ if(n%5===0) c.push('f5'); if(n%2===0) c.push('f2'); } return `<button class="${c.join(' ')}" data-n="${n}">${n}</button>`;}).join('');
+    $$('#g50 button').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(D.t10.includes(n)) return; if(n%10===0){D.t10.push(n);save();SND.plop();grid(); if(D.t10.length===5){fb($('#fbG'),'ok','All five multiples of 10! Now reveal the 5s and 2s.');done('grid');}} else {shake(b); fb($('#fbG'),'no',`${n} isn't in the 10 times table — count on in 10s.`);}});
+  }
+  grid();
+  $('#rev').onclick=()=>{D.reveal=1;save();SND.info();grid();};
+  $('#paGo').onclick=()=>{const a=$('#pa1').value, b=$('#pa2').value, c=$('#pa3').value; D.pat={a,b,c}; save();
+    const dig=s=>new Set((s.match(/\d/g)||[]));
+    const ok1=[...dig(a)].join('')==='0'; const s2=dig(b), ok2=s2.size===2&&s2.has('0')&&s2.has('5'); const s3=dig(c), ok3=s3.size===5&&['0','2','4','6','8'].every(x=>s3.has(x));
+    markIn($('#pa1'),ok1); markIn($('#pa2'),ok2); markIn($('#pa3'),ok3);
+    if(ok1&&ok2&&ok3){fb($('#fbP'),'ok','You discovered the clues yourself! 10 → 0 · 5 → 0 or 5 · 2 → 0, 2, 4, 6, 8.');done('pattern');}
+    else fb($('#fbP'),'no', !D.reveal?'Reveal the 5s and 2s on the grid, then look at the last digits.':'Look again at the last digits of the coloured numbers.');};
+  $('#cGo').onclick=()=>{const a=+$('#c1').value,b=+$('#c2').value,c=+$('#c3').value; D.candy={a:$('#c1').value,b:$('#c2').value,c:$('#c3').value}; save();
+    markIn($('#c1'),a===4); markIn($('#c2'),b===2); markIn($('#c3'),c===6);
+    if(a===4&&b===2&&c===6) fb($('#fbC'),'ok','6 leftovers share into 3s — so 42 IS a multiple of 3! The leftovers are just the digits added together: 4 + 2. That’s the digit-sum clue.');
+    else fb($('#fbC'),'no','Each bag leaves 1 candy. How many bags are there? How many loose candies?');};
+  // calculator race
+  const Q=[{n:7020,d:10,a:true,cl:'Ends in 0'},{n:2345,d:5,a:true,cl:'Ends in 5'},{n:4561,d:2,a:false,cl:'Ends in 1 — odd'},{n:111,d:3,a:true,cl:'1 + 1 + 1 = 3',st:1}];
+  let typ=null, racing=false;
+  const fmt=n=>n.toLocaleString('en-US');
+  function cq(){ const q=Q[D.calc.i]; const right=Object.values(D.calc.ans).filter(x=>x.ok).length;
+    $('#cq').innerHTML=`Question ${D.calc.i+1} of ${Q.length}${q.st?' <span class="tag">Stretch</span>':''}`; $('#cQ').textContent=`Is ${fmt(q.n)} a multiple of ${q.d}?`;
+    $('#cScore').textContent=`Correct: ${right} · Calculator beaten: ${S.stats.calcWins}`; $('#cd').textContent='0'; }
+  cq();
+  function stopTyping(){ if(typ){clearInterval(typ);typ=null;} }
+  $('#cStart').onclick=()=>{ if(racing) return; const q=Q[D.calc.i]; const s=`${q.n}÷${q.d}=`; let k=0; racing=true; $('#cYes').disabled=$('#cNo').disabled=false; $('#cStart').disabled=true; $('#cd').textContent=''; $('#fbCalc').className='fb'; $('#fbCalc').textContent='';
+    typ=setInterval(()=>{ const ch=s[k]; $('#cd').textContent+=ch; $$('.calc .keys span').forEach(x=>x.classList.toggle('hl',x.dataset.k===ch)); SND.tick(); k++; if(k>=s.length){ stopTyping(); const r=q.n/q.d; $('#cd').textContent=Number.isInteger(r)?String(r):r.toFixed(1); } },650); };
+  function answer(v){ if(!racing) return; const q=Q[D.calc.i]; const beat=!!typ; stopTyping(); racing=false; $('#cYes').disabled=$('#cNo').disabled=true;
+    const r=q.n/q.d; $('#cd').textContent=Number.isInteger(r)?String(r):r.toFixed(1);
+    const ok=v===q.a; D.calc.ans[D.calc.i]={ok}; if(ok&&beat){S.stats.calcWins++;} save();
+    if(ok) fb($('#fbCalc'),'ok',(beat?'💨 You beat the calculator! ':'Correct! ')+`Clue: ${q.cl}.`); else fb($('#fbCalc'),'no',`Not this time — clue: ${q.cl}.`);
+    const right=Object.values(D.calc.ans).filter(x=>x.ok).length; if(right>=3) done('calc');
+    $('#cScore').textContent=`Correct: ${right} · Calculator beaten: ${S.stats.calcWins}`;
+    if(D.calc.i<Q.length-1) $('#cNext').style.display=''; else { $('#cNext').style.display=''; $('#cNext').textContent='Race again ↺'; } }
+  $('#cYes').onclick=()=>answer(true); $('#cNo').onclick=()=>answer(false);
+  $('#cNext').onclick=()=>{ if(D.calc.i<Q.length-1) D.calc.i++; else {D.calc.i=0;D.calc.ans={};} save(); $('#cNext').style.display='none'; $('#cNext').textContent='Next question ▶'; $('#cStart').disabled=false; cq(); };
+  // speed round
+  const NUMS=[85,120,76,45,312,250,63,1000,58,91];
+  let sT=null, sLeft=60, si=0, score=0, sel=new Set();
+  const dets=()=>D.use3?[2,5,10,3]:[2,5,10];
+  function drawDets(){ $('#dets').innerHTML=dets().map(d=>`<button data-d="${d}" class="${sel.has(d)?'sel':''}" ${sT?'':'disabled'}>${d}<small>detector</small></button>`).join('');
+    $$('#dets button').forEach(b=>b.onclick=()=>{const d=+b.dataset.d; sel.has(d)?sel.delete(d):sel.add(d); SND.tick(); drawDets();}); }
+  drawDets(); $('#sBest').textContent=D.best?`Best: ${D.best}/${NUMS.length}`:'';
+  if($('#use3')) $('#use3').onchange=e=>{D.use3=e.target.checked;save();drawDets();};
+  function endRound(){ clearInterval(sT); sT=null; $('#sLock').disabled=true; drawDets(); const beat=score>D.best; D.best=Math.max(D.best,score); S.stats.speedBest=Math.max(S.stats.speedBest,score); save();
+    $('#sN').textContent=`${score}/${NUMS.length}`; $('#sBest').textContent=`Best: ${D.best}/${NUMS.length}`; $('#sGo').disabled=false; $('#sGo').textContent='▶ Round 2 — beat your score';
+    fb($('#fbS'),'ok',beat?`New best: ${score}! Detectors fully charged.`:`Round over: ${score} correct. Can you beat ${D.best}?`); done('speed'); }
+  function showN(){ if(si>=NUMS.length) return endRound(); sel=new Set(); $('#sN').textContent=fmt(NUMS[si]); drawDets(); }
+  $('#sGo').onclick=()=>{ si=0; score=0; sLeft=60; $('#sGo').disabled=true; $('#sLock').disabled=false; $('#sSc').textContent='Score: 0'; $('#sBar').style.width='100%';
+    sT=setInterval(()=>{ sLeft--; $('#sBar').style.width=(sLeft/60*100)+'%'; if(sLeft<=5&&sLeft>0) SND.tick(); if(sLeft<=0) endRound(); },1000); showN(); };
+  $('#sLock').onclick=()=>{ if(!sT) return; const n=NUMS[si]; const want=dets().filter(d=>n%d===0); const ok=want.length===sel.size&&want.every(d=>sel.has(d));
+    if(ok){score++; SND.ok();} else SND.miss();
+    const e=$('#fbS'); e.className='fb '+(ok?'ok':'no'); e.textContent=`${fmt(n)}: ${want.length?want.join(', ')+' beep':'no detectors beep — sneaky!'}${ok?' ✓':''}`;
+    $('#sSc').textContent=`Score: ${score}`; si++; showN(); };
+  PHASE_CLEANUP=()=>{ stopTyping(); if(sT) clearInterval(sT); };
+}
+
+/* ================= PHASE 6: REAL WORLD ================= */
+function rReal(root){
+  const D=dat('real',{open:'a',a:[],aw:'',bb:[],br:[],bAns:'',c:null,c4:null,cl:'',ok:{}});
+  const M=[{k:'a',art:'🎉🎁',t:'Party Bags',p:`Share 24 packs of ${snack()} into equal party bags.`},{k:'b',art:'🚌🚍',t:'The Bus Stop',p:'When do the Blue and Red buses leave together?'},{k:'c',art:'🌷🌷',t:'Lily’s Tulips',p:'Plant 30 bulbs in a long, thin garden bed.'}];
+  root.innerHTML=`<div class="missions">${M.map(m=>`<button class="mcard ${D.open===m.k?'on':''} ${D.ok[m.k]?'ok':''}" data-k="${m.k}"><div class="art">${m.art}</div><h4>${m.t}</h4><p>${m.p}</p></button>`).join('')}</div>
+   <div class="fb info" id="fbTwo" style="margin-bottom:12px">Field missions complete: ${Object.keys(D.ok).length} of 2</div>
+   <div id="mBody"></div>`;
+  $$('.mcard',root).forEach(b=>b.onclick=()=>{D.open=b.dataset.k;save();SND.click();$$('.mcard',root).forEach(x=>x.classList.toggle('on',x===b));body();});
+  function finish(k,msg){ if(!D.ok[k]){D.ok[k]=1;save();} $$('.mcard',root).forEach(x=>x.classList.toggle('ok',!!D.ok[x.dataset.k])); const n=Object.keys(D.ok).length; $('#fbTwo').textContent=`Field missions complete: ${n} of 2${n>=2?' — mission accomplished!':''}`; if(n>=2) done('two'); }
+  function body(){ const B=$('#mBody');
+    if(D.open==='a'){
+      B.innerHTML=`<section class="card"><h3><span class="ico">🎉</span>Party bags with your ${snack()}</h3>
+       <p>You have <b>24 packs of ${snack()}</b>. Every bag gets the same number, and each bag gets at least 2. What are your options?</p>
+       <div class="row"><input class="in" id="ab" inputmode="numeric"> bags of <input class="in" id="ae" inputmode="numeric"> packs <button class="btn small" id="aGo">Add option</button></div><div class="fb" id="fbA"></div>
+       <p class="ask">Options found (find at least 3 — can you find all 6?)</p><div class="slots">${range(0,5).map(i=>D.a[i]?`<span class="slot on">${D.a[i]}</span>`:`<span class="slot">? bags of ?</span>`).join('')}</div>
+       <p class="ask" style="margin-top:12px">Which would you choose for your own party, and why?</p><textarea class="in wide" id="aw" rows="2">${esc(D.aw)}</textarea>
+       <p class="sub mentor-only">All six: 2×12, 3×8, 4×6, 6×4, 8×3, 12×2 — reward the reasoning in the choice.</p></section>`;
+      $('#aw').oninput=e=>{D.aw=e.target.value;save();};
+      $('#aGo').onclick=()=>{const b=+$('#ab').value, e=+$('#ae').value; const key=`${b} bags of ${e}`;
+        if(!b||!e){return fb($('#fbA'),'no','Fill in both boxes.');}
+        if(b*e!==24){markIn($('#ab'),false);markIn($('#ae'),false);return fb($('#fbA'),'no',`${b} bags of ${e} makes ${b*e}, not 24. Use your rainbow for 24!`);}
+        if(b<2||e<2) return fb($('#fbA'),'no','Each bag needs at least 2 packs, and we need at least 2 bags.');
+        if(D.a.includes(key)) return fb($('#fbA'),'info','You already have that one — try another pair.');
+        D.a.push(key); save(); fb($('#fbA'),'ok',`${key} = 24 ✓`); body(); if(D.a.length>=3) finish('a'); };
+    }
+    if(D.open==='b'){
+      const cell=(bus,m)=>{const on=(bus==='b'?D.bb:D.br).includes(m); return `<button data-bus="${bus}" data-m="${m}" class="${on?(bus==='b'?'blue':'redb'):''}">${m}</button>`;};
+      B.innerHTML=`<section class="card"><h3><span class="ico">🚌</span>The Bus Stop Puzzle</h3>
+       <p>The <b style="color:var(--teal-deep)">Blue bus</b> leaves every <b>4 minutes</b>. The <b style="color:var(--crimson)">Red bus</b> leaves every <b>6 minutes</b>. Both leave at 9:00. Tap the minutes each bus leaves after 9:00.</p>
+       <div style="overflow-x:auto"><div class="tl" style="min-width:720px"><span class="nm">🚌 Blue</span>${range(0,24).map(m=>cell('b',m)).join('')}</div><div class="tl" style="min-width:720px"><span class="nm">🚍 Red</span>${range(0,24).map(m=>cell('r',m)).join('')}</div></div>
+       <div class="fb" id="fbBt"></div>
+       <div class="row" style="margin-top:10px">They next leave together at 9:<input class="in" id="bAns" value="${esc(D.bAns)}"> <button class="btn small" id="bGo">Check</button></div><div class="fb" id="fbB"></div></section>`;
+      $$('.tl button',B).forEach(b=>b.onclick=()=>{const bus=b.dataset.bus, m=+b.dataset.m, step=bus==='b'?4:6, arr=bus==='b'?D.bb:D.br; if(arr.includes(m)) return;
+        if(m%step===0){arr.push(m);save();SND.plop();b.classList.add(bus==='b'?'blue':'redb');} else {shake(b);fb($('#fbBt'),'no',`The ${bus==='b'?'Blue':'Red'} bus leaves every ${step} minutes — ${m} isn't a multiple of ${step}.`);}});
+      $('#bGo').onclick=()=>{const v=$('#bAns').value.trim(); D.bAns=v; save(); if(+v===12){markIn($('#bAns'),true);fb($('#fbB'),'ok','9:12! 12 is on both lists — a common multiple of 4 and 6.');finish('b');} else {markIn($('#bAns'),false);fb($('#fbB'),'no','Find the first minute that is lit up on BOTH rows.');}};
+    }
+    if(D.open==='c'){
+      const A=[[2,15],[3,10],[5,6],[6,5]];
+      B.innerHTML=`<section class="card"><h3><span class="ico">🌷</span>Lily's Tulip Garden</h3>
+       <p>Lily has <b>30 bulbs</b> to plant in equal rows. Her garden bed is <b>long and thin</b>. Which arrangement fits best?</p>
+       <div class="beds">${A.map(([r,c],i)=>`<button class="bed ${D.c===i?(r<=3?'right':'wrong'):''}" data-i="${i}"><div class="gd" style="grid-template-columns:repeat(${c},9px)">${'<i></i>'.repeat(30)}</div><b>${r} rows of ${c}</b></button>`).join('')}</div>
+       <div class="fb" id="fbC1"></div>
+       <p class="ask" style="margin-top:12px">Could Lily put exactly 4 bulbs in every row?</p>
+       <div class="row"><button class="btn small ${D.c4==='y'?'':'ghost'}" id="c4y">Yes</button><button class="btn small ${D.c4==='n'?'':'ghost'}" id="c4n">No</button> How many would be left over? <input class="in" id="cl" value="${esc(D.cl)}"><button class="btn small alt" id="clGo">Check</button></div>
+       <div class="fb" id="fbC2"></div></section>`;
+      $$('.bed',B).forEach(b=>b.onclick=()=>{const i=+b.dataset.i; D.c=i; save(); const r=A[i][0]; $$('.bed',B).forEach(x=>x.classList.remove('right','wrong')); b.classList.add(r<=3?'right':'wrong');
+        if(r<=3){fb($('#fbC1'),'ok',`${r} rows of ${A[i][1]} — long and thin, perfect for Lily's bed!`); chk();} else fb($('#fbC1'),'no','That works for 30, but it’s too wide for a long, thin bed. Try a longer one!');});
+      $('#c4y').onclick=()=>{D.c4='y';save();fb($('#fbC2'),'no','Check with your rainbow for 30 — is 4 on it?');body();};
+      $('#c4n').onclick=()=>{D.c4='n';save();SND.ok();body();};
+      $('#clGo').onclick=()=>{D.cl=$('#cl').value;save(); if(+D.cl===2){markIn($('#cl'),true);fb($('#fbC2'),'ok','Right! 7 rows of 4 is 28, so 2 bulbs are left over. 4 is not a factor of 30.');chk();} else {markIn($('#cl'),false);fb($('#fbC2'),'no','Count in 4s towards 30: 4, 8, 12… how close do you get?');}};
+      function chk(){ if(D.c!=null&&A[D.c][0]<=3&&+D.cl===2&&D.c4==='n') finish('c'); }
+    }
+  }
+  body();
+}
+
+/* ================= PHASE 7: VAULT ================= */
+function rVault(root){
+  const D=dat('vault',{tick:[],cross:[],code:'',pairs:'',pw:[],st:''});
+  const t=T(6);
+  const clues=['I am a multiple of 5.','I am between 30 and 50.','I am odd.','The 3-detector beeps for me.'];
+  root.innerHTML=`<div class="vaultwrap">
+   <section class="card c"><h3><span class="ico">📜</span>Vault clue card</h3><p class="sub">The code is a 2-digit number. Tick each clue as you use it, and cross out numbers that don't fit.</p>
+    ${clues.map((c,i)=>`<label class="clue ${D.tick.includes(i)?'ticked':''}"><input type="checkbox" data-i="${i}" ${D.tick.includes(i)?'checked':''}><span>Clue ${i+1}: ${c}</span></label>`).join('')}
+    <p class="ask" style="margin-top:12px">Suspects (tap to cross out)</p><div class="chips" id="sus">${[25,30,35,40,45,50,55].map(n=>`<button class="chip ${D.cross.includes(n)?'x':''}" data-n="${n}">${n}</button>`).join('')}</div>
+    <div id="bonus" style="margin-top:16px"></div>
+    <div class="why" style="margin-top:16px"><b class="h">🌟 Stretch vault</b>“I have exactly 3 factors, I am odd, and I am less than 20.”<div class="row" style="margin-top:6px">Answer: <input class="in" id="stIn" value="${esc(D.st)}"><button class="btn small alt" id="stGo">Try it</button></div><div class="fb" id="fbSt"></div></div>
+   </section>
+   <section class="card"><h3><span class="ico">🏦</span>The vault</h3>
+    <div class="vault ${t.code?'c1':''} ${t.pw?'open':''}" id="vault"><div class="treasure">🏆</div><div class="door">
+     <svg viewBox="0 0 340 340" aria-hidden="true"><circle cx="170" cy="170" r="160" fill="#8a9699"/><circle cx="170" cy="170" r="150" fill="#b8c3c6"/><circle cx="170" cy="170" r="128" fill="#d7dee0" stroke="#8a9699" stroke-width="4"/>
+      ${range(0,11).map(k=>{const a=k*Math.PI/6;return `<circle cx="${170+Math.cos(a)*139}" cy="${170+Math.sin(a)*139}" r="6" fill="#6d787b"/>`}).join('')}
+      <g class="dial"><circle cx="170" cy="170" r="62" fill="#1f2b2d"/><circle cx="170" cy="170" r="50" fill="#35464a"/>${range(0,9).map(k=>{const a=k*Math.PI/5-Math.PI/2;return `<text x="${170+Math.cos(a)*38}" y="${176+Math.sin(a)*38}" fill="#fff" text-anchor="middle" font-size="14" font-family="Baloo 2">${k}</text>`}).join('')}<rect x="166" y="112" width="8" height="18" rx="3" fill="#FAA71C"/></g>
+      <rect x="236" y="150" width="60" height="40" rx="10" fill="#6d787b"/><circle cx="252" cy="170" r="8" fill="${t.code?'#21ded7':'#C92426'}"/><circle cx="280" cy="170" r="8" fill="${t.pw?'#21ded7':'#C92426'}"/></svg></div></div>
+    <p class="ask" style="text-align:center">🔢 Number lock</p>
+    <div class="codebox"><span id="d1">${esc(D.code[0]||'')}</span><span id="d2">${esc(D.code[1]||'')}</span></div>
+    <div class="keypad" id="kp">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button data-k="del">⌫</button><button data-k="0">0</button><button data-k="en" class="en">↵</button></div>
+    <div class="fb" id="fbCode"></div>
+    <p class="ask" style="text-align:center;margin-top:14px">🔤 Password lock — unscramble your secret letters</p>
+    <div class="pwslots" id="pws"></div><div class="lettiles" id="lts"></div>
+    <div class="row" style="justify-content:center"><button class="btn small ghost" id="pwClr">Clear</button></div>
+    <div class="fb" id="fbPw"></div>
+   </section></div>`;
+  $$('.clue input',root).forEach(c=>c.onchange=()=>{const i=+c.dataset.i; D.tick=c.checked?[...new Set([...D.tick,i])]:D.tick.filter(x=>x!==i); save(); c.parentElement.classList.toggle('ticked',c.checked); SND.tick();});
+  $$('#sus .chip').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; D.cross=D.cross.includes(n)?D.cross.filter(x=>x!==n):[...D.cross,n]; save(); b.classList.toggle('x'); SND.click();});
+  const paint=()=>{$('#d1').textContent=D.code[0]||''; $('#d2').textContent=D.code[1]||'';};
+  $$('#kp button').forEach(b=>b.onclick=()=>{ if(t.code) return; const k=b.dataset.k; SND.click();
+    if(k==='del') D.code=D.code.slice(0,-1); else if(k==='en'){ if(D.code==='45'){ SND.vault(); $('#vault').classList.add('c1'); addLetter('B'); fb($('#fbCode'),'ok','CLICK! Number lock open: 45. Scramble dropped the last letter — B! Now open the Bonus lock and the Password lock.'); done('code'); setTimeout(()=>{rVault(root); const bl=$('#bonus'); if(bl) bl.scrollIntoView({behavior:'smooth',block:'center'});},1500); } else { fb($('#fbCode'),'no','BZZT! Scramble laughs. Check each clue again — cross out the suspects that fail.'); SND.villain(); D.code=''; } }
+    else if(D.code.length<2) D.code+=k; save(); paint(); });
+  // bonus
+  const bonus=()=>{ const B=$('#bonus'); if(!t.code){B.innerHTML=`<div class="sub">🔒 Bonus lock opens after the number lock.</div>`;return;}
+    B.innerHTML=`<p class="ask">🔓 Bonus lock: how many factor pairs does 45 have? Use your rainbow.</p><div class="row"><input class="in" id="bp" value="${esc(D.pairs)}"><button class="btn small" id="bpGo">Check</button></div><div class="fb" id="fbBp"></div>`;
+    if(t.pairs){ $('#fbBp').className='fb ok'; $('#fbBp').textContent='3 pairs: 1 × 45, 3 × 15, 5 × 9 ✓'; }
+    $('#bpGo').onclick=()=>{D.pairs=$('#bp').value;save(); if(+D.pairs===3){markIn($('#bp'),true);fb($('#fbBp'),'ok','3 pairs: 1 × 45, 3 × 15, 5 × 9!');done('pairs');} else {markIn($('#bp'),false);fb($('#fbBp'),'no','Build the rainbow: test 1, 2, 3, 4, 5, 6… until it closes.');}}; };
+  bonus();
+  // password
+  const pool=['N','I','A','R','B'];
+  const gifts=pool.filter(l=>!S.letters.includes(l)&&l!=='B');
+  function pw(){ $('#pws').innerHTML=range(0,4).map(i=>`<button data-i="${i}">${D.pw[i]||''}</button>`).join('');
+    const used=D.pw.slice(); $('#lts').innerHTML=pool.map(l=>{const avail=l!=='B'||t.code; const u=used.includes(l); return avail?`<button data-l="${l}" class="${gifts.includes(l)?'gift':''} ${u?'used':''}" ${t.code?'':'disabled'}>${l}</button>`:`<button disabled style="opacity:.3">?</button>`;}).join('');
+    $$('#lts button[data-l]').forEach(b=>b.onclick=()=>{ if(t.pw||D.pw.length>=5) return; D.pw.push(b.dataset.l); save(); SND.click(); pw(); if(D.pw.length===5) check(); });
+    $$('#pws button').forEach(b=>b.onclick=()=>{ if(t.pw) return; const i=+b.dataset.i; if(D.pw[i]){D.pw.splice(i,1);save();pw();} });
+    if(!t.code){ $('#fbPw').className='fb info'; $('#fbPw').textContent='Open the number lock first to get the final letter.'; }
+    if(gifts.length&&t.code&&!t.pw){ $('#fbPw').className='fb info'; $('#fbPw').textContent='Outlined letters were given by your mentor for missions you skipped.'; } }
+  function check(){ if(D.pw.join('')==='BRAIN'){ SND.vault(); setTimeout(()=>{ $('#vault').classList.add('open'); SND.badge(); FX.rain(2500); fb($('#fbPw'),'ok','BRAIN! “The vault only opens for people who use their brain, not a rulebook.” 🎉'); done('pw'); },300); }
+    else { fb($('#fbPw'),'no',`${D.pw.join('')}? Scramble cackles. What do code breakers use to think?`); SND.villain(); setTimeout(()=>{D.pw=[];save();pw();},900); } }
+  $('#pwClr').onclick=()=>{ if(t.pw) return; D.pw=[]; save(); pw(); };
+  pw(); if(t.pw){ $('#fbPw').className='fb ok'; $('#fbPw').textContent='Vault open — BRAIN!'; }
+  if(t.code&&!t.pw) { $('#fbCode').className='fb ok'; $('#fbCode').textContent='Number lock open: 45 ✓'; }
+  $('#stGo').onclick=()=>{D.st=$('#stIn').value;save(); if(+D.st===9){markIn($('#stIn'),true);fb($('#fbSt'),'ok','9! Factors 1, 3, 9 — exactly three. Competition-level thinking!');} else {markIn($('#stIn'),false);fb($('#fbSt'),'no','Try square numbers: what builds a perfect square and is odd?');}};
+}
+
+/* ================= PHASE 8: DEBRIEF ================= */
+function rDebrief(root){
+  const D=dat('deb',{secret:'',clues:['','','',''],locked:0,guess:'',f:['','','','','',''],q2:'',q3:'',q3w:'',tb:[]});
+  root.innerHTML=`
+  <section class="card o"><h3><span class="ico">🎯</span>Stump the Mentor</h3><p class="sub">You're the Professor now! Pick a secret number under 50 and write clues using factors, multiples or detectors.</p>
+   <div class="grid2"><div>
+    <label class="ask">My secret number (hidden)</label><div class="row"><input class="in" type="password" id="sec" value="${esc(D.secret)}" ${D.locked?'disabled':''}><button class="btn small ghost" id="peek">👁️ Peek</button></div>
+    ${[0,1,2,3].map(i=>`<label class="ask" style="display:block;margin-top:8px">Clue ${i+1}${i===3?' (optional)':''}</label><input class="in wide" data-c="${i}" value="${esc(D.clues[i])}" placeholder="${['I am a multiple of…','I am less than…','I am even / odd…','The ?-detector beeps for me…'][i]}" ${D.locked?'disabled':''}>`).join('')}
+    <div class="row" style="margin-top:10px"><button class="btn" id="lockR">🔒 Lock my riddle</button></div>
+   </div><div>
+    <div class="riddle" id="rd"></div>
+    <label class="ask" style="display:block;margin-top:12px">Mentor's guess</label><div class="row"><input class="in" id="mg" value="${esc(D.guess)}"><button class="btn small alt" id="mgGo">Reveal!</button></div>
+    <div class="fb" id="fbSt"></div>
+   </div></div>
+  </section>
+  <section class="card"><h3><span class="ico">🗣️</span>Teach it back</h3><p class="sub">Explain to your mentor in your own words. The mentor ticks each one.</p>
+   ${['What is a factor? What is a multiple? How do you never mix them up?','Why does the last-digit trick work for 2, 5 and 10?','So — why do eggs come in 6s and 12s?'].map((q,i)=>`<label class="clue ${D.tb.includes(i)?'ticked':''}"><input type="checkbox" data-t="${i}" ${D.tb.includes(i)?'checked':''}><span>${q}</span></label>`).join('')}
+  </section>
+  <section class="card"><h3><span class="ico">🎟️</span>Exit ticket</h3>
+   <p class="ask">1. List all the factors of 20.</p><div class="row" id="f20">${D.f.map((v,i)=>`<input class="in" data-i="${i}" value="${esc(v)}" inputmode="numeric">`).join('')}</div>
+   <p class="ask" style="margin-top:14px">2. Which is a multiple of 3?</p><div class="row"><button class="chip" data-q2="51" style="width:80px">51</button><button class="chip" data-q2="52" style="width:80px">52</button></div>
+   <p class="ask" style="margin-top:14px">3. True or false: 6 is a multiple of 18. Explain.</p><div class="row"><button class="thumb" data-q3="t" aria-label="True">👍</button><button class="thumb" data-q3="f" aria-label="False">👎</button></div>
+   <input class="in wide" id="q3w" style="margin-top:8px" placeholder="Because…" value="${esc(D.q3w)}">
+   <div class="row" style="margin-top:12px"><button class="btn" id="exGo">Check my ticket</button></div><div class="fb" id="fbEx"></div>
+  </section>
+  <section class="card o"><h3><span class="ico">📡</span>Exit scan</h3><p>How confident do you feel about factors and multiples now?</p>
+   <div class="stars" id="st1">${range(1,5).map(n=>`<button data-n="${n}" class="${S.conf1>=n?'on':''}" aria-label="${n} stars">⭐</button>`).join('')}</div><div class="fb" id="fbS1"></div>
+  </section>`;
+  const rd=()=>{ const cl=D.clues.filter(c=>c.trim()); $('#rd').innerHTML=D.locked?`<b>🔐 ${nm()}'s riddle</b><ol>${cl.map(c=>`<li>${esc(c)}</li>`).join('')}</ol>`:`<span class="sub">Your riddle card appears here once it's locked.</span>`; };
+  rd();
+  $('#peek').onclick=()=>{const s=$('#sec'); s.type=s.type==='password'?'text':'password';};
+  $$('[data-c]',root).forEach(i=>i.oninput=()=>{D.clues[+i.dataset.c]=i.value;save();});
+  $('#sec').oninput=e=>{D.secret=e.target.value;save();};
+  $('#lockR').onclick=()=>{ const s=+D.secret; const n=D.clues.slice(0,3).filter(c=>c.trim()).length;
+    if(!s||s<1||s>=50){markIn($('#sec'),false);return fb($('#fbSt'),'no','Pick a secret whole number under 50.');}
+    if(n<3) return fb($('#fbSt'),'no','Write at least three clues.');
+    D.locked=1; save(); $$('[data-c]',root).forEach(i=>i.disabled=true); $('#sec').disabled=true; $('#sec').type='password'; rd(); fb($('#fbSt'),'info','Riddle locked! Mentor, think aloud while you solve it.'); };
+  $('#mgGo').onclick=()=>{ if(!D.locked) return fb($('#fbSt'),'no','Lock the riddle first.'); D.guess=$('#mg').value; save();
+    if(+D.guess===+D.secret) fb($('#fbSt'),'ok',`The mentor cracked it — it was ${esc(D.secret)}! Great clues lead to exactly one answer.`);
+    else { fb($('#fbSt'),'ok',`🎯 You stumped the mentor! The secret number was ${esc(D.secret)}. (Mentor: check together whether the clues allow only one answer.)`); }
+    done('stump'); };
+  $$('[data-t]',root).forEach(c=>c.onchange=()=>{const i=+c.dataset.t; D.tb=c.checked?[...new Set([...D.tb,i])]:D.tb.filter(x=>x!==i); save(); c.parentElement.classList.toggle('ticked',c.checked); if(c.checked){SND.ok();FX.at(c,20);}});
+  $$('#f20 input').forEach(i=>i.oninput=()=>{D.f[+i.dataset.i]=i.value;save();});
+  const paintQ=()=>{ $$('[data-q2]',root).forEach(b=>b.classList.toggle('sel',b.dataset.q2===D.q2)); $$('[data-q3]',root).forEach(b=>{b.classList.remove('right','wrong'); if(b.dataset.q3===D.q3) b.classList.add('right');}); };
+  $$('[data-q2]',root).forEach(b=>b.onclick=()=>{D.q2=b.dataset.q2;save();SND.click();paintQ();});
+  $$('[data-q3]',root).forEach(b=>b.onclick=()=>{D.q3=b.dataset.q3;save();SND.click();paintQ();});
+  paintQ();
+  $('#q3w').oninput=e=>{D.q3w=e.target.value;save();};
+  $('#exGo').onclick=()=>{ const want=[1,2,4,5,10,20]; const got=[...new Set(D.f.map(v=>parseInt(v,10)).filter(v=>!isNaN(v)))];
+    const q1=got.length===6&&want.every(w=>got.includes(w)); $$('#f20 input').forEach(i=>{const v=parseInt(i.value,10); markIn(i,want.includes(v)&&D.f.filter(x=>parseInt(x,10)===v).length===1);});
+    const q2=D.q2==='51', q3=D.q3==='f';
+    $$('[data-q2]',root).forEach(b=>{b.classList.remove('good'); if(b.dataset.q2===D.q2) b.classList.toggle('good',q2);});
+    $$('[data-q3]',root).forEach(b=>{b.classList.remove('right','wrong'); if(b.dataset.q3===D.q3) b.classList.add(q3?'right':'wrong');});
+    if(q1&&q2&&q3){ fb($('#fbEx'),'ok','Perfect ticket! 20 → 1, 2, 4, 5, 10, 20 · 51 (5 + 1 = 6) · False: 6 is a factor of 18, and 18 is a multiple of 6.'); done('exit'); }
+    else { const tips=[]; if(!q1) tips.push(`Q1: you have ${want.filter(w=>got.includes(w)).length} of 6 — build the rainbow for 20.`); if(!q2) tips.push('Q2: add the digits and use the 3-detector.'); if(!q3) tips.push('Q3: Factors Fit inside — which one fits inside the other?'); fb($('#fbEx'),'no',tips.join(' ')); } };
+  $$('#st1 button').forEach(b=>b.onclick=()=>{S.conf1=+b.dataset.n;save();$$('#st1 button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=S.conf1)); const jump=S.conf1-(S.conf0||0);
+    fb($('#fbS1'),'ok',`Exit scan: ${S.conf1} of 5 (you started at ${S.conf0||'–'}).${jump>0?` That's a jump of ${jump}!`:''}`); done('scan2');});
+}
+
+/* ================= FINALE ================= */
+function finale(){
+  const F=$('#finale'); const dt=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const AW=[['🧱','Builder','Found hidden factor pairs'],['🐸','Jumper','Mastered multiples'],['🌈','Rainbow','Never misses a factor'],['🔎','Detector','Knows WHY the clues work'],['🌍','Field Agent','Maths in real life'],['🏆','Vault Master','Cracked the vault']];
+  F.innerHTML=`<div class="fin">
+   <svg class="trophy" viewBox="0 0 200 200" aria-hidden="true"><path d="M60 30h80v40a40 40 0 0 1-80 0Z" fill="#FAA71C"/><path d="M60 40H34a24 24 0 0 0 30 38M140 40h26a24 24 0 0 1-30 38" fill="none" stroke="#D77F28" stroke-width="9"/><rect x="90" y="108" width="20" height="30" fill="#D77F28"/><rect x="62" y="136" width="76" height="16" rx="6" fill="#00A7B2"/><rect x="50" y="150" width="100" height="26" rx="8" fill="#00928e"/><path d="M100 44l6 13 14 2-10 10 2 14-12-7-12 7 2-14-10-10 14-2Z" fill="#fff"/></svg>
+   <h2>Mission complete, ${nm()}!</h2>
+   <p class="lead">The Maths Museum vault is open — and you cracked the secret structure of numbers.</p>
+   <div class="cast">${['max','emma','freddie','lily','scramble'].map(k=>`<div>${CH[k].svg()}<small>${CH[k].name}</small></div>`).join('')}</div>
+   <div class="cert"><div class="aw">MyMasteryLab · Certificate of Achievement</div><div style="font-size:3rem">${S.avatar}</div>
+    <div>This Master Code Breaker Award is presented to</div><div class="who">${nm()}</div>
+    <div>for discovering why numbers have hidden structures — factors, multiples and divisibility clues — and using them to crack the vault.</div>
+    <div class="awards">${AW.map(([e,n,s],i)=>{const got=S.badges.includes(n);return `<div class="award ${n==='Vault Master'?'gold':''}" style="animation-delay:${.3+i*.15}s;${got?'':'opacity:.45'}"><div class="e">${e}</div><b>${n}</b><small>${s}</small></div>`}).join('')}</div>
+    <div class="stats"><div><b>${S.conf0||'–'} → ${S.conf1||'–'} ⭐</b>Confidence</div><div><b>${S.stats.speedBest}/10</b>Speed round best</div><div><b>${S.stats.calcWins}</b>Calculators beaten</div><div><b>${S.letters.length}/5</b>Secret letters</div></div>
+    <div class="sub">${dt}</div></div>
+   <div class="msg">${CH.max.svg()}<p><b>A message from Agent Max:</b> ${nm()}, today you didn't just learn rules — you discovered <b>why</b> they work. You built rectangles, raced a calculator, caught Professor Scramble cheating and even wrote your own riddle. That's how real mathematicians think. HQ is proud of you. See you on the next mission!</p></div>
+   <div class="row" style="justify-content:center;margin-bottom:30px"><button class="btn alt" id="fAgain">🎉 Celebrate again</button><button class="btn ghost" id="fPrint">🖨️ Print certificate</button><button class="btn" id="fClose">Back to mission map</button></div>
+  </div>`;
+  F.classList.add('show'); F.scrollTop=0; SND.grand(); FX.rain(5000);
+  [300,1200,2200,3000,3800].forEach((t,i)=>setTimeout(()=>FX.burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.2+.3*Math.random()),90),t));
+  $('#fAgain').onclick=()=>{SND.grand();FX.rain(4000);FX.burst(innerWidth/2,innerHeight/3,150);};
+  $('#fPrint').onclick=()=>{try{window.print()}catch(e){}};
+  $('#fClose').onclick=()=>{F.classList.remove('show');SND.click();};
+}
+
+/* ================= FOOTER / TOOLS ================= */
+$('#bNext').onclick=()=>{ const i=S.phase; if(i===PH.length-1){ finale(); return; } if(PHASE_CLEANUP){PHASE_CLEANUP();PHASE_CLEANUP=null;} goTo(i+1,S.max<=i); };
+$('#bForce').onclick=()=>{ const i=S.phase; if(i===PH.length-1){ finale(); return; } if(PHASE_CLEANUP){PHASE_CLEANUP();PHASE_CLEANUP=null;} goTo(i+1,true); };
+$('#bBack').onclick=()=>{ if(S.phase>0){ if(PHASE_CLEANUP){PHASE_CLEANUP();PHASE_CLEANUP=null;} SND.click(); goTo(S.phase-1,false);} };
+$('#bSound').onclick=()=>{S.sound=!S.sound;save();renderTop(); if(S.sound) SND.ok();};
+$('#bMentor').onclick=()=>{const on=document.body.classList.toggle('mentor'); $('#bMentor').classList.toggle('on',on); SND.click();};
+$('#bReset').onclick=()=>{ if(confirm('Reset the whole mission for a new learner?')){ const snd=S.sound; S=fresh(); S.sound=snd; save(); WB.clearAll(); renderAll(); } };
+
+/* Timer */
+(function(){ let total=60, left=60, h=null; const d=$('#tDisp');
+  const show=()=>{d.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`; d.classList.toggle('end',left===0);};
+  $('#bTimer').onclick=()=>{$('#timer').classList.toggle('show'); $('#bTimer').classList.toggle('on',$('#timer').classList.contains('show'));};
+  $('#tClose').onclick=()=>{$('#timer').classList.remove('show');$('#bTimer').classList.remove('on');};
+  $$('#timer [data-s]').forEach(b=>b.onclick=()=>{total=left=+b.dataset.s; if(h){clearInterval(h);h=null;$('#tGo').textContent='▶ Start';} show();});
+  $('#tGo').onclick=()=>{ if(h){clearInterval(h);h=null;$('#tGo').textContent='▶ Start';return;} if(left===0) left=total; $('#tGo').textContent='⏸ Pause';
+    h=setInterval(()=>{left--; if(left<=5&&left>0) SND.tick(); show(); if(left<=0){clearInterval(h);h=null;$('#tGo').textContent='▶ Start';SND.unlock();}},1000); };
+  $('#tReset').onclick=()=>{ if(h){clearInterval(h);h=null;} left=total; $('#tGo').textContent='▶ Start'; show(); };
+  show();
+})();
+
+/* Whiteboard */
+const WB=(()=>{ const cv=$('#wb'), bar=$('#wbbar'), wrap=$('#stage'), inner=$('#stageInner'), ctx=cv.getContext('2d');
+  let open=false, mode='annotate', tool='pen', color='#1a1a1a', size=6, cur=null; const pages={};
+  const key=()=>S.phase+':'+mode; const strokes=()=>pages[key()]||(pages[key()]=[]);
+  function fit(){ if(!open) return; const w=wrap.clientWidth, h=Math.max(wrap.clientHeight, inner.offsetTop+inner.offsetHeight+60); const d=Math.min(devicePixelRatio||1,1.5);
+    if(cv.style.width===w+'px'&&cv.style.height===h+'px') return; cv.style.width=w+'px'; cv.style.height=h+'px'; cv.width=Math.round(w*d); cv.height=Math.min(Math.round(h*d),16000); ctx.setTransform(d,0,0,d,0,0); redraw(); }
+  if(window.ResizeObserver) new ResizeObserver(()=>fit()).observe(inner);
+  function drawStroke(s){ if(s.tool==='text'){ ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.fillStyle=s.color; ctx.font=`700 ${s.size*4+14}px "Baloo 2", sans-serif`; ctx.fillText(s.text,s.x,s.y); return; }
+    ctx.globalCompositeOperation=s.tool==='eraser'?'destination-out':'source-over'; ctx.globalAlpha=s.tool==='hl'?.35:1; ctx.strokeStyle=s.color; ctx.lineWidth=s.tool==='hl'?s.size*3.5:(s.tool==='eraser'?s.size*4:s.size); ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath(); s.pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); if(s.pts.length===1) ctx.lineTo(s.pts[0][0]+.1,s.pts[0][1]); ctx.stroke(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }
+  function redraw(){ ctx.clearRect(0,0,cv.width,cv.height); if(!open) return; strokes().forEach(drawStroke); }
+  const pos=e=>{const r=cv.getBoundingClientRect(); return [e.clientX-r.left,e.clientY-r.top];};
+  cv.addEventListener('pointerdown',e=>{ if(tool==='hand') return; if(tool==='text'){ placeText(pos(e)); return; } cv.setPointerCapture(e.pointerId); cur={tool,color,size,pts:[pos(e)]}; strokes().push(cur); redraw(); });
+  cv.addEventListener('pointermove',e=>{ if(!cur) return; cur.pts.push(pos(e)); redraw(); });
+  const end=()=>{cur=null;}; cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end);
+  function placeText([x,y]){ const t=document.createElement('div'); t.className='wbtext'; t.contentEditable='true'; t.style.left=x+'px'; t.style.top=(y-22)+'px'; t.style.color=color; wrap.appendChild(t); setTimeout(()=>t.focus(),10);
+    const commit=()=>{ const txt=t.innerText.trim(); if(txt) strokes().push({tool:'text',color,size,text:txt,x,y:y+8}); t.remove(); redraw(); };
+    t.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();t.blur();} if(ev.key==='Escape'){t.innerText='';t.blur();} }); t.addEventListener('blur',commit,{once:true}); }
+  function setOpen(v){ open=v; cv.classList.toggle('show',v); bar.classList.toggle('show',v); $('#bWB').classList.toggle('on',v); cv.classList.toggle('board',mode==='board'); cv.style.width=''; if(v) fit(); else ctx.clearRect(0,0,cv.width,cv.height); }
+  $('#bWB').onclick=()=>{ setOpen(!open); SND.click(); };
+  $('#wbClose').onclick=()=>setOpen(false);
+  $$('#wbbar [data-tool]').forEach(b=>b.onclick=()=>{ tool=b.dataset.tool; $$('#wbbar [data-tool]').forEach(x=>x.classList.toggle('on',x===b)); cv.classList.toggle('pass',tool==='hand'); cv.style.cursor=tool==='text'?'text':'crosshair'; });
+  $$('#wbbar [data-c]').forEach(b=>b.onclick=()=>{ color=b.dataset.c; $$('#wbbar [data-c]').forEach(x=>x.classList.toggle('on',x===b)); if(tool==='eraser'||tool==='hand'){ $$('#wbbar [data-tool]')[0].click(); } });
+  $$('#wbbar [data-size]').forEach(b=>b.onclick=()=>{ size=+b.dataset.size; $$('#wbbar [data-size]').forEach(x=>x.classList.toggle('on',x===b)); });
+  $('#wbMode').onclick=()=>{ mode=mode==='annotate'?'board':'annotate'; $('#wbMode').textContent=mode==='board'?'🎬 Draw on activity':'📋 Blank board'; cv.classList.toggle('board',mode==='board'); if(mode==='board'&&tool==='hand') $$('#wbbar [data-tool]')[0].click(); redraw(); };
+  $('#wbUndo').onclick=()=>{ strokes().pop(); redraw(); };
+  $('#wbClear').onclick=()=>{ pages[key()]=[]; redraw(); };
+  addEventListener('resize',()=>{ if(open) fit(); });
+  $('#stage').addEventListener('scroll',()=>{},{passive:true});
+  return{redraw(){ cv.style.width=''; fit(); redraw(); },clearAll(){Object.keys(pages).forEach(k=>delete pages[k]);redraw();}};
+})();
+
+/* Enter in an answer box presses the next button in the same row */
+document.addEventListener('keydown',e=>{ const t=e.target; if(e.key!=='Enter'||!(t instanceof HTMLInputElement)||!t.classList.contains('in')) return;
+  const row=t.closest('.row'); if(!row) return; const btn=[...row.querySelectorAll('button')].find(b=>t.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING&&!b.disabled);
+  if(btn){ e.preventDefault(); btn.click(); } });
+/* keyboard: Esc closes overlays */
+addEventListener('keydown',e=>{ if(e.key==='Escape'){ $('#badgeOv').classList.remove('show'); $('#chap').classList.remove('show'); } });
+document.addEventListener('pointerdown',()=>{},{once:true});
+
+renderAll();
+if(S.phase===0 && !S.agent) chapter(0);
+})();
+</script>
+</body>
+</html>
