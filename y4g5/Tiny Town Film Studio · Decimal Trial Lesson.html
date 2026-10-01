@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiny Town Film Studio · MyMasteryLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#00A7B2; --teal-d:#00928e; --teal-l:#E3F6F7; --cyan:#21DED7;
+  --orange:#FAA71C; --orange-l:#FEF1DA; --burnt:#D77F28; --crimson:#C92426; --crimson-l:#FBE3E3;
+  --ink:#1A1A1A; --paper:#FFFFFF; --muted:#56646b; --line:#d5e2e5;
+  --set:#00A7B2; --set-ink:#FFFFFF;
+  --display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body:'Outfit', 'Segoe UI', system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ink:#F4F7F8; --paper:#0f2a2d; --muted:#b9c7cb; --line:#2c4a4e; --teal-l:#123c40; --orange-l:#3a2c12; --crimson-l:#3d1717; }
+}
+:root[data-theme="dark"]{ --ink:#F4F7F8; --paper:#0f2a2d; --muted:#b9c7cb; --line:#2c4a4e; --teal-l:#123c40; --orange-l:#3a2c12; --crimson-l:#3d1717; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:var(--body);color:var(--ink);background:var(--paper);font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.hidden{display:none!important}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:10px 18px;background:var(--paper);border-bottom:3px solid var(--ink)}
+.brand{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--teal);letter-spacing:-.01em;white-space:nowrap}
+.clapper-title{display:flex;align-items:center;gap:10px;min-width:0}
+.clapper-title svg{flex:none}
+.clapper-title .t{font-family:var(--display);font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:2px solid var(--ink);font-weight:700;background:var(--orange-l);white-space:nowrap}
+.pill.time{background:var(--teal-l)}
+.iconbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;border:2px solid var(--ink);background:var(--paper);font-weight:700;cursor:pointer;box-shadow:3px 3px 0 var(--ink);white-space:nowrap}
+.iconbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.iconbtn.on{background:var(--teal);color:#fff}
+@media (max-width:760px){.top{flex-wrap:wrap}.clapper-title .t{max-width:60vw}.iconbtn .lbl{display:none}}
+
+/* ---------- filmstrip ---------- */
+.filmstrip{position:relative;background:var(--teal-d);padding:22px 14px}
+.filmstrip::before,.filmstrip::after{content:"";position:absolute;left:0;right:0;height:10px;background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(255,255,255,.92) 10px 24px,transparent 24px 34px)}
+.filmstrip::before{top:6px}.filmstrip::after{bottom:6px}
+.frames{display:flex;gap:12px;overflow-x:auto;padding:4px 2px;scrollbar-width:thin}
+.frame{flex:none;width:156px;border:0;border-radius:8px;background:#fff;color:#1A1A1A;padding:0;cursor:pointer;text-align:left;overflow:hidden;position:relative;transition:transform .2s}
+.frame .band{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-family:var(--display);font-weight:800;font-size:.95rem}
+.frame .band .emo{font-size:1.5rem}
+.frame .nm{display:block;padding:7px 10px 9px;font-weight:600;font-size:.86rem;line-height:1.2;min-height:44px}
+.frame.locked{filter:grayscale(1);opacity:.55}
+.frame.locked::after{content:"🔒";position:absolute;right:8px;bottom:6px;font-size:1rem}
+.frame.done::after{content:"✔";position:absolute;right:8px;bottom:6px;color:var(--teal);font-weight:800}
+.frame.current{outline:4px solid var(--orange);transform:translateY(-3px)}
+
+/* ---------- stage ---------- */
+.stage{background-color:var(--set);color:var(--set-ink);background-image:radial-gradient(rgba(255,255,255,.22) 1.6px,transparent 1.8px);background-size:20px 20px;padding:26px 22px 30px;transition:background-color .5s}
+.stage-in{max-width:1180px;margin:0 auto}
+.scene-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 16px;margin-bottom:16px}
+.scene-head h1{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,4.4vw,3.3rem);line-height:1;margin:0;letter-spacing:-.02em}
+.scene-head .sub{font-weight:600;opacity:.9}
+.dialogue{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:end}
+.portrait{width:150px;height:150px;border-radius:50%;background:#fff;border:4px solid var(--ink);display:grid;place-items:center;overflow:hidden}
+.portrait svg{width:128px;height:128px}
+.bubble{position:relative;background:#fff;color:#1A1A1A;border:3px solid var(--ink);border-radius:22px;padding:16px 20px 12px;box-shadow:6px 6px 0 rgba(26,26,26,.85);min-height:118px;display:flex;flex-direction:column}
+.bubble::before{content:"";position:absolute;left:-17px;bottom:26px;border:14px solid transparent;border-right-color:var(--ink)}
+.bubble::after{content:"";position:absolute;left:-11px;bottom:28px;border:12px solid transparent;border-right-color:#fff}
+.who{font-family:var(--display);font-weight:800;font-size:1rem;margin-bottom:4px}
+.line{font-size:1.18rem;flex:1}
+.beat-nav{display:flex;align-items:center;gap:8px;margin-top:10px}
+.beat-nav .dots{display:flex;gap:5px;flex:1}
+.beat-nav .dots i{width:9px;height:9px;border-radius:50%;background:#cfd9dc}
+.beat-nav .dots i.on{background:var(--teal)}
+.navbtn{border:2px solid var(--ink);background:var(--orange);border-radius:999px;padding:5px 14px;font-weight:700;cursor:pointer}
+.navbtn:disabled{opacity:.35;cursor:default}
+@media (max-width:640px){.dialogue{grid-template-columns:1fr}.portrait{width:96px;height:96px}.portrait svg{width:82px;height:82px}.bubble::before,.bubble::after{display:none}}
+
+/* ---------- tasks ---------- */
+.tasks{max-width:1180px;margin:0 auto;padding:26px 18px 60px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:860px){.tasks{grid-template-columns:1fr}}
+.card{background:#fff;color:#1A1A1A;border:3px solid var(--ink);border-radius:20px;padding:18px 20px 16px;box-shadow:7px 7px 0 var(--set);min-width:0}
+.card.wide{grid-column:1/-1}
+.card.wide .rows{max-width:780px}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.card-head .mini{width:46px;height:46px;flex:none;border-radius:50%;border:2px solid var(--ink);background:var(--teal-l);display:grid;place-items:center;overflow:hidden}
+.card-head .mini svg{width:42px;height:42px}
+.card h2{font-family:var(--display);font-weight:800;font-size:1.35rem;margin:0;line-height:1.1}
+.card .intro{margin:4px 0 12px;color:#39454b}
+.optional{font-size:.8rem;font-weight:600;color:var(--muted);border:1.5px solid var(--line);border-radius:999px;padding:1px 8px;margin-left:auto;white-space:nowrap}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;padding:8px 10px;border-radius:12px;background:#f6fafb}
+.row.is-ok{background:var(--teal-l)}
+.row .q{font-weight:500}
+.ans-wrap{display:inline-flex;align-items:center;gap:6px}
+.ans{width:128px;font-size:1.15rem;font-weight:700;padding:7px 10px;border:2.5px dashed var(--teal);border-radius:10px;background:#fff;color:#1A1A1A;text-align:center}
+.ans.wide-in{width:220px;text-align:left}
+select.ans{width:170px;text-align:left;cursor:pointer}
+.ans.ok{border-style:solid;border-color:var(--teal);background:#fff}
+.ans.bad{border-style:solid;border-color:var(--crimson);background:var(--crimson-l);animation:shake .4s}
+.unit{font-weight:700;color:var(--muted)}
+.mark{width:22px;text-align:center;font-weight:800}
+.row.is-ok .mark::before{content:"✔";color:var(--teal)}
+.hint{grid-column:1/-1;font-size:.92rem;color:var(--crimson);font-weight:600}
+.star-tag{display:inline-block;background:var(--orange);color:#1A1A1A;border-radius:6px;padding:0 6px;margin-right:6px;font-weight:800;font-size:.85rem}
+.card-foot{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.fb{font-weight:600}
+.fb.good{color:var(--teal-d)}.fb.bad{color:var(--crimson)}
+.btn{border:2.5px solid var(--ink);background:var(--teal);color:#fff;font-weight:700;border-radius:999px;padding:9px 20px;cursor:pointer;box-shadow:0 4px 0 var(--ink);font-size:1rem}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:var(--orange);color:#1A1A1A}
+.btn.red{background:var(--crimson)}
+.btn.ghost{background:#fff;color:#1A1A1A}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.opts{display:flex;flex-wrap:wrap;gap:10px}
+.opt{border:2.5px solid var(--ink);background:#fff;border-radius:14px;padding:10px 14px;font-weight:600;cursor:pointer;text-align:left;max-width:100%}
+.opt:hover:not(:disabled){background:var(--orange-l)}
+.opt.ok{background:var(--teal);color:#fff}
+.opt.no{background:var(--crimson-l);border-color:var(--crimson);animation:shake .4s}
+.opt:disabled{cursor:default}
+.brow .opts{justify-content:flex-end}
+.brow .opt{padding:6px 14px}
+textarea.say{width:100%;min-height:78px;border:2.5px dashed var(--teal);border-radius:12px;padding:10px;font-size:1.05rem;resize:vertical;background:#fff;color:#1A1A1A}
+textarea.say.ok{border-style:solid;background:var(--teal-l)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* to-do dock + card status */
+.dock{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;width:min(1100px,94vw);background:#fff;color:#1A1A1A;border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--set);padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.dock .lbl{font-family:var(--display);font-weight:800;white-space:nowrap}
+.dock .bar{flex:0 0 160px;height:12px;border-radius:999px;background:#e7eff1;border:2px solid var(--ink);overflow:hidden}
+.dock .bar i{display:block;height:100%;background:var(--teal);transition:width .4s}
+.dock .todo{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.dock .todo button{border:2px solid var(--ink);background:var(--orange-l);border-radius:999px;padding:3px 10px;font-weight:600;font-size:.88rem;cursor:pointer;color:#1A1A1A}
+.dock .todo button:hover{background:var(--orange)}
+.dock .go{margin-left:auto}
+.chip{margin-left:auto;font-size:.8rem;font-weight:700;border-radius:999px;padding:2px 10px;border:2px solid var(--ink);white-space:nowrap}
+.chip.todo-c{background:var(--orange-l)}
+.chip.done-c{background:var(--teal);color:#fff}
+.card.flash{animation:flash 1.4s}
+@keyframes flash{0%,100%{outline:0 solid transparent}20%,60%{outline:5px solid var(--orange);outline-offset:4px}}
+.tasks{padding-bottom:150px}
+/* scene complete */
+.wrapbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--orange);color:#1A1A1A;border:3px solid var(--ink);border-radius:20px;padding:16px 20px;box-shadow:7px 7px 0 var(--ink)}
+.wrapbar h3{font-family:var(--display);font-size:1.5rem;margin:0}
+.wrapbar p{margin:0;flex:1;min-width:200px;font-weight:600}
+.progressline{grid-column:1/-1;display:flex;align-items:center;gap:12px;font-weight:700;color:var(--muted)}
+.progressline .bar{flex:1;height:12px;border-radius:999px;background:#e7eff1;border:2px solid var(--ink);overflow:hidden}
+.progressline .bar i{display:block;height:100%;background:var(--teal);transition:width .4s}
+
+/* illustrations */
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.notes{grid-template-columns:1fr}}
+.note{background:var(--orange-l);border:2.5px solid var(--ink);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;transform:rotate(-.6deg)}
+.note:nth-child(2){transform:rotate(.7deg);background:var(--teal-l)}
+.note:nth-child(3){transform:rotate(-.3deg);background:#fff4f4}
+.note h3{font-family:var(--display);margin:0;font-size:1.1rem}
+.note svg{width:100%;height:120px}
+.note input{width:100%}
+.storyboard{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.sticky{background:#fff38a;border:2px solid var(--ink);padding:8px 10px;border-radius:4px;transform:rotate(-2deg);font-weight:600;max-width:240px;box-shadow:3px 3px 0 rgba(0,0,0,.2);color:#1A1A1A}
+.sticky:nth-child(2){transform:rotate(1.5deg);background:#bff4f1}
+.sticky:nth-child(3){transform:rotate(-1deg);background:#ffd7a8}
+.cast{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.cast .fields{display:grid;gap:10px}
+.cast label{display:grid;gap:4px;font-weight:600}
+.cast input{width:100%;text-align:left}
+@media (max-width:560px){.cast{grid-template-columns:1fr}}
+
+/* zoom */
+.zoom-levels{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.zoom-levels button.seen{background:var(--teal-l)}
+.zoom-levels button.cur{background:var(--teal);color:#fff}
+.zoombox svg{width:100%;height:auto;display:block}
+.zcap{font-weight:600;margin-top:8px;min-height:2.6em}
+
+/* place-value table */
+.pvt{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;margin-top:8px}
+.pvt th{font-size:.78rem;font-weight:700;color:#fff;background:var(--teal);border-radius:8px;padding:6px 2px}
+.pvt th.dec{background:var(--orange);color:#1A1A1A}
+.pvt td{text-align:center;font-family:var(--display);font-size:1.8rem;font-weight:800;background:#f3f8f9;border:2px solid var(--ink);border-radius:10px;height:56px}
+.pvt td.pt{background:transparent;border:0;color:var(--crimson);font-size:2.2rem;width:22px}
+.pvt th.ptc{background:transparent;width:22px}
+.pvt .u{display:block;font-weight:600;font-size:.7rem;opacity:.9}
+
+/* tripod */
+.tri{position:relative;height:190px;margin-top:6px}
+.tri .col{position:absolute;top:0;height:28px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;background:var(--teal);border-radius:8px;text-align:center;line-height:1.05;padding:0 2px}
+.tri .col.dec{background:var(--orange);color:#1A1A1A}
+.tri .slot{position:absolute;top:36px;height:70px;border:2px dashed #b8c9cd;border-radius:12px}
+.tri .tile{position:absolute;top:40px;height:62px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:2.3rem;background:var(--crimson);color:#fff;border:3px solid var(--ink);border-radius:12px;transition:left .8s cubic-bezier(.5,-0.3,.3,1.3);z-index:2}
+.tri .tile.ghost{background:#fff;color:#8ea0a5;border-style:dashed;z-index:1;transition:left .8s, opacity .4s}
+.tri .pointer{position:absolute;top:36px;width:0;height:150px;z-index:3}
+.tri .pointer .dot{position:absolute;left:-11px;top:48px;width:22px;height:22px;border-radius:50%;background:var(--ink)}
+.tri .pointer svg{position:absolute;left:-30px;top:72px;width:60px;height:80px}
+.tri-ops{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.tri-ops .btn{padding:7px 14px}
+.trilog{font-family:var(--display);font-weight:800;font-size:1.5rem;margin-top:10px;min-height:1.6em}
+.walk{font-weight:700;color:var(--crimson);min-height:1.4em}
+@media (max-width:560px){.tri .tile{font-size:1.5rem}.tri .col{font-size:.55rem}}
+
+/* skyline, plank, garden */
+.skyline svg,.plank svg,.garden svg{width:100%;height:auto;display:block}
+.garden{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center;margin-top:10px}
+@media (max-width:560px){.garden{grid-template-columns:1fr}}
+
+/* speed */
+.speed{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.speed{grid-template-columns:1fr}}
+.take{border:3px solid var(--ink);border-radius:18px;padding:14px;background:#fbfeff}
+.take h3{font-family:var(--display);margin:0 0 8px;font-size:1.3rem;display:flex;align-items:center;gap:8px}
+.clapq{background:var(--ink);color:#fff;border-radius:14px;padding:18px 14px;text-align:center;font-family:var(--display);font-weight:800;font-size:2.2rem;position:relative;margin:8px 0}
+.clapq::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px;border-radius:8px 8px 0 0;background:repeating-linear-gradient(135deg,#fff 0 14px,var(--ink) 14px 28px);border:2px solid var(--ink)}
+.timebar{height:12px;border-radius:999px;border:2px solid var(--ink);overflow:hidden;background:#eef4f5}
+.timebar i{display:block;height:100%;background:var(--orange);transition:width 1s linear}
+.speed-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.speed-row .ans{flex:1}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:.95rem;margin-top:8px}
+.res .y{color:var(--teal-d);font-weight:700}.res .n{color:var(--crimson);font-weight:700}
+.compare{grid-column:1/-1;display:grid;gap:8px;margin-top:4px}
+.cbar{display:grid;grid-template-columns:70px 1fr 50px;align-items:center;gap:10px;font-weight:700}
+.cbar .b{height:22px;border-radius:8px;border:2px solid var(--ink);background:#eef4f5;overflow:hidden}
+.cbar .b i{display:block;height:100%;transition:width 1s}
+
+/* credits */
+.premiere{position:relative;overflow:hidden}
+.spot{position:absolute;top:-30%;width:40%;height:160%;background:conic-gradient(from 180deg at 50% 0%,transparent 42%,rgba(255,255,255,.35) 50%,transparent 58%);animation:sweep 5s ease-in-out infinite alternate;pointer-events:none}
+.spot.l{left:-5%}.spot.r{right:-5%;animation-delay:-2.5s}
+@keyframes sweep{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+.award{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:center}
+@media (max-width:760px){.award{grid-template-columns:1fr}}
+.trophy{animation:pop 1s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(.3) rotate(-12deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.medal-name{display:inline-block;font-family:var(--display);font-weight:800;font-size:2.2rem;line-height:1.1;margin:0 0 10px;color:#1A1A1A;padding:4px 14px;border:3px solid var(--ink);border-radius:14px}
+.letter{background:#fffdf6;border:3px solid var(--ink);border-radius:18px;padding:18px 22px;font-size:1.12rem;line-height:1.6;box-shadow:6px 6px 0 var(--orange);color:#1A1A1A}
+.letter .sig{font-family:var(--display);font-weight:700;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border:3px solid var(--ink);border-radius:16px;padding:12px;background:var(--teal-l);text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:2rem;line-height:1.1}
+.rollbox{height:260px;overflow:hidden;background:#1A1A1A;border-radius:18px;border:3px solid var(--ink);position:relative;color:#fff;text-align:center}
+.roll{position:absolute;left:0;right:0;top:100%;animation:roll 22s linear infinite}
+.roll p{margin:0 0 4px;opacity:.75;font-size:.9rem}
+.roll h4{margin:0 0 18px;font-family:var(--display);font-size:1.35rem;color:var(--orange)}
+@keyframes roll{to{transform:translateY(-100%) translateY(-280px)}}
+.mentor-only{display:none}
+body.mentor .mentor-only{display:block}
+
+/* mentor drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);background:var(--paper);color:var(--ink);border-left:3px solid var(--ink);z-index:60;transform:translateX(105%);transition:transform .3s;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+@media (min-width:1000px){body.mentor .filmstrip,body.mentor main{margin-right:min(380px,92vw);transition:margin .3s}}
+.drawer header{background:var(--teal);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.drawer header .iconbtn{color:#1A1A1A;background:#fff}
+.drawer header h2{margin:0;font-family:var(--display);font-size:1.2rem;flex:1}
+.drawer .body{overflow:auto;padding:14px 16px 30px;display:grid;gap:14px}
+.drawer h3{margin:0 0 6px;font-family:var(--display);font-size:1rem}
+.drawer ul{margin:0;padding-left:18px}
+.drawer li{margin-bottom:4px;font-size:.93rem}
+.seg{display:flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:8px;font-weight:700;cursor:pointer;color:#1A1A1A}
+.seg button.on{background:var(--orange)}
+.mbtns{display:flex;flex-wrap:wrap;gap:8px}
+.mbtns .btn{font-size:.88rem;padding:7px 12px}
+.jump{display:flex;flex-wrap:wrap;gap:6px}
+.jump button{border:2px solid var(--ink);border-radius:10px;background:#fff;padding:4px 10px;cursor:pointer;font-weight:700;color:#1A1A1A}
+.key{background:var(--orange-l);border-radius:12px;padding:10px 12px;font-size:.9rem;color:#1A1A1A}
+.debrief{border:3px dashed var(--teal);border-radius:16px;padding:14px 18px;background:#fff;color:#1A1A1A}
+.debrief h3{font-family:var(--display);margin:0 0 6px}
+
+/* whiteboard */
+.wb{position:fixed;inset:0;z-index:80;display:none}
+.wb.open{display:block}
+.wb.blank{background:#fff}
+.wb.grid{background-color:#fff;background-image:linear-gradient(#dcebee 1px,transparent 1px),linear-gradient(90deg,#dcebee 1px,transparent 1px);background-size:32px 32px}
+.wb.overlay{background:rgba(255,255,255,.02)}
+.wb canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.wbbar{position:absolute;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:8px 10px;box-shadow:5px 5px 0 var(--teal);max-width:96vw;z-index:2;color:#1A1A1A}
+.wbbar button{border:2px solid var(--ink);background:#fff;border-radius:10px;min-width:38px;height:38px;padding:0 8px;cursor:pointer;font-weight:700;color:#1A1A1A}
+.wbbar button.on{background:var(--orange)}
+.wbbar .sw{width:30px;min-width:30px;height:30px;border-radius:50%;padding:0}
+.wbbar .sw.on{outline:3px solid var(--ink);outline-offset:2px}
+.wbbar .sep{width:2px;height:28px;background:var(--line)}
+.wb .txt{position:absolute;z-index:3;border:2px dashed var(--teal);background:#fff;font-size:22px;padding:2px 6px;min-width:140px;color:#1A1A1A}
+
+/* toast + confetti */
+.toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-weight:600;z-index:90;transition:transform .3s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:85;width:100%;height:100%}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">MyMasteryLab</span>
+  <span class="clapper-title" id="movieTitle"></span>
+  <span class="spacer"></span>
+  <span class="pill" title="Stars earned">⭐ <span id="stars">0</span></span>
+  <span class="pill time" title="Scene time">⏱ <span id="clock">0:00</span></span>
+  <button class="iconbtn" id="sndBtn" aria-label="Sound on or off">🔊<span class="lbl"> Sound</span></button>
+  <button class="iconbtn" id="wbBtn" aria-label="Open whiteboard (W)">✏️<span class="lbl"> Board</span></button>
+  <button class="iconbtn" id="mentorBtn" aria-label="Mentor controls (M)">🎬<span class="lbl"> Mentor</span></button>
+</header>
+
+<nav class="filmstrip" aria-label="Scenes"><div class="frames" id="frames"></div></nav>
+
+<main>
+  <section class="stage" id="stage"><div class="stage-in">
+    <div class="scene-head"><h1 id="sceneTitle"></h1><span class="sub" id="sceneSub"></span></div>
+    <div class="dialogue">
+      <div class="portrait" id="portrait"></div>
+      <div class="bubble">
+        <div class="who" id="who"></div>
+        <div class="line" id="line"></div>
+        <div class="beat-nav"><div class="dots" id="dots"></div>
+          <button class="navbtn" id="prevBeat" aria-label="Previous line">◀</button>
+          <button class="navbtn" id="nextBeat" aria-label="Next line">Next ▶</button></div>
+      </div>
+    </div>
+  </div></section>
+  <section class="tasks" id="tasks"></section>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Mentor controls">
+  <header><h2>Mentor controls</h2><button class="iconbtn" id="closeDrawer" aria-label="Close">✕</button></header>
+  <div class="body" id="drawerBody"></div>
+</aside>
+
+<div class="wb" id="wb">
+  <canvas id="wbc"></canvas>
+  <div class="wbbar" id="wbbar"></div>
+</div>
+<canvas id="confetti"></canvas>
+<div class="dock hidden" id="dock" aria-live="polite"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+const KEY='mml-tiny-town-v1';
+const fresh=()=>({name:'',title:'',path:'full',unlocked:1,current:1,beat:{},done:{},vals:{},scored:{},wrong:{},stars:0,firstTry:0,sceneDone:{},elapsed:{},speed:{t1:null,t2:null},award:null,sound:true,celebrated:false,autoUnlock:true});
+let S=fresh();
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const full=()=>S.path==='full';
+const NAME=()=>esc(S.name||'Junior Model Engineer');
+const TITLE=()=>esc(S.title||'our movie');
+let mentor=false;
+
+/* =========================================================
+   SOUND (Web Audio, no files)
+========================================================= */
+let AC=null;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+function tone(f,t0,d,type='triangle',g=.18,f2){const a=ac(); if(!a||!S.sound) return; const o=a.createOscillator(), v=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,a.currentTime+t0); if(f2) o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+t0+d); v.gain.setValueAtTime(0,a.currentTime+t0); v.gain.linearRampToValueAtTime(g,a.currentTime+t0+.02); v.gain.exponentialRampToValueAtTime(.0001,a.currentTime+t0+d); o.connect(v).connect(a.destination); o.start(a.currentTime+t0); o.stop(a.currentTime+t0+d+.05);}
+function noise(t0,d,g=.2,filt=1800,sweep){const a=ac(); if(!a||!S.sound) return; const n=a.sampleRate*d, b=a.createBuffer(1,n,a.sampleRate), ch=b.getChannelData(0); for(let i=0;i<n;i++) ch[i]=Math.random()*2-1; const s=a.createBufferSource(); s.buffer=b; const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.setValueAtTime(filt,a.currentTime+t0); if(sweep) f.frequency.exponentialRampToValueAtTime(sweep,a.currentTime+t0+d); const v=a.createGain(); v.gain.setValueAtTime(g,a.currentTime+t0); v.gain.exponentialRampToValueAtTime(.0001,a.currentTime+t0+d); s.connect(f).connect(v).connect(a.destination); s.start(a.currentTime+t0);}
+const sfx={
+  click(){tone(880,0,.06,'sine',.08)},
+  correct(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,i*.08,.28,'triangle',.16)); tone(2093,.32,.3,'sine',.05)},
+  tick(){tone(1320,0,.08,'square',.05)},
+  wrong(){tone(233,0,.28,'sawtooth',.09,196); tone(185,.3,.5,'sawtooth',.09,110)},
+  miss(){tone(196,0,.22,'square',.07,150)},
+  clap(){noise(0,.09,.5,2500); noise(.02,.05,.3,5000)},
+  whoosh(){noise(0,.55,.18,400,3500)},
+  wrap(){this.clap(); [392,523.25,659.25].forEach((f,i)=>tone(f,.12+i*.1,.5,'triangle',.14)); tone(783.99,.45,.8,'triangle',.14)},
+  unlock(){[392,392,523.25,659.25,783.99].forEach((f,i)=>tone(f,i*.12,i===4?.9:.18,'square',.07)); [523.25,659.25,783.99].forEach(f=>tone(f,.6,1,'triangle',.08))},
+  grand(){ for(let i=0;i<16;i++) noise(i*.06,.07,.18+(i/16)*.2,900); noise(1,.6,.5,300); const seq=[[523.25,0],[659.25,.18],[783.99,.36],[1046.5,.54],[783.99,.8],[1046.5,1]]; seq.forEach(([f,t])=>{tone(f,1+t,.4,'square',.07);tone(f/2,1+t,.4,'triangle',.08)}); [523.25,659.25,783.99,1046.5].forEach(f=>tone(f,2.3,1.8,'triangle',.08)); for(let i=0;i<10;i++) tone(1500+Math.random()*1500,2.4+i*.12,.25,'sine',.04) }
+};
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+const cv=$('#confetti'), cx=cv.getContext('2d'); let parts=[], raf=null;
+function sizeConf(){cv.width=innerWidth*devicePixelRatio; cv.height=innerHeight*devicePixelRatio; cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+addEventListener('resize',sizeConf); sizeConf();
+const CCOL=['#00A7B2','#FAA71C','#D77F28','#C92426','#21DED7','#ffffff'];
+function burst(n=120,x=innerWidth/2,y=innerHeight/3){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) n=Math.min(n,25); for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2, v=4+Math.random()*9; parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-6,w:6+Math.random()*7,h:4+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:CCOL[i%CCOL.length],life:160+Math.random()*80,star:Math.random()<.18});} if(!raf) loopConf();}
+function loopConf(){cx.clearRect(0,0,innerWidth,innerHeight); parts.forEach(p=>{p.vy+=.22;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--; cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c; if(p.star){cx.font='16px serif';cx.fillText('⭐',-8,8)} else cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore();}); parts=parts.filter(p=>p.life>0&&p.y<innerHeight+40); if(parts.length) raf=requestAnimationFrame(loopConf); else {raf=null;cx.clearRect(0,0,innerWidth,innerHeight)}}
+
+function toast(msg){const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+
+/* =========================================================
+   CHARACTERS (SVG)
+========================================================= */
+function mouth(m){return m==='oops'||m==='sad'?'M48 84 Q60 76 72 84':m==='wow'?'M54 80 a6 7 0 1 0 12 0 a6 7 0 1 0 -12 0':'M46 78 Q60 92 74 78'}
+const CH={
+ olivia:{name:'Director Olivia Grant',color:'#C92426',svg:(m='happy')=>`<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="96" width="76" height="30" rx="16" fill="#00A7B2"/><path d="M28 62 Q26 26 60 24 Q94 26 92 62 L92 86 Q84 80 80 70 L40 70 Q36 80 28 86Z" fill="#3b2a24"/><circle cx="60" cy="64" r="27" fill="#F2C9A5"/><path d="M34 52 Q40 36 60 36 Q80 36 86 52 Q70 44 60 46 Q48 44 34 52Z" fill="#3b2a24"/><ellipse cx="66" cy="30" rx="30" ry="11" fill="#C92426" transform="rotate(-10 66 30)"/><circle cx="84" cy="22" r="4" fill="#C92426"/><circle cx="50" cy="63" r="3.4" fill="#1A1A1A"/><circle cx="70" cy="63" r="3.4" fill="#1A1A1A"/><circle cx="44" cy="72" r="4" fill="#f4a1a1" opacity=".6"/><circle cx="76" cy="72" r="4" fill="#f4a1a1" opacity=".6"/><path d="${mouth(m)}" stroke="#1A1A1A" stroke-width="3" fill="${m==='wow'?'#1A1A1A':'none'}" stroke-linecap="round"/><g transform="translate(86 86) rotate(-20)"><path d="M0 6 L22 -6 L22 22 L0 12Z" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2"/><rect x="-6" y="5" width="8" height="8" rx="2" fill="#1A1A1A"/></g></svg>`},
+ theo:{name:'Theo Walsh · Chief Model Maker',color:'#D77F28',svg:(m='happy')=>`<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="96" width="76" height="30" rx="16" fill="#D77F28"/><rect x="48" y="94" width="24" height="26" fill="#FAA71C"/><circle cx="60" cy="62" r="27" fill="#E8B894"/><path d="M34 54 Q34 40 44 40 L50 34 L56 40 L62 33 L68 40 L76 36 L84 46 Q88 52 86 56 Q74 46 60 46 Q44 46 34 54Z" fill="#D77F28"/><path d="M28 42 Q60 12 92 42 L96 46 L24 46Z" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2"/><rect x="54" y="22" width="12" height="10" rx="3" fill="#fff" stroke="#1A1A1A" stroke-width="1.5"/><circle cx="49" cy="62" r="8" fill="#fff" stroke="#1A1A1A" stroke-width="2.5"/><circle cx="71" cy="62" r="8" fill="#fff" stroke="#1A1A1A" stroke-width="2.5"/><path d="M57 62 L63 62" stroke="#1A1A1A" stroke-width="2.5"/><circle cx="49" cy="62" r="3" fill="#1A1A1A"/><circle cx="71" cy="62" r="3" fill="#1A1A1A"/><path d="${mouth(m)}" stroke="#1A1A1A" stroke-width="3" fill="${m==='wow'?'#1A1A1A':'none'}" stroke-linecap="round"/><rect x="86" y="46" width="4" height="22" fill="#C92426" transform="rotate(25 88 57)"/></svg>`},
+ scaley:{name:'Scaley · the 3D Printer',color:'#00A7B2',svg:(m='proud')=>{const eyes=m==='oops'?`<path d="M42 50 l10 10 m0 -10 l-10 10 M68 50 l10 10 m0 -10 l-10 10" stroke="#1A1A1A" stroke-width="3.5" stroke-linecap="round"/>`:m==='sad'?`<path d="M42 58 q5 -6 10 0 M68 58 q5 -6 10 0" stroke="#1A1A1A" stroke-width="3.5" fill="none" stroke-linecap="round"/>`:m==='sneaky'?`<rect x="41" y="54" width="12" height="5" rx="2" fill="#1A1A1A"/><rect x="67" y="54" width="12" height="5" rx="2" fill="#1A1A1A"/>`:`<circle cx="47" cy="55" r="6" fill="#1A1A1A"/><circle cx="73" cy="55" r="6" fill="#1A1A1A"/><circle cx="49" cy="53" r="2" fill="#fff"/><circle cx="75" cy="53" r="2" fill="#fff"/>`; const mo=m==='oops'||m==='sad'?'M50 72 Q60 66 70 72':m==='sneaky'?'M50 70 Q62 76 72 68':'M48 68 Q60 78 72 68'; return `<svg viewBox="0 0 120 120" aria-hidden="true"><line x1="60" y1="8" x2="60" y2="22" stroke="#1A1A1A" stroke-width="3"/><circle cx="60" cy="8" r="5" fill="#C92426"/><rect x="18" y="22" width="84" height="76" rx="14" fill="#00A7B2" stroke="#1A1A1A" stroke-width="3"/><rect x="30" y="36" width="60" height="44" rx="8" fill="#E3F6F7" stroke="#1A1A1A" stroke-width="2.5"/>${eyes}<path d="${mo}" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="50" y="98" width="20" height="8" fill="#1A1A1A"/><path d="M55 106 L65 106 L60 114Z" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2"/><circle cx="92" cy="30" r="3.5" fill="#FAA71C"/><rect x="8" y="104" width="30" height="12" rx="2" fill="#D77F28"/><rect x="84" y="100" width="26" height="16" rx="2" fill="#FAA71C"/></svg>`}},
+ you:{name:'You',color:'#FAA71C',svg:()=>clapSVG(110)}
+};
+function clapSVG(w=46,label){return `<svg width="${w}" height="${w*0.82}" viewBox="0 0 110 90" aria-hidden="true"><g transform="rotate(-12 10 30)"><rect x="6" y="18" width="96" height="16" rx="3" fill="#fff" stroke="#1A1A1A" stroke-width="3"/><path d="M18 18 l12 16 M42 18 l12 16 M66 18 l12 16 M90 18 l10 14" stroke="#1A1A1A" stroke-width="7"/></g><rect x="6" y="36" width="98" height="50" rx="5" fill="#1A1A1A"/><rect x="6" y="36" width="98" height="10" fill="#fff" stroke="#1A1A1A" stroke-width="3"/><path d="M18 36 l12 10 M42 36 l12 10 M66 36 l12 10 M90 36 l10 9" stroke="#1A1A1A" stroke-width="7"/>${(label===undefined?'YOU':label)?`<text x="55" y="74" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="17" fill="#FAA71C">${esc(label===undefined?'YOU':label)}</text>`:''}</svg>`}
+function mini(who,m){return `<span class="mini">${CH[who].svg(m)}</span>`}
+
+/* =========================================================
+   SCENES: meta + story beats
+========================================================= */
+const SC=[null,
+ {t:'Lights, Camera, Shrink!',emo:'🎬',c:'#00A7B2',ink:'#fff',sub:'Scene 1 · the studio opens',target:5},
+ {t:'The Tape Measure Secret',emo:'📏',c:'#FAA71C',ink:'#1A1A1A',sub:'Scene 2 · metres, tenths, hundredths, thousandths',target:6},
+ {t:'The Scale Dial',emo:'🎛️',c:'#C92426',ink:'#fff',sub:'Scene 3 · does the point really move?',target:10},
+ {t:'Building the Set',emo:'🏙️',c:'#D77F28',ink:'#fff',sub:'Scene 4 · compare, round, add, subtract',target:8},
+ {t:'Studio Shortcuts',emo:'⚡',c:'#21DED7',ink:'#1A1A1A',sub:'Scene 5 · smart tricks + Beat the Clapperboard',target:7},
+ {t:"That's a Wrap!",emo:'🎞️',c:'#00928e',ink:'#fff',sub:'Scene 6 · fix the Storyboard + final check',target:5},
+ {t:'Premiere Night',emo:'🏆',c:'#00A7B2',ink:'#fff',sub:'The grand premiere · awards · credits',target:4}
+];
+function towers(){return full()?{A:1.5,B:1.45,C:1.405}:{A:1.5,B:1.45,C:1.4}}
+function BEATS(i){const T=towers(); return ({
+ 1:[['olivia','happy',`Welcome to the studio, ${NAME()}! I'm Director Olivia Grant. Our movie has a giant wave crashing into a city.`],
+    ['olivia','wow',`We can't flood a real city… so we're building a TINY one and filming it up close. Real filmmakers do this all the time!`],
+    ['theo','happy',`I'm Theo, the chief model maker. You're our new Junior Model Engineer. Every model must be exactly the right size, or the shot is ruined.`],
+    ['scaley','proud',`BEEP! I am Scaley, the smartest 3D printer ever built. I know ALL the rules. I never make mistakes. BOOP.`],
+    ['olivia','oops',`Hmm. Scaley made three mistakes this morning. Sign your contract, then read my Director's Notes and pin your best guesses to the Storyboard.`]],
+ 2:[['theo','happy',`Every model maker's best friend is the tape measure. Let's zoom in and find its secret.`],
+    ['theo','wow',`Stand up for the Body Ruler! Arms wide is about 1 metre. A hand is about 10 cm. A tiny pinch is 1 cm… and nearly touching is 1 mm!`],
+    ['olivia','happy',`Notice something? Every time we zoom in, the piece splits into 10. The decimal point sits between whole metres and parts of a metre, like a camera on a tripod.`],
+    ['scaley','sneaky',`Zeros are zeros! 0.5 m, 0.05 m, 0.500 m — all the same size. BEEP.`],
+    ['theo','oops',`Are they, Scaley? ${NAME()}, please inspect Scaley's zeros.`]],
+ 3:[['olivia','happy',`Close-up time! The model car is 0.42 m long. We need a hero car 10 times bigger.`],
+    ['scaley','proud',`Easy! 0.42 × 10 = 0.420. Just add a zero! BEEP BOOP.`],
+    ['theo','oops',`Hmm… would 0.420 m look any bigger on camera? Let's build it with the metre stick and find out.`],
+    ['olivia','wow',`Now watch the Tripod Chart. The decimal point is our camera on its tripod. Does it move… or do the actors?`],
+    ['theo','happy',`Brilliant! Now scale the rest of the props for the set.`]],
+ 4:[['olivia','happy',`The set is going up! The tallest tower must stand in the centre of the shot.`],
+    ['scaley','proud',full()?`Tower C is ${T.C} m. It has the most digits, so it's the tallest! BEEP.`:`Tower B is ${T.B} m. It has the most digits, so it's the tallest! BEEP.`],
+    ['theo','oops',`Bad news: our studio saw only cuts to the nearest ${full()?'tenth of a metre (10 cm)':'whole metre'}.`],
+    ['scaley','proud',`I added up the wood for the model park. Total: 5.40 m. I am never wrong.`],
+    ['olivia','oops',`${NAME()}, please check everything before we build!`]],
+ 5:[['olivia','happy',`Film sets run on tight schedules. Time for Studio Shortcuts!`],
+    ['theo','wow',`Every shortcut works because of the place value you discovered. No magic — just thinking.`],
+    ['olivia','happy',`Then… Beat the Clapperboard! Do Take 1, learn from it, then show me a better Take 2.`]],
+ 6:[['olivia','happy',`That's almost a wrap on ${TITLE()}! Let's check this morning's Storyboard.`],
+    ['scaley','sad',`Did I… make mistakes? BEEP… boop.`],
+    ['theo','happy',`You caught every one, ${NAME()}. One final check before the premiere.`]],
+ 7:[['olivia','wow',`Ladies and gentlemen… welcome to the world premiere of ${TITLE()}!`],
+    ['theo','happy',`Every model was the perfect size — thanks to our Junior Model Engineer, ${NAME()}.`],
+    ['scaley','happy',`BEEP! I learned something: the decimal point never moves. The digits do! Thank you, ${NAME()}.`]]
+})[i];}
+
+/* =========================================================
+   ANSWER CHECKING
+========================================================= */
+function norm(v){return String(v).toLowerCase().replace(/[\s,]/g,'').replace(/(metres|metre|meters|meter|m²|m2|mm|cm|m|s|sec)$/,'')}
+function isRight(v,a,alt){ const n=norm(v); if(alt && alt.split('|').some(x=>norm(x)===n)) return true; const na=norm(a);
+  if(/^[-+]?\d*\.?\d+$/.test(n) && /^[-+]?\d*\.?\d+$/.test(na)) return Math.abs(parseFloat(n)-parseFloat(na))<1e-9; return n===na; }
+function addStars(n){S.stars+=n; $('#stars').textContent=S.stars; const p=$('#stars').parentElement; p.animate([{transform:'scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:350});}
+function score(id,firstTry){ if(S.scored[id]) return; S.scored[id]=firstTry?'first':'retry'; if(firstTry) S.firstTry++; addStars(1); }
+function accuracy(){const k=Object.keys(S.scored); return k.length? S.firstTry/k.length : 0}
+
+/* =========================================================
+   TASK BUILDERS
+========================================================= */
+const REG={}; // choice/row data
+function head(t){return `<div class="card-head">${t.who?mini(t.who,t.mood):''}<h2>${t.title}</h2>${t.optional?'<span class="optional">optional</span>':''}</div>${t.intro?`<p class="intro">${t.intro}</p>`:''}`}
+function numGroup(g){
+  const rows=g.rows.filter(r=>!r.star||full());
+  return `<section class="card ${g.wide?'wide':''}" data-group="${g.id}">${head(g)}
+   <div class="rows">${rows.map(r=>{const d=S.done[r.id]; const v=esc(S.vals[r.id]||'');
+     const field = r.opts ? `<select class="ans ${d?'ok':''}" data-req="${r.id}" data-a="${esc(r.a)}" ${d?'disabled':''}><option value="">choose…</option>${r.opts.map(o=>`<option ${S.vals[r.id]===o?'selected':''}>${o}</option>`).join('')}</select>`
+       : `<input class="ans ${r.wideIn?'wide-in':''} ${d?'ok':''}" data-req="${r.id}" data-a="${esc(r.a)}" data-alt="${esc(r.alt||'')}" inputmode="${r.im||'decimal'}" autocomplete="off" aria-label="${esc(r.q.replace(/<[^>]+>/g,''))}" value="${v}" ${d?'readonly':''}>`;
+     return `<div class="row ${d?'is-ok':''}" data-row="${r.id}"><span class="q">${r.star?'<span class="star-tag">★</span>':''}${r.q}</span><span class="ans-wrap">${field}${r.unit?`<span class="unit">${r.unit}</span>`:''}<span class="mark"></span></span><span class="hint" hidden>${r.hint||g.hint||'Look again — which place does each digit belong in?'}</span></div>`}).join('')}</div>
+   <div class="card-foot"><button class="btn" data-check="${g.id}">Check answers</button><span class="fb"></span></div>${g.after||''}</section>`;
+}
+function btnRows(g){
+  const rows=g.rows.filter(r=>!r.star||full());
+  rows.forEach(r=>REG[r.id]=r);
+  return `<section class="card ${g.wide?'wide':''}">${head(g)}<div class="rows">${rows.map(r=>{const d=S.done[r.id];
+   return `<div class="row brow ${d?'is-ok':''}"><span class="q">${r.star?'<span class="star-tag">★</span>':''}${r.q}</span><span class="opts">${r.opts.map((o,i)=>`<button class="opt ${d&&(r.c===i||S.vals[r.id]==i)?'ok':''}" data-brow="${r.id}" data-i="${i}" data-req="${r.id}" ${d?'disabled':''}>${o}</button>`).join('')}</span><span class="hint" hidden>${r.why||''}</span></div>`}).join('')}</div>${g.after||''}</section>`;
+}
+function choice(t){
+  if(t.star&&!full()) return ''; REG[t.id]=t; const d=S.done[t.id];
+  return `<section class="card ${t.wide?'wide':''}">${head(t)}<p style="font-weight:600;margin:4px 0 10px">${t.q}</p><div class="opts">${t.opts.map((o,i)=>`<button class="opt ${d&&i===t.c?'ok':''}" data-choice="${t.id}" data-i="${i}" data-req="${t.id}" ${d?'disabled':''}>${o}</button>`).join('')}</div><p class="fb good" style="margin:10px 0 0">${d&&t.why?t.why:''}</p></section>`;
+}
+function textTask(t){const d=S.done[t.id];
+  return `<section class="card ${t.wide?'wide':''}">${head(t)}<textarea class="say ${d?'ok':''}" data-say="${t.id}" data-req="${t.id}" placeholder="${esc(t.ph||'Type here…')}">${esc(S.vals[t.id]||'')}</textarea><div class="card-foot"><button class="btn alt" data-saysave="${t.id}">${t.btn||'Save my answer'}</button><span class="fb"></span></div></section>`;
+}
+
+/* =========================================================
+   SCENE CONTENT
+========================================================= */
+function scene1(){
+  const T=towers();
+  return `
+  <section class="card wide">${head({title:'Sign your studio contract',who:'olivia',intro:'Every film needs a title — and every engineer needs a name on the door.'})}
+   <div class="cast"><div id="castClap">${clapSVG(150,(S.name||'YOU').slice(0,12))}</div>
+    <div class="fields"><label>My name<input class="ans wide-in" id="inName" data-req="c-name" value="${esc(S.name)}" placeholder="Your name" autocomplete="off"></label>
+     <label>Our movie is called…<input class="ans wide-in" id="inTitle" data-req="c-title" value="${esc(S.title)}" placeholder="e.g. The Wave That Ate the City" autocomplete="off"></label>
+     <div><button class="btn" id="signBtn">Sign the contract</button></div></div></div></section>
+  <section class="card wide">${head({title:"Director's Notes",who:'olivia',intro:'Scaley made three mistakes. Write your best guess for each note, then pin them to the Storyboard. No pressure — we check them at the end.'})}
+   <div class="notes">
+    <div class="note"><h3>Note 1 · The giant lighthouse</h3>${svgLighthouse()}<div>The real lighthouse is <b>24.6 m</b> tall. The model must be <b>10 times smaller</b>. Scaley printed one <b>246 m</b> tall — it burst through the roof! How tall should the model be?</div><input class="ans wide-in" data-pred="p1" data-req="p1" value="${esc(S.vals.p1||'')}" placeholder="My guess…"></div>
+    <div class="note"><h3>Note 2 · The skyline</h3>${svgTowersMini()}<div>Tower A <b>${T.A} m</b>, Tower B <b>${T.B} m</b>, Tower C <b>${T.C} m</b>. The tallest goes in the centre. Scaley says the one with the most digits is tallest. Which is really tallest?</div><input class="ans wide-in" data-pred="p2" data-req="p2" value="${esc(S.vals.p2||'')}" placeholder="My guess…"></div>
+    <div class="note"><h3>Note 3 · The hero car</h3>${svgCar()}<div>A model car is <b>0.42 m</b>. For a close-up we need it <b>10 times bigger</b>. Scaley says “just add a zero: 0.420 m”. How long should it be?</div><input class="ans wide-in" data-pred="p3" data-req="p3" value="${esc(S.vals.p3||'')}" placeholder="My guess…"></div>
+   </div>
+   <div class="card-foot"><button class="btn alt" id="pinBtn">📌 Pin to Storyboard</button><span class="fb"></span></div>
+   <div class="storyboard" id="storyboard">${storyboardHTML()}</div>
+  </section>`;
+}
+function storyboardHTML(){return ['p1','p2','p3'].filter(k=>S.done[k]).map((k,i)=>`<div class="sticky">Note ${i+1}: ${esc(S.vals[k])}</div>`).join('')}
+
+function scene2(){
+  return `
+  <section class="card">${head({title:'Body Ruler',who:'theo',optional:true,intro:'30 seconds on your feet. Show each size with your arms and fingers as the timer runs.'})}
+   <div id="bodyRuler" style="font-family:var(--display);font-weight:800;font-size:1.6rem;min-height:2.2em">Ready?</div>
+   <div class="card-foot"><button class="btn alt" id="bodyGo">Start the Body Ruler</button></div></section>
+  <section class="card" data-req-widget="w-zoom">${head({title:'Zoom into the tape measure',who:'theo',intro:'Tap EVERY zoom level button below to finish this card. Watch what happens each time we zoom in.'})}
+   <div class="zoom-levels" id="zoomLv"></div><div class="zoombox" id="zoomBox"></div><div class="zcap" id="zoomCap"></div>
+   <span data-req="w-zoom" hidden></span></section>
+  <section class="card wide">${head({title:'Studio Tape Chart',who:'olivia',optional:true,intro:'Type any length in metres and see where every digit lives.'})}
+   <div class="ans-wrap"><input class="ans wide-in" id="tapeIn" value="2.35" inputmode="decimal"><span class="unit">m</span></div>
+   <table class="pvt" id="tapeChart"></table></section>
+  ${numGroup({id:'g-tape',title:'Read the Tape',who:'theo',intro:'Theo calls out a prop size. Write it as metres.',rows:[
+    {id:'t1',q:'2 metres, 3 tenths, 5 hundredths',a:'2.35',unit:'m'},
+    {id:'t2',q:'1 metre and 6 centimetres',a:'1.06',unit:'m',hint:'6 cm is 6 hundredths. What goes in the tenths place?'},
+    {id:'t3',q:'47 centimetres',a:'0.47',unit:'m',hint:'Less than 1 metre — so what goes in the ones place?'},
+    {id:'t4',q:'1 metre, 4 tenths, 0 hundredths, 5 thousandths',a:'1.405',unit:'m',star:true},
+    {id:'t5',q:'9 millimetres',a:'0.009',unit:'m',star:true,hint:'9 mm is 9 thousandths. Fill the empty places with zeros.'}]})}
+  ${btnRows({id:'g-zero',title:'Real or fake zero?',who:'scaley',mood:'sneaky',intro:'Quality control! Are these two lengths the SAME?',rows:[
+    {id:'z1',q:'0.5 m and 0.50 m',opts:['Same','Different'],c:0,why:'A zero at the end changes nothing: both are 50 cm.'},
+    {id:'z2',q:'0.5 m and 0.05 m',opts:['Same','Different'],c:1,why:'0.5 m is 50 cm but 0.05 m is only 5 cm.'},
+    {id:'z3',q:'0.50 m and 0.500 m',opts:['Same','Different'],c:0,why:'Both are 50 cm — the end zeros are fake.'},
+    {id:'z4',q:'2.07 m and 2.7 m',opts:['Same','Different'],c:1,why:'2.07 m has 7 cm; 2.7 m has 70 cm.'},
+    {id:'z5',q:'4.010 m and 4.01 m',opts:['Same','Different'],c:0,why:'The last zero is fake — both are 4 m and 1 cm.'}]})}
+  ${btnRows({id:'g-long',title:'Which is longer?',who:'theo',intro:'Tap the longer length.',rows:[
+    {id:'l1',q:'0.3 m or 0.25 m',opts:['0.3 m','0.25 m'],c:0,why:'0.3 m = 30 cm, which beats 25 cm.'},
+    {id:'l2',q:'1.09 m or 1.1 m',opts:['1.09 m','1.1 m'],c:1,why:'1.1 m = 1.10 m = 110 cm, which beats 109 cm.'},
+    {id:'l3',q:'0.805 m or 0.85 m',opts:['0.805 m','0.85 m'],c:1,star:true,why:'0.85 m = 850 mm, which beats 805 mm.'}]})}`;
+}
+
+function scene3(){
+  return `
+  ${numGroup({id:'g-hero',title:'Grow the hero car',who:'theo',wide:false,intro:'0.42 m = 4 tenths and 2 hundredths of a metre. Make 10 copies of every part.',rows:[
+    {id:'h1',q:'10 × 4 tenths of a metre =',a:'4',unit:'m',hint:'10 tenths make 1 whole metre.'},
+    {id:'h2',q:'10 × 2 hundredths of a metre =',a:'0.2',unit:'m',hint:'10 hundredths make 1 tenth.'},
+    {id:'h3',q:'So the hero car: 0.42 m × 10 =',a:'4.2',unit:'m'}]})}
+  ${choice({id:'c-scaley',title:'Was Scaley right?',who:'scaley',mood:'proud',q:'Scaley says 0.42 × 10 = 0.420 m.',opts:['Yes — adding a zero made it 10 times bigger',"No — 0.420 m is still 42 cm. The car didn't grow!"],c:1,why:'Spot on. 0.420 m and 0.42 m are the same length.'})}
+  <section class="card wide">${head({title:'The Tripod Chart',who:'olivia',intro:'Type a length, then turn the Scale Dial. Watch closely: does the decimal point move — or do the digits?'})}
+   <div class="tri-ops"><span class="ans-wrap"><input class="ans" id="triIn" value="0.42" inputmode="decimal"><span class="unit">m</span></span><button class="btn ghost" id="triSet">Load</button></div>
+   <div class="tri" id="tri"></div>
+   <div class="tri-ops" id="triOps"></div>
+   <div class="walk" id="triWalk"></div><div class="trilog" id="triLog"></div>
+   <span data-req="w-tri" hidden></span>
+   <div class="card-foot"><span class="fb" id="triFb">To finish this card: press at least one × button and one ÷ button.</span></div>
+  </section>
+  ${numGroup({id:'g-props',title:'Scale the props',who:'theo',wide:true,hint:'Count the zeros — that is how many places the digits walk. × walks left, ÷ walks right.',intro:'Turning a model into a real object? Multiply. Turning a real object into a model? Divide.',rows:[
+    {id:'pr1',q:'Model tree → real tree: 0.6 m × 10',a:'6',unit:'m'},
+    {id:'pr2',q:'Model bus → real bus: 1.25 m × 10',a:'12.5',unit:'m'},
+    {id:'pr3',q:'Real bridge → model: 45 m ÷ 10',a:'4.5',unit:'m'},
+    {id:'pr4',q:'Real statue → model: 3.2 m ÷ 100',a:'0.032',unit:'m',hint:'Two places right. Fill the empty places with zeros.'},
+    {id:'pr5',q:'Model lamp post → real: 0.083 m × 100',a:'8.3',unit:'m'},
+    {id:'pr6',q:'Real stadium → model: 108 m ÷ 100',a:'1.08',unit:'m'},
+    {id:'pr7',q:'Real skyscraper → model: 380 m ÷ 1000',a:'0.38',unit:'m',star:true},
+    {id:'pr8',q:'Model window, metres → millimetres: 0.045 m × 1000',a:'45',unit:'mm',star:true}]})}
+  ${choice({id:'c-myth',title:"Myth Buster: Scaley's zero rule",who:'scaley',mood:'sneaky',q:'Adding a zero works for 34 × 10 = 340. Why does it FAIL for 3.4 × 10?',opts:['Decimals are broken numbers','In 34 the new zero pushes the digits into bigger places. In 3.4 a zero on the end pushes nothing.','It works fine: 3.4 × 10 = 3.40'],c:1,why:'Yes! The real rule is: the digits shift. The zero was never the reason.'})}
+  ${textTask({id:'x-why',title:'Say it like an engineer',who:'olivia',ph:'When we multiply by 10, the digits…',btn:'Save my explanation'})}`;
+}
+
+function scene4(){
+  const T=towers(); const f=full();
+  return `
+  <section class="card wide">${head({title:'The Skyline',who:'olivia',intro:'Here are the three model towers. Heights are drawn stretched so you can see small differences.'})}
+   <div class="skyline" id="skyline"></div></section>
+  ${numGroup({id:'g-rank',title:'Skyline line-up',who:'theo',intro:'Compare place by place, starting from the biggest place. Matching tails helps: write each one to the same number of decimal places.',rows:[
+    {id:'r1',q:`Tower A · ${T.A} m`,a:'1st (tallest)',opts:['1st (tallest)','2nd','3rd (shortest)']},
+    {id:'r2',q:`Tower B · ${T.B} m`,a:'2nd',opts:['1st (tallest)','2nd','3rd (shortest)']},
+    {id:'r3',q:`Tower C · ${T.C} m`,a:'3rd (shortest)',opts:['1st (tallest)','2nd','3rd (shortest)']},
+    f?{id:'r4',q:'How much taller is A than C?',a:'0.095',unit:'m',hint:'1.500 − 1.405. Line up the points.'}:{id:'r4c',q:'How much taller is A than B?',a:'0.05',unit:'m',hint:'1.50 − 1.45. Line up the points.'}]})}
+  ${btnRows({id:'g-cmp',title:'Quick compare',who:'scaley',mood:'sneaky',intro:'Scaley swears the longer number is always bigger. Tap the longer length.',rows:[
+    f?{id:'cmp',q:'0.805 m or 0.85 m',opts:['0.805 m','0.85 m'],c:1,why:'850 mm beats 805 mm.'}:{id:'cmpc',q:'0.3 m or 0.25 m',opts:['0.3 m','0.25 m'],c:0,why:'30 cm beats 25 cm.'}]})}
+  ${numGroup({id:'g-saw',title:'The Saw Twist',who:'theo',intro:`The studio saw only cuts to the nearest ${f?'tenth of a metre':'whole metre'}. What height does each tower become?`,hint:f?'Look one place to the right of the tenths. 5 or more rounds up.':'Look at the tenths. 5 or more rounds up.',rows:[
+    {id:f?'sA':'sAc',q:`Tower A · ${T.A} m →`,a:f?'1.5':'2',unit:'m'},
+    {id:f?'sB':'sBc',q:`Tower B · ${T.B} m →`,a:f?'1.5':'1',unit:'m'},
+    {id:f?'sC':'sCc',q:`Tower C · ${T.C} m →`,a:f?'1.4':'1',unit:'m'}],
+    after:`<p class="fb" id="sawMsg" style="margin:10px 0 0"></p>`})}
+  <section class="card wide">${head({title:"Scaley's cutting list",who:'scaley',mood:'proud',intro:'Wood for the model park: 1.35 m, 2.4 m, 0.75 m and 3.06 m. Scaley printed a total of 5.40 m.'})}
+   <div class="plank" id="plank"></div></section>
+  ${btnRows({id:'g-cut1',title:'Check Scaley',who:'olivia',rows:[{id:'cut1',q:'Is 5.40 m the right total?',opts:['Yes','No'],c:1,why:'Scaley lined up the right-hand edges: 135 + 24 + 75 + 306 = 540. Line up the points instead!'}]})}
+  ${numGroup({id:'g-cut',title:'Fix the cutting list',who:'theo',intro:'Line up the decimal points: metres under metres, tenths under tenths.',rows:[
+    {id:'ct',q:'1.35 + 2.40 + 0.75 + 3.06 =',a:'7.56',unit:'m'},
+    {id:'lo',q:'Left over from one 10 m plank:',a:'2.44',unit:'m',hint:'10.00 − 7.56. Count up if it helps.'}]})}`;
+}
+
+function scene5(){
+  const f=full();
+  return `
+  ${numGroup({id:'g-s1',title:'1 · Tripod Hop Count',who:'olivia',intro:'Count the zeros in 10, 100 or 1000 (or read the power: 10² = 2 hops). × walks the digits LEFT, ÷ walks them RIGHT.',rows:[
+    {id:'s1a',q:'3.2 ÷ 100 =',a:'0.032'},{id:'s1b',q:'0.045 × 10³ =',a:'45',star:true}]})}
+  ${numGroup({id:'g-s2',title:'2 · Ruler Thinking',who:'theo',intro:'Turn tenths into 10 cm pieces and hundredths into centimetres. Add like whole numbers, then turn back.',rows:[
+    {id:'s2a',q:'0.7 + 0.6 =',a:'1.3',hint:'7 pieces + 6 pieces = 13 pieces of 10 cm.'},{id:'s2b',q:'0.07 + 0.08 =',a:'0.15',hint:'7 cm + 8 cm = 15 cm.'}]})}
+  ${numGroup({id:'g-s3',title:'3 · Shift & Shrink',who:'olivia',wide:true,intro:'Shift the decimals into whole numbers, calculate, then shift back the total number of hops.',rows:[
+    {id:'s3a',q:'0.3 × 4 =',a:'1.2',hint:'3 × 4 = 12, then shift back 1 hop.'},
+    {id:'s3b',q:'Mini garden: 0.3 m × 0.4 m =',a:'0.12',unit:'m²',star:true,hint:'3 × 4 = 12, then shift back 2 hops (one for each decimal).'}],
+    after: f?`<div class="garden"><div id="gardenSvg"></div><div><p style="margin:0 0 8px;font-weight:600">The big square is 1 m × 1 m. Each little square is 0.1 m × 0.1 m = 0.01 m².</p><button class="btn alt" id="plantBtn">🌱 Plant the garden</button><p class="fb" id="gardenMsg"></p></div></div>`:''})}
+  ${numGroup({id:'g-s4',title:'4 · Friendly Numbers',who:'theo',wide:true,intro:'×5 is the same as ×10 then halve. ÷5 is the same as double then ÷10.',rows:[
+    {id:'s4a',q:'3.4 × 5 =',a:'17',hint:'34 ÷ 2'},{id:'s4b',q:'2.8 ÷ 5 =',a:'0.56',hint:'5.6 ÷ 10'}]})}
+  <section class="card wide">${head({title:'Beat the Clapperboard',who:'olivia',intro:'60 seconds, 8 cards. Type the answer and press Enter. Take 1 first, then Take 2 — can you beat your own score?'})}
+   <div class="speed" id="speed"></div><span data-req="take1" hidden></span><span data-req="take2" hidden></span></section>`;
+}
+const TAKES={
+ full:{t1:[['0.56 × 100','56'],['8.3 ÷ 100','0.083'],['0.06 + 0.07','0.13'],['0.2 × 0.3','0.06'],['0.5 × 0.8','0.4'],['0.003 × 1000','3'],['3.4 × 5','17'],['2.8 ÷ 5','0.56']],
+       t2:[['0.72 × 100','72'],['6.1 ÷ 100','0.061'],['0.05 + 0.09','0.14'],['0.4 × 0.3','0.12'],['0.5 × 0.6','0.3'],['0.008 × 1000','8'],['1.8 × 5','9'],['4.6 ÷ 5','0.92']]},
+ core:{t1:[['0.56 × 100','56'],['8.3 ÷ 100','0.083'],['0.06 + 0.07','0.13'],['0.7 × 10','7'],['4.5 ÷ 10','0.45'],['36 ÷ 10','3.6'],['3.4 × 5','17'],['2.8 ÷ 5','0.56']],
+       t2:[['0.72 × 100','72'],['6.1 ÷ 100','0.061'],['0.05 + 0.09','0.14'],['0.9 × 10','9'],['5.2 ÷ 10','0.52'],['48 ÷ 10','4.8'],['1.8 × 5','9'],['4.6 ÷ 5','0.92']]}};
+
+function scene6(){
+  const f=full(), T=towers();
+  const tallest='Tower A', shortest=f?'Tower C':'Tower C';
+  return `
+  ${btnRows({id:'g-sb',title:'Fix the Storyboard',who:'olivia',wide:true,intro:'Here are the real answers. Were you right this morning, or did you fix your thinking today? Both are wins.',rows:[
+    {id:'sb1',q:`<b>Note 1:</b> model lighthouse = 24.6 ÷ 10 = <b>2.46 m</b>. Scaley's 246 m was 100 times too tall! <br><small>Your guess: ${esc(S.vals.p1||'—')}</small>`,opts:['I was right ✔','I fixed it ✏️'],c:-1},
+    {id:'sb2',q:`<b>Note 2:</b> ${tallest} (${T.A} m) is tallest and ${shortest} (${T.C} m) is shortest. More digits does not mean bigger. <br><small>Your guess: ${esc(S.vals.p2||'—')}</small>`,opts:['I was right ✔','I fixed it ✏️'],c:-1},
+    {id:'sb3',q:`<b>Note 3:</b> hero car = 0.42 × 10 = <b>4.2 m</b>, not 0.420 m. <br><small>Your guess: ${esc(S.vals.p3||'—')}</small>`,opts:['I was right ✔','I fixed it ✏️'],c:-1}]})}
+  ${numGroup({id:'g-exit',title:'Final check',who:'theo',wide:true,intro:'Six questions before the premiere. Take your time.',rows: f?[
+    {id:'e1',q:'1a · The value of the 7 in 5.307 m, in metres',a:'0.007',alt:'7 thousandths|7/1000',unit:'m',im:'text'},
+    {id:'e1b',q:'1b · The same 7 in millimetres',a:'7',unit:'mm'},
+    {id:'e2a',q:'2 · Order 0.8 m, 0.75 m, 0.805 m · shortest',a:'0.75 m',opts:['0.8 m','0.75 m','0.805 m']},
+    {id:'e2b',q:'2 · middle',a:'0.8 m',opts:['0.8 m','0.75 m','0.805 m']},
+    {id:'e2c',q:'2 · longest',a:'0.805 m',opts:['0.8 m','0.75 m','0.805 m']},
+    {id:'e3',q:'3 · 6.2 × 100 =',a:'620'},
+    {id:'e4',q:'4 · 7.1 − 2.45 =',a:'4.65',hint:'Write 7.10 − 2.45 and line up the points.'},
+    {id:'e5',q:'5 · 0.4 × 0.2 =',a:'0.08',hint:'4 × 2 = 8, then shift back 2 hops.'}]:[
+    {id:'e1c',q:'1a · The value of the 7 in 5.37 m, in metres',a:'0.07',alt:'7 hundredths|7/100',unit:'m',im:'text'},
+    {id:'e1bc',q:'1b · The same 7 in centimetres',a:'7',unit:'cm'},
+    {id:'e2ac',q:'2 · Order 0.8 m, 0.75 m, 0.78 m · shortest',a:'0.75 m',opts:['0.8 m','0.75 m','0.78 m']},
+    {id:'e2bc',q:'2 · middle',a:'0.78 m',opts:['0.8 m','0.75 m','0.78 m']},
+    {id:'e2cc',q:'2 · longest',a:'0.8 m',opts:['0.8 m','0.75 m','0.78 m']},
+    {id:'e3',q:'3 · 6.2 × 100 =',a:'620'},
+    {id:'e4',q:'4 · 7.1 − 2.45 =',a:'4.65',hint:'Write 7.10 − 2.45 and line up the points.'},
+    {id:'e5c',q:'5 · 5.3 ÷ 10 =',a:'0.53'}]})}
+  ${choice({id:'e6',title:'6 · The big question',who:'olivia',wide:true,q:'Does the decimal point move when we multiply by 10?',opts:['Yes — it jumps one place to the right','No — every digit moves one place left and the point stays put','Only when the number has a zero'],c:1,why:'That is the Tripod Rule. The camera stays; the actors walk.'})}
+  ${textTask({id:'e6x',title:'Explain it in your own words',who:'theo',wide:true,ph:'The decimal point…',btn:'Save my explanation'})}`;
+}
+const EXITQ=()=>full()?[['e1','e1b'],['e2a','e2b','e2c'],['e3'],['e4'],['e5'],['e6']]:[['e1c','e1bc'],['e2ac','e2bc','e2cc'],['e3'],['e4'],['e5c'],['e6']];
+function exitScore(){return EXITQ().filter(q=>q.every(id=>S.scored[id]==='first')).length}
+
+function computeAward(){ if(S.award) return S.award; const a=accuracy(), e=exitScore(); if(a>=.8&&e>=5) return 'Gold'; if(a>=.6||e>=4) return 'Silver'; return 'Bronze'; }
+const MEDAL={Gold:'#FAA71C',Silver:'#9FB3B8',Bronze:'#D77F28'};
+function scene7(){
+  const aw=computeAward(), t1=S.speed.t1?.score, t2=S.speed.t2?.score;
+  return `
+  <section class="card wide premiere" style="box-shadow:7px 7px 0 var(--orange)"><span class="spot l"></span><span class="spot r"></span>
+   <div class="award"><div class="trophy">${trophySVG(aw)}</div>
+    <div><p class="medal-name" style="background:${MEDAL[aw]}">${aw} Clapperboard</p>
+     <p style="margin:0 0 14px;font-size:1.15rem;font-weight:600">Awarded to <b>${NAME()}</b>, Junior Model Engineer on <b>${TITLE()}</b></p>
+     <div class="letter">Dear ${NAME()},<br>Today you didn't just follow Scaley's rules — you found out <b>why</b> they work. You showed us that the decimal point never moves: the digits walk, left when things grow and right when they shrink. That's how real engineers think. Keep asking “why?” — it's your superpower.<div class="sig">— Director Olivia Grant, Theo Walsh &amp; Scaley 🤖</div></div>
+     <div class="card-foot"><button class="btn alt" id="replay">🎉 Celebrate again</button></div></div></div></section>
+  <section class="card wide">${head({title:'Your movie in numbers',who:'theo'})}
+   <div class="stats">
+    <div class="stat"><b>⭐ ${S.stars}</b>stars earned</div>
+    <div class="stat"><b>${Math.round(accuracy()*100)}%</b>right first time</div>
+    <div class="stat"><b>${t1??'–'} → ${t2??'–'}</b>Take 1 → Take 2</div>
+    <div class="stat"><b>${exitScore()}/6</b>final check</div></div></section>
+  <section class="card wide">${head({title:'End credits',who:'olivia'})}
+   <div class="rollbox"><div class="roll">
+     <p>A MyMasteryLab production</p><h4>${TITLE()}</h4>
+     <p>Starring</p><h4>${NAME()} · Junior Model Engineer</h4>
+     <p>Directed by</p><h4>Olivia Grant</h4>
+     <p>Models built by</p><h4>Theo Walsh</h4>
+     <p>Mistakes printed by</p><h4>Scaley the 3D Printer</h4>
+     <p>Special thanks</p><h4>The decimal point, for staying on its tripod</h4>
+     <p>Filmed at</p><h4>Tiny Town Film Studio</h4>
+     <p>Coming soon</p><h4>Your next MyMasteryLab adventure</h4></div></div></section>
+  <section class="card wide mentor-only"><div class="debrief"><h3>Parent debrief summary (mentor view)</h3>
+   <ul>
+    <li><b>Starting point (Storyboard):</b> Note 1 “${esc(S.vals.p1||'—')}”, Note 2 “${esc(S.vals.p2||'—')}”, Note 3 “${esc(S.vals.p3||'—')}”.</li>
+    <li><b>Breakthrough:</b> ${S.done['c-myth']?'Busted the “add a zero” myth and explained the Tripod Rule.':'Tripod Rule still to consolidate.'} ${S.vals['e6x']?`In their words: “${esc(S.vals['e6x'])}”`:''}</li>
+    <li><b>Measurable growth:</b> Take 1 ${t1??'–'}/8 → Take 2 ${t2??'–'}/8 · final check ${exitScore()}/6 · ${Math.round(accuracy()*100)}% right first time.</li>
+    <li><b>Suggested award:</b> ${aw} Clapperboard.</li>
+    <li><b>Next step:</b> free assessment report + personalised roadmap in the Concept Clarity Program${aw==='Gold'?' (consider Competition Builder)':''}.</li></ul></div></section>`;
+}
+function trophySVG(aw){const c=MEDAL[aw]; return `<svg viewBox="0 0 220 240" width="100%" style="max-width:260px" aria-hidden="true"><path d="M60 30 H160 V92 Q160 150 110 158 Q60 150 60 92Z" fill="${c}" stroke="#1A1A1A" stroke-width="5"/><path d="M60 50 Q20 50 24 88 Q30 118 66 118" fill="none" stroke="#1A1A1A" stroke-width="6"/><path d="M160 50 Q200 50 196 88 Q190 118 154 118" fill="none" stroke="#1A1A1A" stroke-width="6"/><rect x="96" y="156" width="28" height="30" fill="${c}" stroke="#1A1A1A" stroke-width="5"/><rect x="58" y="186" width="104" height="36" rx="6" fill="#1A1A1A"/><text x="110" y="211" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="18" fill="${c}">${aw.toUpperCase()}</text><g transform="translate(78 62)">${clapSVG(64).replace('<svg','<svg x="0" y="0"')}</g><path d="M40 20 l6 -12 l6 12 l-12 -7 h12Z" fill="#FAA71C"/><path d="M170 14 l5 -10 l5 10 l-10 -6 h10Z" fill="#21DED7"/></svg>`}
+
+/* ---------- small illustrations ---------- */
+function svgLighthouse(){return `<svg viewBox="0 0 200 120" aria-hidden="true"><rect x="0" y="70" width="200" height="50" fill="#E3F6F7"/><path d="M20 70 L100 30 L180 70Z" fill="#D77F28" stroke="#1A1A1A" stroke-width="2"/><rect x="30" y="70" width="140" height="44" fill="#fff" stroke="#1A1A1A" stroke-width="2"/><path d="M88 118 L96 0 L108 0 L116 118Z" fill="#fff" stroke="#1A1A1A" stroke-width="2"/><rect x="92" y="20" width="20" height="10" fill="#C92426"/><rect x="90" y="60" width="24" height="10" fill="#C92426"/><rect x="88" y="98" width="28" height="10" fill="#C92426"/><path d="M60 40 l10 8 M140 40 l-10 8 M70 26 l8 10 M130 26 l-8 10" stroke="#1A1A1A" stroke-width="3"/><text x="150" y="20" font-size="14" font-weight="800" fill="#C92426" font-family="Outfit">CRASH!</text></svg>`}
+function svgTowersMini(){return `<svg viewBox="0 0 200 120" aria-hidden="true"><rect x="0" y="108" width="200" height="12" fill="#1A1A1A"/><rect x="30" y="18" width="36" height="90" fill="#00A7B2" stroke="#1A1A1A" stroke-width="2"/><rect x="82" y="26" width="36" height="82" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2"/><rect x="134" y="30" width="36" height="78" fill="#C92426" stroke="#1A1A1A" stroke-width="2"/>${[0,1,2,3,4,5].map(k=>`<rect x="38" y="${28+k*13}" width="8" height="6" fill="#fff"/><rect x="50" y="${28+k*13}" width="8" height="6" fill="#fff"/>`).join('')}<text x="48" y="14" text-anchor="middle" font-weight="800" font-family="Outfit" font-size="12">A</text><text x="100" y="22" text-anchor="middle" font-weight="800" font-family="Outfit" font-size="12">B</text><text x="152" y="26" text-anchor="middle" font-weight="800" font-family="Outfit" font-size="12">C</text></svg>`}
+function svgCar(){return `<svg viewBox="0 0 200 120" aria-hidden="true"><rect x="0" y="92" width="200" height="28" fill="#E3F6F7"/><path d="M30 86 L40 60 Q46 48 60 48 L120 48 Q134 48 142 60 L156 70 L176 74 Q184 76 184 86Z" fill="#C92426" stroke="#1A1A1A" stroke-width="3"/><path d="M52 60 L60 52 L96 52 L96 64 L50 64Z M104 52 L122 52 Q130 52 136 64 L104 64Z" fill="#E3F6F7" stroke="#1A1A1A" stroke-width="2"/><circle cx="62" cy="88" r="13" fill="#1A1A1A"/><circle cx="62" cy="88" r="5" fill="#fff"/><circle cx="150" cy="88" r="13" fill="#1A1A1A"/><circle cx="150" cy="88" r="5" fill="#fff"/><path d="M30 26 H180" stroke="#1A1A1A" stroke-width="2" marker-start="url(#a)"/><text x="105" y="20" text-anchor="middle" font-weight="800" font-family="Outfit" font-size="14">0.42 m</text><path d="M30 20 V32 M180 20 V32" stroke="#1A1A1A" stroke-width="2"/></svg>`}
+
+/* =========================================================
+   RENDER
+========================================================= */
+let rendered=0;
+function renderFrames(){
+  $('#frames').innerHTML=SC.slice(1).map((s,k)=>{const i=k+1; const locked=i>S.unlocked; return `<button class="frame ${locked?'locked':''} ${S.sceneDone[i]?'done':''} ${S.current===i?'current':''}" data-go="${i}" aria-label="Scene ${i}: ${s.t}${locked?' (locked)':''}"><span class="band" style="background:${s.c};color:${s.ink}"><span>${i<7?'Scene '+i:'Finale'}</span><span class="emo">${s.emo}</span></span><span class="nm">${s.t}</span></button>`}).join('');
+}
+function renderTitle(){ $('#movieTitle').innerHTML=`${clapSVG(40,'')}<span class="t">${S.title?esc(S.title):'Tiny Town Film Studio'}</span>`; $('#stars').textContent=S.stars; }
+function renderBeat(){
+  const i=S.current, bs=BEATS(i), b=Math.min(S.beat[i]||0,bs.length-1); const [who,mood,txt]=bs[b];
+  $('#portrait').innerHTML=CH[who].svg(mood); $('#who').textContent=CH[who].name; $('#who').style.color=CH[who].color; $('#line').innerHTML=txt;
+  $('#dots').innerHTML=bs.map((_,k)=>`<i class="${k<=b?'on':''}"></i>`).join('');
+  $('#prevBeat').disabled=b===0; $('#nextBeat').disabled=b===bs.length-1; $('#nextBeat').textContent=b===bs.length-1?'✔':'Next ▶';
+}
+function render(){
+  const i=S.current, s=SC[i];
+  document.documentElement.style.setProperty('--set',s.c); document.documentElement.style.setProperty('--set-ink',s.ink);
+  $('#sceneTitle').textContent=s.t; $('#sceneSub').textContent=s.sub;
+  renderFrames(); renderTitle(); renderBeat();
+  $('#stage').style.backgroundImage = i===7 ? 'radial-gradient(rgba(255,255,255,.25) 1.6px,transparent 1.8px), linear-gradient(120deg,#00A7B2 0%,#21DED7 45%,#FAA71C 80%,#D77F28 100%)' : '';
+  $('#stage').style.backgroundSize = i===7 ? '20px 20px, 100% 100%' : '';
+  $('#tasks').innerHTML=[null,scene1,scene2,scene3,scene4,scene5,scene6,scene7][i]()+`<div id="wrapSlot" style="display:contents"></div>`;
+  bindScene(i); updateProgress(); renderDrawer(); save();
+}
+function reqIds(){return [...new Set($$('#tasks [data-req]').map(e=>e.dataset.req))]}
+function cardTitle(c){return ($('h2',c)?.textContent||'Activity').trim()}
+function updateProgress(){
+  const i=S.current, dock=$('#dock');
+  if(i===7){$('#wrapSlot').innerHTML=''; dock.classList.add('hidden'); return}
+  const ids=reqIds(), done=ids.filter(id=>S.done[id]).length, all=ids.length>0&&done===ids.length;
+  // status chip on every required card + list of cards still to do
+  const pending=[];
+  $$('#tasks .card').forEach(c=>{const r=[...new Set($$('[data-req]',c).map(e=>e.dataset.req))]; let chip=$('.chip',c);
+    if(!r.length){ if(chip) chip.remove(); return; }
+    const left=r.filter(id=>!S.done[id]).length;
+    if(!chip){chip=document.createElement('span'); const h=$('.card-head',c); if(h) h.appendChild(chip); else c.prepend(chip);}
+    chip.className='chip '+(left?'todo-c':'done-c'); chip.textContent=left?`${left} to do`:'✔ Done';
+    if(left){ if(!c.id) c.id='card-'+Math.random().toString(36).slice(2,8); pending.push([c.id,cardTitle(c),left]); }});
+  if(all){
+    const first=!S.sceneDone[i];
+    if(first){S.sceneDone[i]=true; sfx.wrap(); burst(90);}
+    if(S.autoUnlock && S.unlocked<=i){ S.unlocked=i+1; setTimeout(()=>{sfx.unlock(); burst(140); toast(`${i+1<7?'Scene '+(i+1):'The Premiere'} unlocked!`)}, first?700:0); }
+    renderFrames(); save();
+    const next=SC[i+1], open=S.unlocked>i, lbl=i+1<7?'Scene '+(i+1):'the Premiere';
+    $('#wrapSlot').innerHTML=`<div class="wrapbar">${clapSVG(70,'')}<div style="flex:1;min-width:200px"><h3>Scene ${i} is a wrap!</h3><p>${open?`${lbl} — ${next.t} — is unlocked.`:(mentor?'Mentor: unlock the next scene when you are ready.':'Great work! The Director will unlock the next scene.')}</p></div>
+      ${open?`<button class="btn" data-go="${i+1}">Go to ${lbl} ▶</button>`:(mentor?`<button class="btn red" id="unlockBtn">🔓 Unlock ${lbl}</button>`:'')}</div>`;
+    dock.innerHTML=`<span class="lbl">🎬 Scene ${i} complete!</span><span class="bar"><i style="width:100%"></i></span>${open?`<button class="btn go" data-dockgo="${i+1}">Go to ${lbl} ▶</button>`:(mentor?`<button class="btn red go" id="unlockBtn2">🔓 Unlock ${lbl}</button>`:'<span>Waiting for the Director…</span>')}`;
+  } else {
+    $('#wrapSlot').innerHTML='';
+    dock.innerHTML=`<span class="lbl">Scene ${i} · ${done}/${ids.length}</span><span class="bar"><i style="width:${ids.length?done/ids.length*100:0}%"></i></span><span class="todo"><span style="font-weight:700;align-self:center">Still to do:</span>${pending.map(([id,t,l])=>`<button data-scroll="${id}">${esc(t)}${l>1?` (${l})`:''}</button>`).join('')}</span>`;
+  }
+  dock.classList.remove('hidden');
+  $$('[data-scroll]',dock).forEach(b=>b.onclick=()=>{const c=document.getElementById(b.dataset.scroll); if(!c) return; c.scrollIntoView({behavior:'smooth',block:'center'}); c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); sfx.click();});
+  $$('[data-dockgo]',dock).forEach(b=>b.onclick=()=>goTo(+b.dataset.dockgo));
+  [$('#unlockBtn'),$('#unlockBtn2')].forEach(b=>{if(b) b.onclick=unlockNext});
+}
+function unlockNext(){const i=S.current; S.unlocked=Math.max(S.unlocked,i+1); sfx.unlock(); burst(140); toast(`${i+1<7?'Scene '+(i+1):'The Premiere'} unlocked!`); save(); setTimeout(()=>goTo(i+1),700);}
+function goTo(i){
+  if(i<1||i>7) return;
+  if(i>S.unlocked&&!mentor){sfx.miss(); toast(`Locked. Finish every card in Scene ${S.unlocked} (see “Still to do” at the bottom) and it opens automatically.`); return;}
+  if(i>S.unlocked) S.unlocked=i;
+  S.current=i; sfx.clap(); render(); scrollTo({top:0,behavior:'smooth'});
+  if(i===7) setTimeout(grand,500);
+}
+function grand(){sfx.grand(); let n=0; const iv=setInterval(()=>{burst(110,Math.random()*innerWidth,innerHeight*.25); if(++n>6) clearInterval(iv)},450); S.celebrated=true; save();}
+
+/* =========================================================
+   BINDINGS
+========================================================= */
+function markDone(id){ if(!S.done[id]){S.done[id]=true; save(); updateProgress();} }
+function bindScene(i){
+  // numeric groups
+  $$('[data-check]').forEach(b=>b.onclick=()=>checkGroup(b.dataset.check));
+  $$('#tasks input.ans[data-req]:not([data-pred])').forEach(inp=>{ if(inp.id) return; inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const g=inp.closest('[data-group]'); if(g) checkGroup(g.dataset.group)}})});
+  // button rows
+  $$('[data-brow]').forEach(b=>b.onclick=()=>{const r=REG[b.dataset.brow], k=+b.dataset.i, row=b.closest('.row'); if(S.done[r.id]) return;
+    if(r.c===-1||k===r.c){ S.done[r.id]=true; S.vals[r.id]=k; score(r.id,!S.wrong[r.id]); $$(`[data-brow="${r.id}"]`).forEach(x=>{x.disabled=true}); b.classList.add('ok'); row.classList.add('is-ok'); const h=$('.hint',row); if(h&&r.c!==-1){h.hidden=false;h.style.color='var(--teal-d)'} sfx.correct(); save(); updateProgress(); if(i===4&&r.id==='cut1') drawPlank(); }
+    else { S.wrong[r.id]=(S.wrong[r.id]||0)+1; b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); const h=$('.hint',row); if(h){h.hidden=false;h.textContent='Not quite — try the other one. '+ (r.why?'Think about it in centimetres or millimetres.':'')} sfx.wrong(); save(); }});
+  // choice
+  $$('[data-choice]').forEach(b=>b.onclick=()=>{const t=REG[b.dataset.choice], k=+b.dataset.i, card=b.closest('.card'); if(S.done[t.id]) return;
+    if(k===t.c){S.done[t.id]=true; score(t.id,!S.wrong[t.id]); $$(`[data-choice="${t.id}"]`,card).forEach(x=>x.disabled=true); b.classList.add('ok'); $('.fb',card).textContent=t.why||'Correct!'; sfx.correct(); burst(40,innerWidth/2,innerHeight/2); save(); updateProgress();}
+    else {S.wrong[t.id]=(S.wrong[t.id]||0)+1; b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); b.disabled=true; $('.fb',card).className='fb bad'; $('.fb',card).textContent='Not that one — read the question again.'; sfx.wrong(); save();}});
+  // text tasks
+  $$('[data-saysave]').forEach(b=>b.onclick=()=>{const id=b.dataset.saysave, ta=$(`[data-say="${id}"]`), fb=b.nextElementSibling; const v=ta.value.trim();
+    if(v.length<3){fb.className='fb bad';fb.textContent='Write a sentence first — your own words are perfect.'; sfx.miss(); return;}
+    S.vals[id]=v; ta.classList.add('ok'); fb.className='fb good'; fb.textContent='Saved. Great thinking!'; if(!S.done[id]){addStars(1);} sfx.correct(); markDone(id);});
+  ({1:bind1,2:bind2,3:bind3,4:bind4,5:bind5,7:bind7})[i]?.();
+}
+function checkGroup(gid){
+  const card=$(`[data-group="${gid}"]`); let wrong=0, pending=0, newly=0;
+  $$('.ans[data-req]',card).forEach(inp=>{const id=inp.dataset.req, row=inp.closest('.row'); if(S.done[id]) return;
+    const v=inp.value.trim(); S.vals[id]=v; const hint=$('.hint',row);
+    if(!v){pending++; return;}
+    if(isRight(v,inp.dataset.a,inp.dataset.alt)){ S.done[id]=true; score(id,!S.wrong[id]); inp.classList.remove('bad'); inp.classList.add('ok'); inp.readOnly=true; if(inp.tagName==='SELECT') inp.disabled=true; row.classList.add('is-ok'); if(hint) hint.hidden=true; newly++; }
+    else { wrong++; S.wrong[id]=(S.wrong[id]||0)+1; inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); if(hint) hint.hidden=false; }
+  });
+  const fb=$('.card-foot .fb',card); const left=$$('.ans[data-req]',card).filter(x=>!S.done[x.dataset.req]).length;
+  if(wrong){fb.className='fb bad'; fb.textContent=`${wrong} to fix — read the red hint and try again.`; sfx.wrong();}
+  else if(!left){fb.className='fb good'; fb.textContent='All correct! ⭐'; sfx.correct(); const r=card.getBoundingClientRect(); burst(60,r.left+r.width/2,r.top+40);}
+  else if(newly){fb.className='fb good'; fb.textContent=`Nice! ${left} still to go.`; sfx.correct();}
+  else {fb.className='fb'; fb.textContent='Fill in an answer first.'; sfx.miss();}
+  save(); updateProgress(); afterCheck(gid);
+}
+function afterCheck(gid){
+  if(gid==='g-rank'||gid==='g-saw') drawSkyline();
+  if(gid==='g-saw'){const f=full(); const ids=f?['sA','sB','sC']:['sAc','sBc','sCc']; if(ids.every(id=>S.done[id])){$('#sawMsg').textContent=f?'Uh-oh: Towers A and B both come out 1.5 m. The skyline looks flat! Precise measurements matter.':'Uh-oh: Towers B and C both come out 1 m and A jumps to 2 m. The skyline is ruined! Precise measurements matter.'; $('#sawMsg').className='fb bad';}}
+  if(gid==='g-cut') drawPlank();
+}
+
+/* ---- scene 1 ---- */
+function bind1(){
+  const upd=()=>{S.name=$('#inName').value.trim(); S.title=$('#inTitle').value.trim(); $('#castClap').innerHTML=clapSVG(150,(S.name||'YOU').slice(0,12)); renderTitle(); renderBeat(); save();};
+  $('#inName').oninput=upd; $('#inTitle').oninput=upd;
+  $('#signBtn').onclick=()=>{upd(); if(!S.name||!S.title){sfx.miss(); toast('Add your name and the movie title first.'); return;} markDone('c-name'); markDone('c-title'); $('#inName').classList.add('ok'); $('#inTitle').classList.add('ok'); sfx.clap(); setTimeout(()=>sfx.correct(),120); burst(80); toast(`Welcome to the studio, ${S.name}!`); renderFrames();};
+  if(S.done['c-name']){$('#inName').classList.add('ok'); $('#inTitle').classList.add('ok');}
+  $('#pinBtn').onclick=()=>{let ok=true; $$('[data-pred]').forEach(inp=>{const v=inp.value.trim(); if(!v){ok=false; inp.classList.add('bad');} else {S.vals[inp.dataset.pred]=v; inp.classList.remove('bad');}});
+    const fb=$('#pinBtn').nextElementSibling; if(!ok){fb.className='fb bad'; fb.textContent='Write a guess for every note — any guess is fine!'; sfx.miss(); return;}
+    ['p1','p2','p3'].forEach(k=>S.done[k]=true); $('#storyboard').innerHTML=storyboardHTML(); fb.className='fb good'; fb.textContent='Pinned! We will check these before the final cut.'; sfx.correct(); save(); updateProgress();};
+}
+/* ---- scene 2 ---- */
+let zoomLevel=0, zoomSeen=new Set();
+function bind2(){
+  const levels=full()?4:3; zoomSeen=new Set(S.vals.zoomSeen||[]);
+  const names=['1 metre','Tenths · 10 cm','Hundredths · 1 cm','★ Thousandths · 1 mm'];
+  const drawLv=()=>{ $('#zoomLv').innerHTML=names.slice(0,levels).map((n,k)=>`<button class="btn ghost ${zoomSeen.has(k)?'seen':''} ${k===zoomLevel?'cur':''}" data-zl="${k}">${n}</button>`).join('');
+    $$('[data-zl]').forEach(b=>b.onclick=()=>{zoomLevel=+b.dataset.zl; zoomSeen.add(zoomLevel); S.vals.zoomSeen=[...zoomSeen]; sfx.whoosh(); drawLv(); drawZoom(); if(zoomSeen.size>=levels){ if(!S.done['w-zoom']){sfx.correct(); addStars(1);} markDone('w-zoom'); }});};
+  drawLv(); drawZoom();
+  $('#bodyGo').onclick=()=>{let t=30; const el=$('#bodyRuler'); const steps=[[30,'Arms wide — about 1 metre!'],[22,'One hand — about 10 cm (a tenth)'],[14,'Small pinch — about 1 cm (a hundredth)'],[7,'Nearly touching — 1 mm (a thousandth)!']]; sfx.clap(); const iv=setInterval(()=>{const s=steps.filter(x=>t<=x[0]).pop()||steps[0]; el.textContent=`${t}s · ${s[1]}`; if(t<=3) sfx.tick(); if(t--<=0){clearInterval(iv); el.textContent='Great stretching! 🎉'; sfx.correct();}},1000);};
+  const tape=()=>drawPV($('#tapeChart'),$('#tapeIn').value); $('#tapeIn').oninput=tape; tape();
+}
+function drawZoom(){
+  const L=zoomLevel, W=1000, H=190; let segs=1, label=['0 m','1 m'], caps=['This is 1 whole metre. It lives in the <b>ones</b> place.','Split the metre into 10 equal pieces. Each piece is <b>0.1 m = 10 cm = one tenth</b>.','Zoom into one tenth and split it into 10 again. Each piece is <b>0.01 m = 1 cm = one hundredth</b>.','Zoom into one centimetre and split it into 10 again. Each piece is <b>0.001 m = 1 mm = one thousandth</b>.'];
+  segs=L===0?1:10; const unit=[1,0.1,0.01,0.001][L]; const start=0;
+  const cols=['#00A7B2','#21DED7'];
+  let s=`<svg viewBox="0 0 ${W} ${H}"><rect x="0" y="0" width="${W}" height="${H}" rx="16" fill="#F3F8F9"/>`;
+  const x0=40, w=W-80, y=60, h=70;
+  for(let k=0;k<segs;k++){const x=x0+k*w/segs; s+=`<rect x="${x}" y="${y}" width="${w/segs}" height="${h}" fill="${L===0?'#FAA71C':cols[k%2]}" stroke="#1A1A1A" stroke-width="2"/>`;
+    if(L>0){const val=+(unit*(k+1)).toFixed(3); s+=`<text x="${x+w/segs}" y="${y+h+26}" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="18">${val}</text>`;}}
+  if(L===0){s+=`<text x="${x0}" y="${y+h+26}" font-family="Outfit" font-weight="700" font-size="20">0</text><text x="${x0+w}" y="${y+h+26}" text-anchor="end" font-family="Outfit" font-weight="700" font-size="20">1 m</text>`;}
+  const lab=['1 metre','each piece = 0.1 m','each piece = 0.01 m','each piece = 0.001 m'][L];
+  s+=`<text x="${W/2}" y="40" text-anchor="middle" font-family="Bricolage Grotesque, Outfit" font-weight="800" font-size="30" fill="#1A1A1A">${lab}</text></svg>`;
+  $('#zoomBox').innerHTML=s; $('#zoomCap').innerHTML=caps[L];
+}
+function drawPV(tbl,val){
+  const v=String(val).replace(/[^\d.]/g,''); let [ip='',fp='']=v.split('.'); ip=ip.replace(/^0+(?=\d)/,''); const cells={};
+  [...ip].reverse().forEach((d,k)=>cells[k]=d); [...fp].slice(0,3).forEach((d,k)=>cells[-(k+1)]=d);
+  const H=[[1,'Tens','10 m'],[0,'Ones','1 m'],['pt'],[-1,'Tenths','10 cm'],[-2,'Hundredths','1 cm'],[-3,'Thousandths','1 mm']];
+  tbl.innerHTML=`<tr>${H.map(h=>h[0]==='pt'?'<th class="ptc"></th>':`<th class="${h[0]<0?'dec':''}">${h[1]}<span class="u">${h[2]}</span></th>`).join('')}</tr><tr>${H.map(h=>h[0]==='pt'?'<td class="pt">•</td>':`<td>${cells[h[0]]??(h[0]===0?'0':'')}</td>`).join('')}</tr>`;
+}
+/* ---- scene 3: tripod ---- */
+let TRI={tiles:[],uid:0,used:{}};
+const PMAX=3,PMIN=-3, NCOL=7;
+function triParse(str){const s=String(str).replace(/[^\d.]/g,''); if(!s||s==='.') return false; let [ip='',fp='']=s.split('.'); if(fp.length>3){toast('Use up to 3 decimal places.'); return false} ip=ip.replace(/^0+/,''); if(ip.length>4){toast('Use a number smaller than 10 000.'); return false}
+  TRI.tiles=[]; [...ip].forEach((d,k)=>{const p=ip.length-1-k; if(d!=='0') TRI.tiles.push({id:TRI.uid++,d,p})}); [...fp].forEach((d,k)=>{if(d!=='0') TRI.tiles.push({id:TRI.uid++,d,p:-(k+1)})});
+  if(!TRI.tiles.length){toast('Try a number bigger than zero.'); return false} return true;}
+function colLeft(p){const idx=PMAX-p; const u=100/(NCOL+.5); return (idx+(p<0?.5:0))*u;}
+function triValue(){const ps=TRI.tiles.map(t=>t.p); const hi=Math.max(0,...ps), lo=Math.min(0,...ps); let s=''; for(let p=hi;p>=lo;p--){const t=TRI.tiles.find(x=>x.p===p); s+=t?t.d:'0'; if(p===0&&lo<0) s+='.';} return s;}
+function drawTri(){
+  const box=$('#tri'); const u=100/(NCOL+.5); const names=[['Thousands'],['Hundreds'],['Tens'],['Ones'],['Tenths'],['Hundredths'],['Thousandths']];
+  if(!box.dataset.built){ box.innerHTML=names.map((n,k)=>{const p=PMAX-k; return `<div class="col ${p<0?'dec':''}" style="left:${colLeft(p)+.4}%;width:${u-.8}%">${n[0]}</div><div class="slot" style="left:${colLeft(p)+.4}%;width:${u-.8}%"></div>`}).join('')+`<div class="pointer" style="left:${(4)*u+u*.25}%"><span class="dot"></span><svg viewBox="0 0 60 80"><rect x="18" y="0" width="24" height="16" rx="3" fill="#C92426" stroke="#1A1A1A" stroke-width="2"/><circle cx="30" cy="8" r="4" fill="#fff"/><path d="M30 16 L8 78 M30 16 L52 78 M30 16 L30 78" stroke="#1A1A1A" stroke-width="3"/></svg></div>`; box.dataset.built=1; }
+  // tiles
+  $$('.tile',box).forEach(el=>{ if(!TRI.tiles.some(t=>'t'+t.id===el.dataset.k) && !el.classList.contains('ghost')) el.remove(); });
+  $$('.tile.ghost',box).forEach(el=>el.remove());
+  TRI.tiles.forEach(t=>{let el=$(`[data-k="t${t.id}"]`,box); if(!el){el=document.createElement('div'); el.className='tile'; el.dataset.k='t'+t.id; el.textContent=t.d; el.style.left=colLeft(t.p)+.8+'%'; el.style.width=(u-1.6)+'%'; box.appendChild(el);} requestAnimationFrame(()=>{el.style.left=colLeft(t.p)+.8+'%'});});
+  clearTimeout(TRI.gh); TRI.gh=setTimeout(()=>{ $$('.tile.ghost',box).forEach(el=>el.remove()); const ps2=TRI.tiles.map(t=>t.p), hi=Math.max(0,...ps2), lo=Math.min(0,...ps2); for(let p=hi;p>=lo;p--){ if(!TRI.tiles.some(t=>t.p===p)){const g=document.createElement('div'); g.className='tile ghost'; g.textContent='0'; g.style.left=colLeft(p)+.8+'%'; g.style.width=(u-1.6)+'%'; g.style.opacity=0; box.appendChild(g); requestAnimationFrame(()=>g.style.opacity=1);} } }, 820);
+}
+function bind3(){
+  TRI={tiles:[],uid:0,used:S.vals.triUsed||{}}; triParse('0.42'); $('#tri').dataset.built=''; drawTri(); $('#triLog').textContent='0.42 m';
+  const ops=[['× 10',1],['× 100',2],['× 1000',3],['÷ 10',-1],['÷ 100',-2],['÷ 1000',-3]].filter(o=>full()||Math.abs(o[1])<3);
+  $('#triOps').innerHTML=ops.map(o=>`<button class="btn ${o[1]>0?'':'alt'}" data-op="${o[1]}">${o[0]}</button>`).join('')+`<button class="btn ghost" id="triReset">Reset</button>`;
+  $('#triSet').onclick=()=>{if(triParse($('#triIn').value)){drawTri(); $('#triLog').textContent=triValue()+' m'; $('#triWalk').textContent=''; sfx.click();}};
+  $('#triIn').onkeydown=e=>{if(e.key==='Enter') $('#triSet').click()};
+  $('#triReset').onclick=()=>$('#triSet').click();
+  $$('[data-op]').forEach(b=>b.onclick=()=>{const k=+b.dataset.op; const before=triValue(); if(TRI.tiles.some(t=>t.p+k>PMAX||t.p+k<PMIN)){sfx.miss(); toast('That would walk the digits off the set! Try a different setting.'); return;}
+    TRI.tiles.forEach(t=>t.p+=k); drawTri(); sfx.whoosh(); const after=triValue();
+    $('#triWalk').textContent=k>0?`Every digit walks ${k} place${k>1?'s':''} LEFT ←  The decimal point stays on its tripod.`:`Every digit walks ${-k} place${k<-1?'s':''} RIGHT →  The decimal point stays on its tripod.`;
+    $('#triLog').textContent=`${before} ${k>0?'×':'÷'} ${10**Math.abs(k)} = ${after}`;
+    TRI.used[k>0?'up':'down']=true; S.vals.triUsed=TRI.used;
+    if(TRI.used.up&&TRI.used.down&&!S.done['w-tri']){addStars(2); sfx.correct(); $('#triFb').className='fb good'; $('#triFb').textContent='You spotted it: the digits move, the point stays!'; markDone('w-tri');}
+    save();});
+  if(S.done['w-tri']){$('#triFb').className='fb good'; $('#triFb').textContent='You spotted it: the digits move, the point stays!';}
+}
+/* ---- scene 4 ---- */
+function bind4(){drawSkyline(); drawPlank(); afterCheck('g-saw');}
+function drawSkyline(){
+  const T=towers(), f=full(); const ranked=['r1','r2','r3'].every(id=>S.done[id]); const sawIds=f?['sA','sB','sC']:['sAc','sBc','sCc']; const cut=sawIds.every(id=>S.done[id]);
+  const H=h=>40+(h-1.3)*(f?900:500); const cutH=f?{A:1.5,B:1.5,C:1.4}:{A:2,B:1,C:1}; const hs=cut?cutH:T;
+  const Hc=h=>cut&&!f? 30+h*70 : H(h);
+  const order=ranked?['B','A','C']:['A','B','C']; const col={A:'#00A7B2',B:'#FAA71C',C:'#C92426'};
+  let s=`<svg viewBox="0 0 900 300"><rect width="900" height="300" rx="16" fill="#E3F6F7"/><circle cx="780" cy="60" r="34" fill="#FAA71C" opacity=".8"/><rect y="262" width="900" height="38" fill="#1A1A1A"/>`;
+  order.forEach((k,idx)=>{const x=150+idx*230, h=Math.min(230,Hc(hs[k])), y=262-h; s+=`<rect x="${x}" y="${y}" width="140" height="${h}" fill="${col[k]}" stroke="#1A1A1A" stroke-width="3"/>`; for(let r=0;r<Math.floor((h-20)/26);r++){for(let c=0;c<3;c++) s+=`<rect x="${x+18+c*40}" y="${y+14+r*26}" width="22" height="13" fill="#fff" opacity=".85"/>`}
+    s+=`<text x="${x+70}" y="${y-12}" text-anchor="middle" font-family="Bricolage Grotesque, Outfit" font-weight="800" font-size="22">${k} · ${hs[k]} m</text>`; if(ranked&&idx===1) s+=`<text x="${x+70}" y="290" text-anchor="middle" fill="#FAA71C" font-family="Outfit" font-weight="700" font-size="16">centre of the shot</text>`;});
+  if(cut) s+=`<text x="24" y="30" text-anchor="start" font-family="Outfit" font-weight="800" font-size="20" fill="#C92426">After the saw cuts…</text>`;
+  $('#skyline').innerHTML=s+'</svg>';
+}
+function drawPlank(){
+  const pcs=[1.35,2.4,0.75,3.06], cols=['#00A7B2','#FAA71C','#C92426','#D77F28']; const W=900, x0=30, w=840; let x=x0;
+  const solved=S.done['lo'];
+  let s=`<svg viewBox="0 0 ${W} 150"><defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#fff"/><line x1="0" y1="0" x2="0" y2="10" stroke="#9fb3b8" stroke-width="4"/></pattern></defs><text x="${x0}" y="26" font-family="Outfit" font-weight="700" font-size="18">One 10 m plank</text>`;
+  pcs.forEach((p,k)=>{const pw=p/10*w; s+=`<rect x="${x}" y="40" width="${pw}" height="60" fill="${cols[k]}" stroke="#1A1A1A" stroke-width="2"/><text x="${x+pw/2}" y="76" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="17" fill="${k===1?'#1A1A1A':'#fff'}">${p} m</text>`; x+=pw;});
+  s+=`<rect x="${x}" y="40" width="${x0+w-x}" height="60" fill="url(#hatch)" stroke="#1A1A1A" stroke-width="2"/><text x="${(x+x0+w)/2}" y="76" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="18">${solved?'2.44 m left':'? m left'}</text>`;
+  s+=`<text x="${x0}" y="130" font-family="Outfit" font-weight="600" font-size="16">${S.done['ct']?'Total used: 7.56 m ✔':'Scaley says the total is 5.40 m… does that fit the picture?'}</text></svg>`;
+  $('#plank').innerHTML=s;
+}
+/* ---- scene 5 ---- */
+function bind5(){ drawGarden(false); const pb=$('#plantBtn'); if(pb) pb.onclick=()=>{drawGarden(true); sfx.whoosh(); setTimeout(()=>{$('#gardenMsg').className='fb good'; $('#gardenMsg').textContent='12 little squares × 0.01 m² = 0.12 m². A part of a part is smaller!'; sfx.correct()},1300)}; renderSpeed(); }
+function drawGarden(anim){ const g=$('#gardenSvg'); if(!g) return; const c=18; let s=`<svg viewBox="0 0 ${c*10+4} ${c*10+4}">`; for(let r=0;r<10;r++)for(let k=0;k<10;k++){const on=anim&&k<3&&r<4; s+=`<rect x="${2+k*c}" y="${2+r*c}" width="${c}" height="${c}" fill="${on?'#00A7B2':'#fff'}" stroke="#9fb3b8" stroke-width="1">${on?`<animate attributeName="opacity" from="0" to="1" dur=".3s" begin="${(r*3+k)*.09}s" fill="freeze"/>`:''}</rect>`} s+=`<rect x="2" y="2" width="${c*10}" height="${c*10}" fill="none" stroke="#1A1A1A" stroke-width="3"/>`; if(anim) s+=`<rect x="2" y="2" width="${c*3}" height="${c*4}" fill="none" stroke="#C92426" stroke-width="3"/>`; g.innerHTML=s+'</svg>'; }
+let RUN=null;
+function renderSpeed(){
+  const box=$('#speed'); if(!box) return; const set=TAKES[full()?'full':'core'];
+  const takeHTML=(k,label)=>{const r=S.speed[k]; const locked=k==='t2'&&!S.speed.t1;
+    if(r) return `<div class="take"><h3>${clapSVG(40,'')} ${label} · ${r.score}/8</h3><div class="res">${set[k].map((q,j)=>`<span>${q[0]} = <b>${q[1]}</b></span><span class="${r.ok[j]?'y':'n'}">${r.ok[j]?'✔ '+esc(r.ans[j]):'✘ '+esc(r.ans[j]||'—')}</span>`).join('')}</div></div>`;
+    return `<div class="take" id="take-${k}"><h3>${clapSVG(40,'')} ${label}</h3>${locked?'<p style="font-weight:600">Unlocks after Take 1. Quick recap of the shortcuts first!</p>':`<p style="margin:0 0 8px">8 cards · 60 seconds · press Enter after each answer.</p><button class="btn alt" data-start="${k}">▶ Action! Start ${label}</button>`}</div>`;};
+  let html=takeHTML('t1','Take 1')+takeHTML('t2','Take 2');
+  if(S.speed.t1&&S.speed.t2){const a=S.speed.t1.score,b=S.speed.t2.score; html+=`<div class="compare"><div class="cbar">Take 1<span class="b"><i style="width:${a/8*100}%;background:#FAA71C"></i></span>${a}/8</div><div class="cbar">Take 2<span class="b"><i style="width:${b/8*100}%;background:#00A7B2"></i></span>${b}/8</div><p style="margin:0;font-weight:700">${b>a?'Better take! You improved by '+(b-a)+'. 🎬':b===a?'Steady as a pro — same great score twice.':'Great effort — every take teaches the crew something.'}</p></div>`;}
+  box.innerHTML=html;
+  $$('[data-start]').forEach(b=>b.onclick=()=>startTake(b.dataset.start));
+}
+function startTake(k){
+  const set=TAKES[full()?'full':'core'][k]; const el=$('#take-'+k); let idx=0, t=60; const ans=[], ok=[];
+  sfx.clap();
+  el.innerHTML=`<h3>${clapSVG(40,'')} ${k==='t1'?'Take 1':'Take 2'} · <span id="sp-n">1</span>/8</h3><div class="timebar"><i id="sp-t" style="width:100%"></i></div><div class="clapq" id="sp-q">${set[0][0]}</div><div class="speed-row"><input class="ans" id="sp-in" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="btn" id="sp-go">Enter</button></div><p class="fb" id="sp-fb"></p>`;
+  const inp=$('#sp-in'); inp.focus();
+  const finish=()=>{clearInterval(RUN); RUN=null; while(ans.length<8){ans.push(''); ok.push(false);} const score=ok.filter(Boolean).length; S.speed[k]={score,ans,ok}; S.done[k==='t1'?'take1':'take2']=true; sfx.clap(); setTimeout(()=>{sfx.correct(); burst(90)},150); save(); renderSpeed(); updateProgress(); if(k==='t2'&&S.speed.t1&&score>S.speed.t1.score) setTimeout(()=>{sfx.unlock(); burst(140)},700);};
+  const submit=()=>{const v=inp.value.trim(); if(!v) return; const right=isRight(v,set[idx][1]); ans.push(v); ok.push(right); if(right){tone(988,0,.12,'triangle',.14);tone(1319,.08,.16,'triangle',.14); addStars(1); $('#sp-fb').className='fb good'; $('#sp-fb').textContent='✔';} else {sfx.miss(); $('#sp-fb').className='fb bad'; $('#sp-fb').textContent=`✘ It was ${set[idx][1]}`;}
+    idx++; if(idx>=8) return finish(); $('#sp-q').textContent=set[idx][0]; $('#sp-n').textContent=idx+1; inp.value=''; inp.focus();};
+  $('#sp-go').onclick=submit; inp.onkeydown=e=>{if(e.key==='Enter') submit()};
+  clearInterval(RUN); RUN=setInterval(()=>{t--; const bar=$('#sp-t'); if(bar) bar.style.width=(t/60*100)+'%'; if(t<=5&&t>0) sfx.tick(); if(t<=0) finish();},1000);
+}
+/* ---- scene 7 ---- */
+function bind7(){ $('#replay').onclick=grand; }
+
+/* =========================================================
+   MENTOR DRAWER
+========================================================= */
+const NOTES={
+ 1:{say:['Open with the wave-and-city story before any maths.','Let the learner name the movie — use the title all session.','Do not correct predictions. Say: “We check them before the final cut.”'],key:['Note 1: 2.46 m','Note 2: Tower A is tallest','Note 3: 4.2 m']},
+ 2:{say:['Body Ruler is optional — use it if energy dips.','Ask: “What happens every time we zoom in?” Listen for “it splits into 10”.','Use centimetres/millimetres to prove each zero decision.'],key:['2.35 · 1.06 · 0.47 · ★1.405 · ★0.009','Same, Different, Same, Different, Same','0.3 m · 1.1 m · ★0.85 m']},
+ 3:{say:['Build the hero car with the metre stick before showing the chart.','On the Tripod Chart ask: “Did the dot move?” Let the learner say it.','Make them say the WHY aloud before typing it.'],key:['4 m · 0.2 m · 4.2 m','6 · 12.5 · 4.5 · 0.032 · 8.3 · 1.08 · ★0.38 · ★45 mm','Myth Buster: option 2']},
+ 4:{say:['Matching tails: write every height to the same number of decimal places.','Saw Twist: ask why real model makers use millimetres.','Cutting list: ask what mistake Scaley made before fixing it.'],key:['A 1st · B 2nd · C 3rd','★ 0.095 m (core: A − B = 0.05 m)','Saw ★: 1.5, 1.5, 1.4 · core: 2, 1, 1','5.40 is wrong · 7.56 m · 2.44 m']},
+ 5:{say:['After each shortcut ask: “Why does this work?”','★ Garden: a part of a part is smaller.','Give a 30-second recap between Take 1 and Take 2.'],key:['0.032 · ★45 · 1.3 · 0.15 · 1.2 · ★0.12 · 17 · 0.56','Take answers show on each result card']},
+ 6:{say:['Both “I was right” and “I fixed it” are wins — celebrate the fix.','Let the learner answer the exit questions alone; stay quiet.'],key:['★ 0.007 m / 7 mm (core 0.07 m / 7 cm)','★ 0.75, 0.8, 0.805 (core 0.75, 0.78, 0.8)','620 · 4.65 · ★0.08 (core 0.53) · Q6 option 2']},
+ 7:{say:['Let the celebration play, then read the Director’s letter aloud.','Invite the parent in and use the debrief summary card below.'],key:['Award is suggested from accuracy + final check. Override below if needed.']}
+};
+function renderDrawer(){
+  const i=S.current, n=NOTES[i], el=$('#drawerBody'); const s=SC[i]; const e=S.elapsed[i]||0;
+  el.innerHTML=`
+   <div><h3>Pathway</h3><div class="seg"><button data-path="core" class="${S.path==='core'?'on':''}">Core</button><button data-path="full" class="${S.path==='full'?'on':''}">Core + ★ Challenge</button></div></div>
+   <div><h3>Unlocking</h3><div class="seg"><button data-auto="1" class="${S.autoUnlock?'on':''}">Automatic</button><button data-auto="0" class="${S.autoUnlock?'':'on'}">Mentor approval</button></div><p style="font-size:.85rem;margin:6px 0 0;color:var(--muted)">Automatic opens the next scene as soon as every card is done.</p></div>
+   <div><h3>Scene ${i<7?i:'Finale'} · ${s.t}</h3><p style="margin:0">Target ${s.target} min · elapsed <b id="mEl">${fmt(e)}</b></p></div>
+   <div><h3>Mentor notes</h3><ul>${n.say.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+   <div class="key"><h3>Answer key</h3><ul>${n.key.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+   <div><h3>Scene controls</h3><div class="mbtns">
+     ${i<7?`<button class="btn alt" id="mReveal">Reveal answers &amp; complete</button><button class="btn red" id="mUnlock">🔓 Unlock next scene</button>`:`<button class="btn alt" id="mParty">🎉 Replay celebration</button>`}
+   </div></div>
+   ${i===7?`<div><h3>Award override</h3><div class="seg">${['Bronze','Silver','Gold'].map(a=>`<button data-aw="${a}" class="${computeAward()===a?'on':''}">${a}</button>`).join('')}</div></div>`:''}
+   <div><h3>Jump to scene</h3><div class="jump">${SC.slice(1).map((x,k)=>`<button data-jump="${k+1}">${k+1<7?k+1:'🏆'}</button>`).join('')}</div></div>
+   <div><h3>Session</h3><div class="mbtns"><button class="btn ghost" id="mReset">Reset session</button></div><p style="font-size:.85rem;color:var(--muted)">Shortcuts: M mentor · W whiteboard · ← → story lines · Esc close</p></div>`;
+  $$('[data-path]',el).forEach(b=>b.onclick=()=>{S.path=b.dataset.path; sfx.click(); render();});
+  $$('[data-jump]',el).forEach(b=>b.onclick=()=>goTo(+b.dataset.jump));
+  $$('[data-auto]',el).forEach(b=>b.onclick=()=>{S.autoUnlock=b.dataset.auto==='1'; save(); sfx.click(); renderDrawer(); updateProgress();});
+  $$('[data-aw]',el).forEach(b=>b.onclick=()=>{S.award=b.dataset.aw; save(); render();});
+  const r=$('#mReveal'); if(r) r.onclick=revealAll;
+  const u=$('#mUnlock'); if(u) u.onclick=unlockNext;
+  const p=$('#mParty'); if(p) p.onclick=grand;
+  const rs=$('#mReset'); rs.onclick=()=>{ if(rs.dataset.arm){ S=fresh(); try{localStorage.removeItem(KEY)}catch(e){} mentor=true; render(); toast('Session reset.'); } else {rs.dataset.arm=1; rs.textContent='Click again to confirm reset'; setTimeout(()=>{rs.dataset.arm='';rs.textContent='Reset session'},3000);} };
+}
+function revealAll(){
+  $$('#tasks .ans[data-req]').forEach(inp=>{const id=inp.dataset.req; if(!inp.dataset.a) return; if(!S.done[id]){S.vals[id]=inp.tagName==='SELECT'?inp.dataset.a:inp.dataset.a; S.done[id]=true;}});
+  $$('#tasks [data-req]').forEach(e=>{const id=e.dataset.req; if(S.done[id]) return; if(id==='c-name'&&!S.name){S.name='Junior Engineer'} if(id==='c-title'&&!S.title){S.title='Tiny Town'} if(/^p\d/.test(id)&&!S.vals[id]) S.vals[id]='(skipped)'; if(id==='take1'&&!S.speed.t1) S.speed.t1={score:0,ans:[],ok:[]}; if(id==='take2'&&!S.speed.t2) S.speed.t2={score:0,ans:[],ok:[]}; S.done[id]=true;});
+  sfx.click(); render();
+}
+
+/* =========================================================
+   WHITEBOARD
+========================================================= */
+const WB={open:false,mode:'overlay',tool:'pen',color:'#1A1A1A',size:4,objs:[],cur:null};
+const wbc=$('#wbc'), wx=wbc.getContext('2d');
+const WCOL=['#1A1A1A','#00A7B2','#FAA71C','#D77F28','#C92426','#21DED7'];
+function buildBar(){
+  const tools=[['pen','✏️ Pen'],['hl','🖍 Highlight'],['line','／ Line'],['arrow','➜ Arrow'],['rect','▭ Box'],['text','T Text'],['eraser','⌫ Eraser']];
+  const stamps=[['pv','Place-value chart'],['stick','Metre stick'],['hop','Hop arrow'],['tripod','Tripod point']];
+  $('#wbbar').innerHTML=`${['overlay','blank','grid'].map(m=>`<button data-mode="${m}" class="${WB.mode===m?'on':''}">${m==='overlay'?'On lesson':m==='blank'?'Blank':'Grid'}</button>`).join('')}<span class="sep"></span>
+   ${tools.map(t=>`<button data-tool="${t[0]}" class="${WB.tool===t[0]?'on':''}">${t[1]}</button>`).join('')}<span class="sep"></span>
+   ${WCOL.map(c=>`<button class="sw ${WB.color===c?'on':''}" data-col="${c}" style="background:${c}" aria-label="colour ${c}"></button>`).join('')}<span class="sep"></span>
+   ${[2,4,8,14].map(s=>`<button data-size="${s}" class="${WB.size===s?'on':''}" aria-label="size ${s}"><span style="display:inline-block;width:${s+4}px;height:${s+4}px;border-radius:50%;background:#1A1A1A;vertical-align:middle"></span></button>`).join('')}<span class="sep"></span>
+   ${stamps.map(s=>`<button data-tool="stamp:${s[0]}" class="${WB.tool==='stamp:'+s[0]?'on':''}">${s[1]}</button>`).join('')}<span class="sep"></span>
+   <button id="wbUndo">↶ Undo</button><button id="wbClear">Clear</button><button id="wbClose" style="background:#C92426;color:#fff">✕ Close</button>`;
+  $$('[data-mode]',$('#wbbar')).forEach(b=>b.onclick=()=>{WB.mode=b.dataset.mode; applyMode(); buildBar()});
+  $$('[data-tool]',$('#wbbar')).forEach(b=>b.onclick=()=>{WB.tool=b.dataset.tool; buildBar()});
+  $$('[data-col]',$('#wbbar')).forEach(b=>b.onclick=()=>{WB.color=b.dataset.col; buildBar()});
+  $$('[data-size]',$('#wbbar')).forEach(b=>b.onclick=()=>{WB.size=+b.dataset.size; buildBar()});
+  $('#wbUndo').onclick=()=>{WB.objs.pop(); redraw()}; $('#wbClear').onclick=()=>{WB.objs=[]; redraw()}; $('#wbClose').onclick=toggleWB;
+}
+function applyMode(){const w=$('#wb'); w.classList.remove('overlay','blank','grid'); w.classList.add(WB.mode);}
+function sizeWB(){wbc.width=innerWidth*devicePixelRatio; wbc.height=innerHeight*devicePixelRatio; wx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); redraw();}
+function toggleWB(){WB.open=!WB.open; $('#wb').classList.toggle('open',WB.open); $('#wbBtn').classList.toggle('on',WB.open); if(WB.open){applyMode(); buildBar(); sizeWB();} sfx.click();}
+function drawObj(o){
+  wx.save(); wx.lineCap='round'; wx.lineJoin='round'; wx.strokeStyle=o.color; wx.fillStyle=o.color; wx.lineWidth=o.size;
+  if(o.type==='path'){ if(o.tool==='hl'){wx.globalAlpha=.35; wx.lineWidth=o.size*5;} if(o.tool==='eraser'){wx.globalCompositeOperation='destination-out'; wx.lineWidth=o.size*6;} wx.beginPath(); o.pts.forEach((p,k)=>k?wx.lineTo(p[0],p[1]):wx.moveTo(p[0],p[1])); if(o.pts.length===1) wx.lineTo(o.pts[0][0]+.1,o.pts[0][1]); wx.stroke(); }
+  else if(o.type==='line'||o.type==='arrow'){ wx.beginPath(); wx.moveTo(o.a[0],o.a[1]); wx.lineTo(o.b[0],o.b[1]); wx.stroke(); if(o.type==='arrow'){const an=Math.atan2(o.b[1]-o.a[1],o.b[0]-o.a[0]), L=12+o.size*2; wx.beginPath(); wx.moveTo(o.b[0],o.b[1]); wx.lineTo(o.b[0]-L*Math.cos(an-.45),o.b[1]-L*Math.sin(an-.45)); wx.lineTo(o.b[0]-L*Math.cos(an+.45),o.b[1]-L*Math.sin(an+.45)); wx.closePath(); wx.fill();} }
+  else if(o.type==='rect'){ wx.strokeRect(o.a[0],o.a[1],o.b[0]-o.a[0],o.b[1]-o.a[1]); }
+  else if(o.type==='text'){ wx.font=`700 ${14+o.size*3}px Outfit, sans-serif`; wx.fillText(o.text,o.x,o.y); }
+  else if(o.type==='stamp') stamp(o);
+  wx.restore();
+}
+function stamp(o){const {x,y,kind,color}=o; wx.lineWidth=2.5; wx.strokeStyle='#1A1A1A'; wx.font='700 14px Outfit, sans-serif'; wx.textAlign='center';
+  if(kind==='pv'){const heads=['Tens','Ones','•','Tenths','Hundredths','Thousandths']; let cx=x; heads.forEach(h=>{const w=h==='•'?24:96; if(h!=='•'){wx.fillStyle=['Tenths','Hundredths','Thousandths'].includes(h)?'#FAA71C':'#00A7B2'; wx.fillRect(cx,y,w,30); wx.strokeRect(cx,y,w,30); wx.fillStyle=['Tenths','Hundredths','Thousandths'].includes(h)?'#1A1A1A':'#fff'; wx.fillText(h,cx+w/2,y+20); wx.fillStyle='#fff'; wx.fillRect(cx,y+30,w,66); wx.strokeRect(cx,y+30,w,66);} else {wx.fillStyle='#C92426'; wx.beginPath(); wx.arc(cx+12,y+64,7,0,7); wx.fill();} cx+=w;});}
+  if(kind==='stick'){const w=500; for(let k=0;k<10;k++){wx.fillStyle=k%2?'#21DED7':'#00A7B2'; wx.fillRect(x+k*w/10,y,w/10,40); wx.strokeRect(x+k*w/10,y,w/10,40); wx.fillStyle='#1A1A1A'; wx.fillText((k+1)/10,x+(k+1)*w/10,y+60);} wx.fillText('0',x,y+60); wx.fillText('1 metre = 10 × 0.1 m',x+w/2,y-10);}
+  if(kind==='hop'){wx.strokeStyle=color; wx.lineWidth=4; wx.beginPath(); wx.moveTo(x+90,y+30); wx.quadraticCurveTo(x+45,y-30,x,y+30); wx.stroke(); wx.fillStyle=color; wx.beginPath(); wx.moveTo(x,y+30); wx.lineTo(x+4,y+12); wx.lineTo(x+16,y+24); wx.fill(); wx.font='800 18px Outfit'; wx.fillText('×10',x+45,y-6);}
+  if(kind==='tripod'){wx.fillStyle='#C92426'; wx.fillRect(x-16,y-30,32,20); wx.strokeRect(x-16,y-30,32,20); wx.fillStyle='#1A1A1A'; wx.beginPath(); wx.arc(x,y,9,0,7); wx.fill(); wx.beginPath(); wx.moveTo(x,y-10); wx.lineTo(x-26,y+60); wx.moveTo(x,y-10); wx.lineTo(x+26,y+60); wx.moveTo(x,y-10); wx.lineTo(x,y+60); wx.stroke(); wx.fillText('the point stays',x,y+80);}
+  wx.textAlign='start';
+}
+function redraw(){wx.clearRect(0,0,innerWidth,innerHeight); WB.objs.forEach(drawObj); if(WB.cur) drawObj(WB.cur);}
+function pos(e){const r=wbc.getBoundingClientRect(); return [e.clientX-r.left,e.clientY-r.top]}
+wbc.addEventListener('pointerdown',e=>{const p=pos(e); const t=WB.tool;
+  if(t==='text'){ const inp=document.createElement('input'); inp.className='txt'; inp.style.left=p[0]+'px'; inp.style.top=(p[1]-20)+'px'; inp.style.color=WB.color; $('#wb').appendChild(inp); setTimeout(()=>inp.focus(),0); const commit=()=>{ if(inp.value.trim()) WB.objs.push({type:'text',x:p[0],y:p[1]+8,text:inp.value,color:WB.color,size:WB.size}); inp.remove(); redraw();}; inp.onkeydown=ev=>{if(ev.key==='Enter') inp.blur(); ev.stopPropagation()}; inp.onblur=commit; return; }
+  if(t.startsWith('stamp:')){WB.objs.push({type:'stamp',kind:t.split(':')[1],x:p[0],y:p[1],color:WB.color}); redraw(); sfx.click(); return;}
+  wbc.setPointerCapture(e.pointerId);
+  if(['pen','hl','eraser'].includes(t)) WB.cur={type:'path',tool:t,color:WB.color,size:WB.size,pts:[p]};
+  else WB.cur={type:t,a:p,b:p,color:WB.color,size:WB.size};
+  redraw();});
+wbc.addEventListener('pointermove',e=>{if(!WB.cur) return; const p=pos(e); if(WB.cur.type==='path') WB.cur.pts.push(p); else WB.cur.b=p; redraw();});
+const endDraw=()=>{if(WB.cur){WB.objs.push(WB.cur); WB.cur=null; redraw();}};
+wbc.addEventListener('pointerup',endDraw); wbc.addEventListener('pointercancel',endDraw);
+addEventListener('resize',()=>{if(WB.open) sizeWB()});
+
+/* =========================================================
+   GLOBAL EVENTS
+========================================================= */
+$('#frames').addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) goTo(+b.dataset.go)});
+$('#tasks').addEventListener('click',e=>{const b=e.target.closest('.wrapbar [data-go]'); if(b) goTo(+b.dataset.go)});
+$('#prevBeat').onclick=()=>{S.beat[S.current]=Math.max(0,(S.beat[S.current]||0)-1); sfx.click(); renderBeat(); save()};
+$('#nextBeat').onclick=()=>{const n=BEATS(S.current).length; S.beat[S.current]=Math.min(n-1,(S.beat[S.current]||0)+1); sfx.click(); renderBeat(); save()};
+function setMentor(on){mentor=on; document.body.classList.toggle('mentor',on); $('#drawer').classList.toggle('open',on); $('#mentorBtn').classList.toggle('on',on); renderFrames(); updateProgress(); renderDrawer();}
+$('#mentorBtn').onclick=()=>{setMentor(!mentor); sfx.click()}; $('#closeDrawer').onclick=()=>setMentor(false);
+$('#wbBtn').onclick=toggleWB;
+$('#sndBtn').onclick=()=>{S.sound=!S.sound; $('#sndBtn').firstChild.textContent=S.sound?'🔊':'🔇'; save(); if(S.sound) sfx.click();};
+addEventListener('keydown',e=>{const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName); if(typing) return;
+  if(e.key==='m'||e.key==='M') setMentor(!mentor);
+  else if(e.key==='w'||e.key==='W') toggleWB();
+  else if(e.key==='Escape'){ if(WB.open) toggleWB(); else if(mentor) setMentor(false); }
+  else if(e.key==='ArrowRight'&&!WB.open) $('#nextBeat').click();
+  else if(e.key==='ArrowLeft'&&!WB.open) $('#prevBeat').click();});
+addEventListener('pointerdown',()=>ac(),{once:true});
+const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+setInterval(()=>{ if(document.hidden) return; const i=S.current; S.elapsed[i]=(S.elapsed[i]||0)+1; const e=S.elapsed[i]; const c=$('#clock'); c.textContent=fmt(e); c.parentElement.style.background= e>SC[i].target*60 ? 'var(--orange)':''; const m=$('#mEl'); if(m) m.textContent=fmt(e); if(e%15===0) save(); },1000);
+
+$('#sndBtn').firstChild.textContent=S.sound?'🔊':'🔇';
+render();
+</script>
+</body>
+</html>
