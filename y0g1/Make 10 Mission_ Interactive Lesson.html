@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Make 10 Mission: interactive lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --teal:#00A7B2; --teal-d:#00928e; --teal-50:#E6F7F8; --teal-100:#c9eef0;
+  --gold:#FAA71C; --gold-50:#FFF4DE; --burnt:#D77F28; --crimson:#C92426;
+  --ink:#1b1b1b; --muted:#5a6566; --line:#dbe8e9; --bg:#FFFFFF;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Lexend", "Segoe UI", system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100%}
+
+/* Top rail */
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 20px;padding:12px 20px 8px;border-bottom:1px solid var(--line);background:#fff}
+.top .rail{grid-column:1/-1;grid-row:2}
+.mtitle{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1.1;letter-spacing:-.01em}
+.mtitle small{display:block;font-family:var(--body);font-weight:500;font-size:.78rem;color:var(--muted);letter-spacing:0}
+.rail{display:flex;align-items:center;min-width:0;overflow-x:auto;padding:2px}
+.ph{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 8px;border-radius:12px;color:var(--ink);white-space:nowrap}
+.ph .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:.9rem;border:2px solid var(--teal);color:var(--teal-d);background:#fff;flex:none}
+.ph .lbl{font-size:.86rem;font-weight:500}
+.ph.done .n{background:var(--teal);color:#fff}
+.ph.cur{background:var(--teal-50)}
+.ph.cur .n{border-color:var(--burnt);color:var(--burnt);border-width:3px}
+.ph.locked{color:#9aa4a5}
+.ph.locked .n{border-color:#cfd8d9;color:#9aa4a5}
+.ph:not(.locked):hover{background:var(--teal-50)}
+.seg{flex:1;min-width:14px;height:3px;background:#dfe7e8;border-radius:2px}
+.seg.on{background:var(--teal)}
+.tright{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.stars{display:flex;gap:4px;margin-right:6px}
+.stars svg{width:24px;height:24px}
+.tbtn{border:2px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem}
+.tbtn[aria-pressed="true"]{background:var(--teal);color:#fff}
+
+/* Work area */
+.work{display:grid;grid-template-columns:minmax(0,1fr) 340px;min-height:0}
+.app.presenter .work{grid-template-columns:minmax(0,1fr)}
+.app.presenter .dock{display:none}
+.stage-wrap{position:relative;min-height:0;border-right:1px solid var(--line)}
+.stage{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column}
+.mc{margin:20px 28px 0;padding:14px 18px 14px 20px;background:var(--teal-50);border-left:5px solid var(--teal);border-radius:4px 16px 16px 4px;max-width:900px}
+.mc b{display:block;font-size:.8rem;font-weight:600;color:var(--teal-d)}
+.mc p{margin:2px 0 0;font-size:1.18rem;line-height:1.45}
+.scene{flex:1;padding:18px 28px 12px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.scene h2{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,2.6vw,2.1rem);line-height:1.1;margin:4px 0 0;text-align:center;letter-spacing:-.01em;max-width:24ch}
+.body{width:100%;max-width:960px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.snav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 28px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:.82rem;color:var(--muted)}
+.dot.on{border-color:var(--teal);color:var(--teal-d);background:var(--teal-50);font-weight:600}
+
+/* Buttons */
+.btn{border:2px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:999px;padding:9px 18px;font-weight:600;font-size:.95rem;line-height:1.2}
+.btn:hover:not(:disabled){background:var(--teal-50)}
+.btn.pri{background:var(--teal);color:#fff}
+.btn.pri:hover:not(:disabled){background:var(--teal-d)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.btn.gold:hover:not(:disabled){background:#f39a00}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted);text-decoration:underline;padding:6px 8px}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.nums{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.num{width:42px;height:42px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:600;font-size:1.05rem}
+.num.on{border-color:var(--teal);background:var(--teal);color:#fff}
+
+/* Visuals */
+.rocket{width:100%;max-width:470px;height:auto;display:block;transition:transform 1.4s cubic-bezier(.5,0,.75,0),opacity 1.4s}
+.rocket .flame{opacity:0;transition:opacity .2s}
+.rocket.launch{transform:translate(120%,-30%) rotate(-12deg);opacity:0}
+.rocket.launch .flame{opacity:1}
+.rocket.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.seat.clk,.finger.clk,.ctr{cursor:pointer}
+.pulse{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.svgt{font-family:var(--display);font-weight:800}
+.bond{width:200px;height:auto}
+.hands{width:100%;max-width:420px;height:auto}
+.pair{display:flex;gap:28px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%}
+.stack{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+.stack .rocket{max-width:380px}
+.rlabel{font-size:.85rem;font-weight:600;color:var(--muted);align-self:center}
+.msg{font-size:1.15rem;font-weight:500;text-align:center;min-height:1.6em;max-width:60ch}
+.msg.good{color:var(--teal-d)}
+.msg.warn{color:var(--crimson)}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,6vw,4.2rem);line-height:1;letter-spacing:-.02em;text-align:center}
+.eq{font-family:var(--display);font-weight:800;font-size:clamp(1.4rem,3.4vw,2.2rem);text-align:center;line-height:1.2}
+.eq .g{color:var(--burnt)}
+.banner{background:var(--gold-50);border:2px dashed var(--gold);border-radius:16px;padding:12px 20px;font-weight:600;font-size:1.1rem;text-align:center;max-width:60ch}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%}
+.card{border:2px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;align-items:center;background:#fff}
+.card.seen{border-color:var(--teal)}
+.card h3{margin:0;font-size:1rem;font-weight:600;text-align:center;line-height:1.35}
+.card svg{width:100%;max-width:300px;height:auto}
+.ans{font-weight:600;color:var(--teal-d);text-align:center;min-height:1.5em}
+.flashbox{position:relative;width:100%;max-width:470px}
+.cover{position:absolute;inset:0;display:grid;place-items:center;background:var(--teal-50);border-radius:40px;border:3px dashed var(--teal);font-family:var(--display);font-weight:800;font-size:1.4rem;color:var(--teal-d);text-align:center;padding:10px}
+.tabs{display:flex;gap:6px;background:var(--teal-50);padding:5px;border-radius:999px}
+.tab{border:0;background:none;padding:7px 16px;border-radius:999px;font-weight:600;color:var(--teal-d)}
+.tab.on{background:#fff;box-shadow:0 1px 3px rgba(0,80,85,.18)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip{border:2px solid var(--line);border-radius:999px;padding:5px 14px;font-weight:600;color:#9aa4a5;background:#fff}
+.chip.on{border-color:var(--teal);color:var(--teal-d);background:var(--teal-50)}
+.log{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:.9rem;color:var(--muted)}
+.log span{background:var(--teal-50);border-radius:8px;padding:2px 10px;color:var(--teal-d);font-weight:600}
+.tray{width:100%;max-width:520px;height:auto}
+.ctr circle{transition:fill .25s}
+.tray.shaking{animation:shake .5s}
+.steps{display:flex;gap:6px}
+.steps i{width:34px;height:6px;border-radius:3px;background:#e1e9ea}
+.steps i.on{background:var(--teal)}
+.timerbig{font-family:var(--display);font-weight:800;font-size:2.4rem;color:var(--teal-d)}
+.timerbig.low{color:var(--crimson)}
+.scoreline{font-size:1.1rem;font-weight:600}
+.select{font:inherit;border:2px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff}
+.starboard{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:100%;max-width:760px}
+.sb{border:2px solid var(--line);border-radius:18px;padding:14px 8px;text-align:center}
+.sb svg{width:46px;height:46px}
+.sb b{display:block;font-family:var(--display);font-size:1.05rem}
+.sb small{color:var(--muted);font-size:.8rem}
+.sb.got{border-color:var(--gold);background:var(--gold-50)}
+
+/* Dock */
+.dock{overflow:auto;padding:18px;display:flex;flex-direction:column;gap:18px;background:#fbfefe}
+.dsec{display:flex;flex-direction:column;gap:8px}
+.dsec h4{margin:0;font-size:.95rem;font-weight:600}
+.dmeta{font-size:.82rem;color:var(--muted)}
+.dtitle{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1.15}
+.inp{font:inherit;border:2px solid var(--line);border-radius:10px;padding:7px 10px;width:100%}
+.inp:focus{border-color:var(--teal);outline:none}
+.tmr{display:flex;align-items:center;gap:10px}
+.tmr .t{font-family:var(--display);font-weight:800;font-size:1.5rem}
+.tmr .t.over{color:var(--crimson)}
+.tmr .btn{white-space:nowrap}
+.script{margin:0;padding-left:18px;font-size:.9rem;display:flex;flex-direction:column;gap:6px}
+.task{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;line-height:1.35;cursor:pointer}
+.task input{width:20px;height:20px;accent-color:var(--teal);margin:0;flex:none}
+.task.done span{color:var(--teal-d)}
+.obsq{font-size:.88rem;font-weight:500}
+.obs{display:flex;flex-wrap:wrap;gap:6px}
+.obs button{border:2px solid var(--line);background:#fff;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:500}
+.obs button.on{border-color:var(--burnt);background:#FFF1DC;color:#8a4a0f}
+.unlock{display:flex;flex-direction:column;gap:6px}
+.donebadge{background:var(--teal-50);color:var(--teal-d);border-radius:12px;padding:10px 12px;font-weight:600;font-size:.92rem}
+.keys{font-size:.8rem;color:var(--muted)}
+.keys kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-family:var(--body);font-size:.78rem;background:#fff}
+
+/* Still-to-do strip */
+.todo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 28px;background:var(--gold-50);border-top:2px dashed var(--gold)}
+.todo.ok{background:var(--teal-50);border-top-color:var(--teal)}
+.tdl{font-weight:600;font-size:.92rem;color:#8a4a0f;margin-right:4px}
+.todo.ok .tdl{color:var(--teal-d)}
+.tdn{font-size:.88rem;color:var(--teal-d)}
+.tdc{border:2px solid var(--burnt);background:#fff;color:#8a4a0f;border-radius:999px;padding:3px 12px;font-size:.84rem;font-weight:600}
+.tdc:hover{background:#FFF1DC}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.trow.pend .task span{color:#8a4a0f}
+.trow .go{padding:2px 6px;font-size:.82rem;flex:none}
+.dh{margin-top:6px!important;color:var(--teal-d)}
+.task.auto{font-weight:500}
+.donebadge.auto{background:var(--gold-50);color:#8a4a0f}
+/* Whiteboard */
+.wb{position:absolute;inset:0;width:100%;height:100%;display:none;z-index:20;touch-action:none;cursor:crosshair}
+.wb.board{background-color:#fff;background-image:linear-gradient(#eef6f7 1px,transparent 1px),linear-gradient(90deg,#eef6f7 1px,transparent 1px);background-size:32px 32px}
+.stage-wrap.wbon .wb{display:block}
+.wbbar{position:absolute;top:12px;left:12px;z-index:21;display:none;flex-direction:column;gap:6px;background:#fff;border:2px solid var(--teal);border-radius:16px;padding:8px;box-shadow:0 6px 20px rgba(0,80,85,.15);width:132px;max-height:calc(100% - 24px);overflow:auto}
+.stage-wrap.wbon .wbbar{display:flex}
+.wbbar .grp{display:flex;flex-direction:column;gap:3px}
+.wbbar .grp.rowg{flex-direction:row;flex-wrap:wrap;gap:5px;padding:2px 3px}
+.wbbar button{border:2px solid transparent;background:#fff;border-radius:10px;padding:5px 8px;font-size:.8rem;font-weight:600;color:var(--ink);text-align:left}
+.wbbar button:hover{background:var(--teal-50)}
+.wbbar button.on{border-color:var(--teal);background:var(--teal-50)}
+.wbbar .sw{width:22px;height:22px;border-radius:50%;padding:0;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);flex:none}
+.wbbar .sw.on{box-shadow:0 0 0 3px var(--teal)}
+.wbbar hr{border:0;border-top:1px solid var(--line);margin:2px 0;width:100%}
+/* Celebration */
+.celebrate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(255,255,255,.92)}
+.celebrate[hidden]{display:none}
+.cel{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px}
+.cel .row svg{width:110px;height:110px;animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+.cel h2{font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,4vw,2.8rem);margin:0;line-height:1.1}
+.cel p{margin:0;font-size:1.1rem;color:var(--muted)}
+@keyframes pop{from{transform:scale(.2) rotate(-40deg);opacity:0}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+@media (max-width:980px){
+  .work{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(420px,1fr) auto}
+  .app{height:auto;min-height:100%}
+  .stage-wrap{border-right:0;min-height:560px}
+  .dock{border-top:1px solid var(--line)}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .starboard{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .top{grid-template-columns:minmax(0,1fr)}
+  .top .rail{grid-row:3}
+  .tright{justify-content:flex-start}
+  .mc,.scene,.snav{margin-left:14px;margin-right:14px;padding-left:0;padding-right:0}
+  .mc{padding-left:14px;padding-right:14px}
+  .ph .lbl{display:none}
+  .ph.cur .lbl{display:inline}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="mtitle">Make 10 Mission<small>MyMasteryLab live math mission</small></div>
+    <nav class="rail" id="rail" aria-label="Lesson phases"></nav>
+    <div class="tright">
+      <div class="stars" id="stars" aria-label="Stars earned"></div>
+      <button class="tbtn" id="wbBtn" aria-pressed="false" title="Whiteboard (W)">Whiteboard</button>
+      <button class="tbtn" id="dockBtn" aria-pressed="true" title="Teacher panel (T)">Teacher panel</button>
+    </div>
+  </header>
+  <main class="work">
+    <div class="stage-wrap" id="stageWrap">
+      <div class="stage" id="stage"></div>
+      <canvas id="wb" class="wb" aria-label="Whiteboard drawing area"></canvas>
+      <div class="wbbar" id="wbbar" role="toolbar" aria-label="Whiteboard tools" aria-orientation="vertical">
+        <div class="grp"><button data-tool="pen" class="on">Pen</button><button data-tool="hl">Highlighter</button><button data-tool="eraser">Eraser</button></div>
+        <div class="grp rowg">
+          <button class="sw on" data-color="#1b1b1b" style="background:#1b1b1b" aria-label="Black"></button>
+          <button class="sw" data-color="#00A7B2" style="background:#00A7B2" aria-label="Teal"></button>
+          <button class="sw" data-color="#FAA71C" style="background:#FAA71C" aria-label="Gold"></button>
+          <button class="sw" data-color="#C92426" style="background:#C92426" aria-label="Red"></button>
+        </div>
+        <div class="grp"><button data-size="3">Thin line</button><button data-size="6" class="on">Medium line</button><button data-size="11">Thick line</button></div>
+        <hr>
+        <div class="grp"><button data-tool="tenframe">Ten-frame stamp</button><button data-tool="bond">Number bond stamp</button></div>
+        <hr>
+        <div class="grp"><button id="wbUndo">Undo</button><button id="wbClear">Clear</button><button id="wbMode">Blank board</button><button id="wbClose">Close board</button></div>
+      </div>
+    </div>
+    <aside class="dock" id="dock" aria-label="Teacher panel"></aside>
+  </main>
+</div>
+<div class="celebrate" id="celebrate" hidden></div>
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const KEY="mml-make10-mission-v1";
+const STAR_ORDER=["explorer","builder","thinker","trickster","commander"];
+const STAR_INFO={explorer:["Explorer","Ten-frame flash"],builder:["Builder","Build and break"],thinker:["Thinker","The why of 10"],trickster:["Trickster","Make 10 First"],commander:["Commander","Rescue the Rockets"]};
+
+function fresh(){return{name:"",phase:0,unlocked:0,done:[0,0,0,0,0,0],scene:[0,0,0,0,0,0],tasks:{},stars:[],obs:{},elapsed:[0,0,0,0,0,0],boards:{},paused:false,finale:false,auto:true,hold:{},
+  c:{flash:0,treasure:0,pairs:[],spot:[],why:[],buddy:[],m10:[],bridge:[]}}}
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
+let S=fresh(); const saved=load();
+if(saved){S=Object.assign(fresh(),saved);S.c=Object.assign(fresh().c,saved.c||{});}
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},250)}
+const nm=()=>S.name.trim()||"Commander";
+const L={}; // live scene state (not persisted)
+
+/* ---------- SVG builders ---------- */
+function astro(cx,cy,k){const suit=k==="b"?"var(--burnt)":"var(--teal)",light=k==="b"?"#FFF1DC":"#E6F7F8";
+  return `<circle cx="${cx}" cy="${cy}" r="17" fill="${light}" stroke="${suit}" stroke-width="3"/><ellipse cx="${cx}" cy="${cy-2}" rx="10" ry="7" fill="${suit}"/><ellipse cx="${cx-4}" cy="${cy-5}" rx="3" ry="1.8" fill="#fff" opacity=".85"/>`}
+function seatSvg(t,cx,cy){
+  if(!t)return `<circle cx="${cx}" cy="${cy}" r="18" fill="#fff" stroke="#bfdfe2" stroke-width="2" stroke-dasharray="4 4"/>`;
+  if(t==="hi")return `<circle class="pulse" cx="${cx}" cy="${cy}" r="18" fill="#FFF7E8" stroke="var(--gold)" stroke-width="3" stroke-dasharray="5 4"/>`;
+  if(t==="a"||t==="b")return astro(cx,cy,t);
+  if(t==="mv")return `<circle cx="${cx}" cy="${cy}" r="23" fill="none" stroke="var(--gold)" stroke-width="3" stroke-dasharray="5 4"/>`+astro(cx,cy,"b");
+  if(t==="ghost")return `<circle cx="${cx}" cy="${cy}" r="17" fill="#FFF7E8" stroke="var(--gold)" stroke-width="3" stroke-dasharray="4 3"/><text x="${cx}" y="${cy+7}" text-anchor="middle" class="svgt" font-size="18" fill="var(--burnt)">+</text>`;
+  if(t==="coin")return `<circle cx="${cx}" cy="${cy}" r="18" fill="var(--gold)" stroke="var(--burnt)" stroke-width="2.5"/><circle cx="${cx}" cy="${cy}" r="11" fill="none" stroke="var(--burnt)" stroke-width="1.5" opacity=".6"/>`;
+  if(t==="q")return `<rect x="${cx-22}" y="${cy-22}" width="44" height="44" rx="12" fill="var(--burnt)"/><text x="${cx}" y="${cy+8}" text-anchor="middle" class="svgt" font-size="22" fill="#fff">?</text>`;
+  return "";
+}
+function rocket(cells,o={}){
+  let seats="";for(let i=0;i<10;i++){const cx=80+(i%5)*50,cy=i<5?58:112;seats+=`<g class="seat${o.click?" clk":""}" data-i="${i}">${seatSvg(cells[i],cx,cy)}</g>`}
+  const ring=o.ring?`<rect x="26" y="12" width="302" height="146" rx="40" fill="none" stroke="var(--gold)" stroke-width="5" stroke-dasharray="10 7"/>`:"";
+  return `<svg class="rocket ${o.cls||""}" viewBox="0 0 392 172" role="img" aria-label="${esc(o.label||"Rocket with 10 seats")}">
+  <path class="flame" d="M34 62 L0 86 L34 110 Z" fill="var(--gold)"/>
+  <path d="M74 22 L34 2 L34 22 Z" fill="var(--teal)"/><path d="M74 148 L34 168 L34 148 Z" fill="var(--teal)"/>
+  <rect x="34" y="20" width="286" height="130" rx="34" fill="#fff" stroke="var(--teal)" stroke-width="4"/>
+  <path d="M318 22 C360 30 388 72 390 85 C388 98 360 140 318 148 Z" fill="var(--teal)"/>
+  <line x1="56" y1="85" x2="304" y2="85" stroke="#d6ecee" stroke-width="2"/>${ring}${seats}</svg>`;
+}
+const fill=(n,t="a",rest=null)=>Array.from({length:10},(_,i)=>i<n?t:rest);
+function bond(w,l,r){const col=v=>v==="?"?"var(--burnt)":"var(--ink)";
+  return `<svg class="bond" viewBox="0 0 220 150" role="img" aria-label="Number bond: ${w} is made of ${l} and ${r}">
+  <line x1="110" y1="40" x2="50" y2="112" stroke="var(--teal)" stroke-width="3"/><line x1="110" y1="40" x2="170" y2="112" stroke="var(--teal)" stroke-width="3"/>
+  <circle cx="110" cy="36" r="30" fill="var(--teal)"/><text x="110" y="46" text-anchor="middle" class="svgt" font-size="28" fill="#fff">${w}</text>
+  <circle cx="50" cy="114" r="28" fill="#fff" stroke="var(--teal)" stroke-width="3"/><text x="50" y="124" text-anchor="middle" class="svgt" font-size="26" fill="${col(l)}">${l}</text>
+  <circle cx="170" cy="114" r="28" fill="#fff" stroke="var(--teal)" stroke-width="3"/><text x="170" y="124" text-anchor="middle" class="svgt" font-size="26" fill="${col(r)}">${r}</text></svg>`}
+function hands(up,o={}){
+  const arr=Array.isArray(up)?up:Array.from({length:10},(_,i)=>i<up);let s="";
+  [[30,0],[240,5]].forEach(([px,base])=>{
+    for(let k=0;k<5;k++){const i=base+k,x=px+9+k*27,r=arr[i];
+      const sleepStroke=o.sleepHi?"var(--gold)":"#b9b9b9";
+      s+=`<g class="finger${o.click?" clk":""}" data-i="${i}"><rect x="${x}" y="${r?26:80}" width="23" height="${r?96:42}" rx="11.5" fill="${r?"#E6F7F8":(o.sleepHi?"#FFF7E8":"#F2F2F2")}" stroke="${r?"var(--teal)":sleepStroke}" stroke-width="3" ${!r&&o.sleepHi?'stroke-dasharray="5 4"':""}/></g>`}
+    s+=`<rect x="${px}" y="100" width="150" height="80" rx="32" fill="#E6F7F8" stroke="var(--teal)" stroke-width="3"/>`;
+  });
+  return `<svg class="hands" viewBox="0 0 420 190" role="img" aria-label="Two hands">${s}</svg>`}
+function starSvg(on){return `<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 14.9,8.6 22,9.3 16.6,14 18.2,21 12,17.3 5.8,21 7.4,14 2,9.3 9.1,8.6" fill="${on?"var(--gold)":"#fff"}" stroke="${on?"var(--burnt)":"#c9d6d7"}" stroke-width="1.5" stroke-linejoin="round"/></svg>`}
+function feet(){let s="";[120,300].forEach((cx,f)=>{s+=`<ellipse cx="${cx}" cy="112" rx="52" ry="64" fill="#E6F7F8" stroke="var(--teal)" stroke-width="3"/>`;
+  const d=f===0?[-36,-18,0,18,34]:[-34,-18,0,18,36];d.forEach((dx,k)=>{const big=(f===0&&k===4)||(f===1&&k===0);s+=`<circle cx="${cx+dx}" cy="${36+Math.abs(dx)*.35}" r="${big?12:9}" fill="#E6F7F8" stroke="var(--teal)" stroke-width="3"/>`})});
+  return `<svg viewBox="0 0 420 185" role="img" aria-label="Two feet with 5 toes each">${s}</svg>`}
+function crayons(n,rev){const cols=["#00A7B2","#FAA71C","#D77F28","#C92426","#42bcb8","#ff6600"];let s=`<rect x="16" y="46" width="388" height="124" rx="14" fill="#fff" stroke="var(--teal)" stroke-width="3"/>`;
+  for(let i=0;i<10;i++){const x=32+i*37;if(i<n){const c=cols[i%6];s+=`<polygon points="${x},58 ${x+14},30 ${x+28},58" fill="${c}"/><rect x="${x}" y="56" width="28" height="100" rx="4" fill="${c}"/>`}
+    else s+=`<rect x="${x}" y="56" width="28" height="100" rx="4" fill="${rev?"#FFF7E8":"#fff"}" stroke="${rev?"var(--gold)":"#c9dcdd"}" stroke-width="2.5" stroke-dasharray="5 4"/>`}
+  return `<svg viewBox="0 0 420 180" role="img" aria-label="Crayon box">${s}</svg>`}
+function pins(rev){const P=[[120,44],[180,44],[240,44],[300,44],[150,84],[210,84],[270,84],[180,124],[240,124],[210,164]];const stand=[0,3];let s="";
+  P.forEach(([x,y],i)=>{const up=stand.includes(i);s+=`<g opacity="${up?1:.18}"><ellipse cx="${x}" cy="${y}" rx="12" ry="17" fill="#fff" stroke="${up&&rev?"var(--burnt)":"var(--teal)"}" stroke-width="3"/><circle cx="${x}" cy="${y-20}" r="7" fill="#fff" stroke="${up&&rev?"var(--burnt)":"var(--teal)"}" stroke-width="3"/><rect x="${x-10}" y="${y-8}" width="20" height="4" fill="var(--crimson)"/></g>`});
+  return `<svg viewBox="0 0 420 190" role="img" aria-label="Ten bowling pins, 8 knocked down">${s}</svg>`}
+
+/* ---------- Phase definitions ---------- */
+const PHASES=[
+{short:"Mission briefing",win:"0–5 min",target:5,stars:[],
+ script:["Become Mission Control. Pause before 'Exactly 10.'","Ask: Can this rocket launch? How do you know? Don't correct yet.","On crayons and bowling, watch: counting one by one, or just knowing?"],
+ tasks:[{id:"launch",label:()=>"Rocket launched with exactly 10 astronauts"},{id:"spot",label:()=>`Real-life 10s explored (${S.c.spot.length} of 4)`},{id:"promise",label:()=>"Mission promise and star board shown"}],
+ scenes:[sRocket,sSpot,sPromise]},
+{short:"Launch check",win:"5–8 min",target:3,stars:[],
+ script:["Say: Solve it any way you like. There's no wrong way.","Only watch and record. Don't teach yet.","Record a strategy for each question below."],
+ tasks:[{id:"q1",label:()=>"Question 1 strategy recorded"},{id:"q2",label:()=>"Question 2 strategy recorded"},{id:"q3",label:()=>"Question 3 strategy recorded"}],
+ scenes:[sCheck(0),sCheck(1),sCheck(2)],observe:true},
+{short:"Build and break",win:"8–20 min",target:12,stars:["explorer","builder"],
+ script:["Flash for 2 seconds, then hide. Ask: How did you know so fast?","Model: 5 on top and 2 more. 5 and 2 make 7.","Hidden treasure: alternate who hides. Guess wrong on purpose sometimes.","Shake and spill: ask what happens to one side when the other goes up by one. Tap a counter to flip it."],
+ tasks:[{id:"flash",label:()=>`Ten-frame flashes (${Math.min(S.c.flash,4)} of 4)`},{id:"treasure",label:()=>`Hidden treasure rounds (${Math.min(S.c.treasure,4)} of 4)`},{id:"spill",label:()=>`Different pairs to 10 found (${Math.min(S.c.pairs.length,4)} of 4)`},{id:"turn",label:()=>"Turnaround and fact family shown"}],
+ scenes:[sFlash,sTreasure,sSpill]},
+{short:"Why 10",win:"20–25 min",target:5,stars:["thinker"],
+ script:["Accept any reasoning. '10 is easy to count in' is a strong answer.","Listen for because, so, it's like.","Say the big idea together on the last discovery."],
+ tasks:[{id:"why",label:()=>`Discoveries explored (${S.c.why.length} of 4)`},{id:"explain",label:()=>"Child explained why 10 is special in their own words"}],
+ scenes:[sWhyHands,sWhyBundle,sWhyMoney,sWhyTeen]},
+{short:"Smart tricks",win:"25–33 min",target:8,stars:["trickster"],
+ script:["Folded fingers: the sleeping fingers are the buddy.","Chant: Fill the rocket, then the rest!","If the child counts on fingers, go back to the rocket for one more example.","For 6 + 7, start with the bigger number."],
+ tasks:[{id:"buddy",label:()=>`Folded fingers buddies found (${Math.min(S.c.buddy.length,3)} of 3)`},{id:"m10",label:()=>`Make 10 First problems solved (${Math.min(S.c.m10.length,3)} of 3)`}],
+ scenes:[sBuddy,sMake10]},
+{short:"Rescue the Rockets",win:"33–38 min",target:5,stars:["commander"],
+ script:["Round 1: 60 seconds. Mark each answer. Target: 8 of 10.","Round 2: the child says each step before you reveal it.","Round 3: play a curious beginner. Ask 'why?' at every step."],
+ tasks:[{id:"blast",label:()=>"Round 1: Buddy blast finished"},{id:"bridge",label:()=>`Round 2: Bridge the 10 (${S.c.bridge.length} of 3)`},{id:"tb1",label:()=>"Teach-back: named the buddy of 8 (2)"},{id:"tb2",label:()=>"Teach-back: split 4 into 2 and 2"},{id:"tb3",label:()=>"Teach-back: made 10"},{id:"tb4",label:()=>"Teach-back: answered 12 and said why"}],
+ scenes:[sBlast,sBridge,sTeach]}
+];
+const TS={launch:[0,"Launch the rocket"],spot:[1,"Spot all four 10s"],promise:[2,"See the mission promise"],
+ q1:[0,"Record question 1"],q2:[1,"Record question 2"],q3:[2,"Record question 3"],
+ flash:[0,"Flash 4 rockets"],treasure:[1,"4 treasure rounds"],spill:[2,"Find 4 pairs"],turn:[2,"Turnaround and fact family"],
+ why:[0,"Explore all 4 discoveries"],explain:[3,"Explain why 10 is special"],
+ buddy:[0,"3 folded-finger buddies"],m10:[1,"Solve 3 Make 10 First"],
+ blast:[0,"Finish buddy blast"],bridge:[1,"Solve all 3 bridges"],tb1:[2,"Teach-back: buddy of 8"],tb2:[2,"Teach-back: split 4"],tb3:[2,"Teach-back: make 10"],tb4:[2,"Teach-back: answer 12"]};
+const OBSQ=["Rocket A has 6 astronauts. How many more to make 10?","5 + 4 = ?","8 + 3 = ?"];
+const OBSOPT=["Counts all","Counts on","Uses a strategy","Knows it"];
+
+/* ---------- Core actions ---------- */
+function markTask(id){if(!S.tasks[id]){S.tasks[id]=true;save();renderDock()}}
+function bump(){save();renderDock()}
+function addUnique(arr,v){if(!arr.includes(v))arr.push(v)}
+function goPhase(i){if(i>S.unlocked)return;S.phase=i;S.finale=false;renderAll();$("#stage").scrollTop=0}
+function goScene(k){S.scene[S.phase]=k;save();renderStage();$("#stage").scrollTop=0}
+function completePhase(force){
+  const i=S.phase,p=PHASES[i];if(S.done[i])return;stopAuto();
+  S.done[i]=1;const newStars=p.stars.filter(s=>!S.stars.includes(s));S.stars.push(...newStars);
+  if(i<5)S.unlocked=Math.max(S.unlocked,i+1);
+  save();renderAll();celebrate(newStars,i);
+}
+function celebrate(stars,i){
+  const el=$("#celebrate");const last=i===5;
+  const head=stars.length?`${stars.map(s=>STAR_INFO[s][0]).join(" and ")} star${stars.length>1?"s":""} earned`:"Phase complete";
+  el.innerHTML=`<div class="cel">${stars.length?`<div class="row">${stars.map(()=>starSvg(true)).join("")}</div>`:""}<h2>${esc(head)}</h2><p>${last?`Mission complete, ${esc(nm())}.`:`Phase ${i+2} is unlocked: ${esc(PHASES[i+1].short)}.`}</p>
+  <div class="row" style="margin-top:8px">${last?`<button class="btn pri" id="celGo">See the mission report card</button>`:`<button class="btn pri" id="celGo">Start Phase ${i+2}</button>`}<button class="btn" id="celStay">Stay here</button></div></div>`;
+  el.hidden=false;$("#celGo").focus();
+  $("#celGo").onclick=()=>{el.hidden=true;if(last){S.finale=true;save();renderStage()}else goPhase(i+1)};
+  $("#celStay").onclick=()=>{el.hidden=true};
+}
+
+/* ---------- Auto-unlock ---------- */
+let autoT=null;
+function stopAuto(){if(autoT){clearInterval(autoT.iv);autoT=null}}
+function checkAuto(){
+  const i=S.phase,p=PHASES[i],all=p.tasks.every(t=>S.tasks[t.id]);
+  const want=all&&!S.done[i]&&S.auto&&!S.hold[i];
+  if(autoT&&(!want||autoT.i!==i))stopAuto();
+  if(want&&!autoT){autoT={i,left:3};autoT.iv=setInterval(()=>{if(!autoT)return;autoT.left--;
+    if(autoT.left<=0){const ii=autoT.i;stopAuto();if(S.phase===ii&&!S.done[ii])completePhase()}else renderDock()},1000)}
+}
+function pending(){return PHASES[S.phase].tasks.filter(t=>!S.tasks[t.id])}
+function renderTodo(){
+  const el=$("#todo");if(!el)return;const i=S.phase;
+  if(S.done[i]){el.className="todo ok";el.innerHTML=`<span class="tdl">Phase ${i+1} complete</span>${i<5?`<span class="tdn">Phase ${i+2} is unlocked</span>`:""}`;return}
+  const left=pending();
+  if(!left.length){el.className="todo ok";el.innerHTML=`<span class="tdl">All activities done</span><span class="tdn">${autoT?`${i<5?`Unlocking Phase ${i+2}`:"Completing the mission"} in ${autoT.left}s`:"Waiting for the teacher to unlock"}</span>`;return}
+  el.className="todo";
+  el.innerHTML=`<span class="tdl">Still to do (${left.length})</span>${left.map(t=>`<button class="tdc" data-sc="${TS[t.id][0]}" title="Open this scene">${TS[t.id][1]}</button>`).join("")}`;
+  $$(".tdc",el).forEach(b=>b.onclick=()=>{const k=+b.dataset.sc;if(k!==S.scene[S.phase])goScene(k)});
+}
+
+/* ---------- Render: rail ---------- */
+function renderRail(){
+  let h="";PHASES.forEach((p,i)=>{const locked=i>S.unlocked,cls=[S.done[i]?"done":"",i===S.phase?"cur":"",locked?"locked":""].join(" ");
+    if(i)h+=`<span class="seg ${S.done[i-1]?"on":""}"></span>`;
+    h+=`<button class="ph ${cls}" data-p="${i}" ${locked?'aria-disabled="true" title="Locked: finish the previous phase"':""} ${i===S.phase?'aria-current="step"':""}><span class="n">${S.done[i]?"✓":(locked?`<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>`:i+1)}</span><span class="lbl">${p.short}</span></button>`});
+  $("#rail").innerHTML=h;$$(".ph",$("#rail")).forEach(b=>b.onclick=()=>goPhase(+b.dataset.p));
+  $("#stars").innerHTML=STAR_ORDER.map(s=>`<span title="${STAR_INFO[s][0]} star${S.stars.includes(s)?" earned":""}">${starSvg(S.stars.includes(s))}</span>`).join("");
+}
+
+/* ---------- Render: stage ---------- */
+function renderStage(){
+  const st=$("#stage");
+  if(S.finale){renderFinale(st);return}
+  const p=PHASES[S.phase],k=Math.min(S.scene[S.phase],p.scenes.length-1),sc=p.scenes[k];
+  st.innerHTML=`<div class="mc"><b>Mission Control</b><p id="mcline"></p></div><section class="scene"><h2>${sc.title}</h2><div class="body" id="sbody"></div></section>
+  <div class="todo" id="todo" aria-live="polite"></div>
+  <nav class="snav" aria-label="Scenes"><button class="btn" id="sBack" ${k===0?"disabled":""}>Back</button>
+  <div class="dots">${p.scenes.map((s,j)=>`<button class="dot ${j===k?"on":""}" data-k="${j}">${s.tag}</button>`).join("")}</div>
+  ${k<p.scenes.length-1?`<button class="btn pri" id="sNext">Next scene</button>`:(S.done[S.phase]&&S.phase<5?`<button class="btn gold" id="sPhase">Go to Phase ${S.phase+2}</button>`:`<span class="dmeta" style="max-width:150px;text-align:right">${S.done[S.phase]?"Phase complete":"Last scene of this phase"}</span>`)}</nav>`;
+  $("#mcline").innerHTML=sc.mc();
+  sc($("#sbody"));
+  renderTodo();
+  $("#sBack").onclick=()=>goScene(k-1);
+  const n=$("#sNext");if(n)n.onclick=()=>goScene(k+1);
+  const g=$("#sPhase");if(g)g.onclick=()=>goPhase(S.phase+1);
+  $$(".dot",st).forEach(d=>d.onclick=()=>goScene(+d.dataset.k));
+}
+function renderFinale(st){
+  st.innerHTML=`<div class="mc"><b>Mission Control</b><p>Every rocket is full and flying, ${esc(nm())}. You found the lost astronauts, learned why 10 is so powerful, and taught Mission Control the Make 10 trick.</p></div>
+  <section class="scene"><h2>Mission complete: Make 10 Commander</h2><div class="body">
+  ${rocket(fill(10),{label:"A full rocket"})}
+  <div class="starboard">${STAR_ORDER.map(s=>`<div class="sb ${S.stars.includes(s)?"got":""}">${starSvg(S.stars.includes(s))}<b>${STAR_INFO[s][0]}</b><small>${STAR_INFO[s][1]}</small></div>`).join("")}</div>
+  <div class="banner">Fill the rocket, then the rest!</div>
+  <button class="btn" id="finBack">Back to Rescue the Rockets</button></div></section>`;
+  $("#finBack").onclick=()=>{S.finale=false;save();renderStage()};
+}
+
+/* ---------- Render: dock ---------- */
+function fmt(s){return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
+function renderDock(){
+  const i=S.phase,p=PHASES[i],all=p.tasks.every(t=>S.tasks[t.id]);
+  checkAuto();
+  const d=$("#dock");
+  const nextLabel=i<5?`Complete phase and unlock Phase ${i+2}`:"Complete the mission";
+  d.innerHTML=`
+  <div class="dsec"><label class="dmeta" for="lname">Learner's name</label><input class="inp" id="lname" value="${esc(S.name)}" placeholder="Used in the story, e.g. Maya" autocomplete="off"></div>
+  <div class="dsec"><div class="dmeta">Phase ${i+1} of 6, ${p.win}</div><div class="dtitle">${p.short}</div>
+    <div class="tmr"><span class="t" id="tmr"></span><span class="dmeta">of ${p.target}:00 planned</span><button class="btn ghost" id="pause">${S.paused?"Resume timer":"Pause timer"}</button></div></div>
+  <div class="dsec"><h4>Say and do</h4><ul class="script">${p.script.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  ${p.observe?`<div class="dsec"><h4>Record the strategy</h4>${OBSQ.map((q,j)=>`<div class="obsq">${j+1}. ${q}</div><div class="obs" data-q="${j}">${OBSOPT.map((o,m)=>`<button data-m="${m}" class="${S.obs["q"+j]===m?"on":""}" aria-pressed="${S.obs["q"+j]===m}">${o}</button>`).join("")}</div>`).join("")}</div>`:""}
+  <div class="dsec"><label class="task auto"><input type="checkbox" id="autoTog" ${S.auto?"checked":""}><span>Auto-unlock the next phase when every activity is done</span></label></div>
+  ${(()=>{const left=p.tasks.filter(t=>!S.tasks[t.id]),done=p.tasks.filter(t=>S.tasks[t.id]);
+    return `<div class="dsec"><h4>${left.length?`Still to do: ${left.length} of ${p.tasks.length}`:"Every activity is done"}</h4>
+    ${left.map(t=>`<div class="trow pend"><label class="task"><input type="checkbox" data-t="${t.id}"><span>${t.label()}</span></label>${TS[t.id][0]!==S.scene[i]&&!S.finale?`<button class="btn ghost go" data-sc="${TS[t.id][0]}">Open</button>`:""}</div>`).join("")}
+    ${done.length?`<h4 class="dh">Finished</h4>${done.map(t=>`<label class="task done"><input type="checkbox" data-t="${t.id}" checked><span>${t.label()}</span></label>`).join("")}`:""}</div>`})()}
+  <div class="dsec unlock">${S.done[i]?`<div class="donebadge">Phase ${i+1} is complete.${i<5?` Phase ${i+2} is unlocked.`:" The mission is complete."}</div>${i<5?`<button class="btn gold" id="goNext">Go to Phase ${i+2}</button>`:`<button class="btn gold" id="goFin">Show the report card</button>`}`
+    :autoT?`<div class="donebadge auto">All activities done. ${i<5?`Unlocking Phase ${i+2}`:"Completing the mission"} in ${autoT.left}s.</div><button class="btn pri" id="complete">Unlock now</button><button class="btn" id="hold">Hold: don't unlock yet</button>`
+    :`${all&&S.hold[i]?`<div class="dmeta">Auto-unlock is on hold for this phase. Unlock when you're ready.</div>`:""}<button class="btn pri" id="complete" ${all?"":"disabled"}>${nextLabel}</button>${all?"":`<button class="btn ghost" id="force">Unlock anyway</button>`}`}</div>
+  <div class="dsec keys"><div><kbd>W</kbd> whiteboard &nbsp; <kbd>T</kbd> teacher panel &nbsp; <kbd>←</kbd> <kbd>→</kbd> scenes</div>
+  <div>Hide this panel before sharing your screen, or share only the lesson area.</div>
+  <button class="btn ghost" id="reset" style="align-self:flex-start;padding-left:0">Reset lesson</button></div>`;
+  tick(true);renderTodo();
+  $("#autoTog").onchange=e=>{S.auto=e.target.checked;save();renderDock()};
+  const hb=$("#hold");if(hb)hb.onclick=()=>{S.hold[i]=true;save();renderDock()};
+  $$(".go",d).forEach(b=>b.onclick=()=>goScene(+b.dataset.sc));
+  $("#lname").oninput=e=>{S.name=e.target.value;save();const m=$("#mcline");if(m){const p=PHASES[S.phase];m.innerHTML=p.scenes[Math.min(S.scene[S.phase],p.scenes.length-1)].mc()}};
+  $("#pause").onclick=()=>{S.paused=!S.paused;save();renderDock()};
+  $$(".task input[data-t]",d).forEach(c=>c.onchange=()=>{S.tasks[c.dataset.t]=c.checked;save();renderDock()});
+  $$(".obs",d).forEach(g=>$$("button",g).forEach(b=>b.onclick=()=>{S.obs["q"+g.dataset.q]=+b.dataset.m;S.tasks["q"+(+g.dataset.q+1)]=true;save();renderDock()}));
+  const c=$("#complete");if(c)c.onclick=()=>completePhase();
+  const f=$("#force");if(f)f.onclick=()=>{if(f.dataset.arm){completePhase(true)}else{f.dataset.arm=1;f.textContent="Click again to unlock without finishing"}};
+  const g=$("#goNext");if(g)g.onclick=()=>goPhase(i+1);
+  const gf=$("#goFin");if(gf)gf.onclick=()=>{S.finale=true;save();renderStage()};
+  const r=$("#reset");r.onclick=()=>{if(r.dataset.arm){try{localStorage.removeItem(KEY)}catch(e){}stopAuto();S=fresh();Object.keys(L).forEach(k=>delete L[k]);renderAll()}else{r.dataset.arm=1;r.textContent="Click again to erase all progress"}};
+}
+function tick(noInc){
+  if(!noInc&&!S.paused&&!document.hidden){S.elapsed[S.phase]++;if(S.elapsed[S.phase]%5===0)save()}
+  const t=$("#tmr");if(t){const e=S.elapsed[S.phase];t.textContent=fmt(e);t.classList.toggle("over",e>PHASES[S.phase].target*60)}
+}
+function renderAll(){renderRail();renderStage();renderDock();WB.load()}
+
+/* ---------- Phase 1 scenes ---------- */
+function sRocket(el){
+  L.seats=L.seats??7;
+  el.innerHTML=`<div class="flashbox" id="rk"></div><div class="msg" id="rmsg">Tap an empty seat to add an astronaut. Tap an astronaut to remove one.</div>
+  <div class="row"><button class="btn pri" id="launch">Try to launch</button><button class="btn" id="r7">Back to 7 astronauts</button></div>`;
+  const draw=()=>{const rk=$("#rk",el);if(!rk)return;rk.innerHTML=rocket(fill(L.seats),{click:true,label:`Rocket with ${L.seats} astronauts`});
+    $$(".seat",el).forEach(g=>g.onclick=()=>{const i=+g.dataset.i;L.seats=i<L.seats?L.seats-1:L.seats+1;L.seats=Math.max(0,Math.min(10,L.seats));draw()})};
+  draw();
+  $("#r7").onclick=()=>{L.seats=7;$("#rmsg").className="msg";$("#rmsg").textContent="Seven astronauts are on board. Can this rocket launch?";draw()};
+  $("#launch").onclick=()=>{const svg=$(".rocket",el),m=$("#rmsg");
+    if(L.seats<10){svg.classList.remove("shake");void svg.getBoundingClientRect();svg.classList.add("shake");m.className="msg warn";const e=10-L.seats;m.textContent=`Launch blocked. ${e} seat${e>1?"s are":" is"} empty. Find the lost astronauts!`}
+    else{svg.classList.add("launch");m.className="msg good";m.textContent=`Lift-off! Exactly 10 astronauts. Great work, ${nm()}.`;markTask("launch");setTimeout(()=>{L.seats=7;draw()},2600)}};
+}
+sRocket.title="Emergency at Mission Control";sRocket.tag="The rocket";
+sRocket.mc=()=>`${esc(nm())}, we have an emergency. Our rockets can only launch with <em>exactly</em> 10 astronauts. Not 9. Not 11. Exactly 10. Some rockets are half full. Can this one launch? How do you know?`;
+
+function sSpot(el){
+  L.spotRev=L.spotRev||{};
+  const cards=[
+    ["hands","Hold up your hands. How many fingers? Did you have to count?",()=>hands(10),"10 fingers: 5 on each hand. We can see it without counting."],
+    ["toes","How many toes do you have? Why is it the same?",()=>feet(),"10 toes: 5 on each foot, just like our hands."],
+    ["crayons","A pack of 10 crayons has 6 left. Are some missing?",r=>crayons(6,r),"4 are missing. 6 and 4 make 10."],
+    ["bowling","10 bowling pins. You knock down 8. How many are still standing?",r=>pins(r),"2 are still standing. 8 and 2 make 10."]];
+  el.innerHTML=`<div class="grid2">${cards.map(([id,q,v,a])=>{const r=!!L.spotRev[id];return `<div class="card ${r?"seen":""}"><h3>${q}</h3>${v(r)}<div class="ans">${r?a:""}</div><button class="btn ${r?"":"pri"}" data-id="${id}">${r?"Hide answer":"Reveal"}</button></div>`}).join("")}</div>`;
+  $$("button[data-id]",el).forEach(b=>b.onclick=()=>{const id=b.dataset.id;L.spotRev[id]=!L.spotRev[id];if(L.spotRev[id]){addUnique(S.c.spot,id);if(S.c.spot.length>=4)markTask("spot");else bump()}sSpot(el)});
+}
+sSpot.title="Spot the 10s around you";sSpot.tag="Spot the 10s";
+sSpot.mc=()=>"Mission Control needs sharp eyes. The number 10 is hiding all around us. Can you spot it?";
+
+function sPromise(el){
+  el.innerHTML=`<div class="starboard">${STAR_ORDER.map(s=>`<div class="sb ${S.stars.includes(s)?"got":""}">${starSvg(S.stars.includes(s))}<b>${STAR_INFO[s][0]}</b><small>${STAR_INFO[s][1]}</small></div>`).join("")}</div>
+  <div class="banner">Earn all five stars to become a Make 10 Commander.</div>`;
+  markTask("promise");
+}
+sPromise.title="Your mission today";sPromise.tag="The promise";
+sPromise.mc=()=>`By the end of today, ${esc(nm())}, you'll know a secret trick grown-ups use to add big numbers super fast. And at the end, you'll teach it to Mission Control. Are you ready to become a Make 10 Commander?`;
+
+/* ---------- Phase 2 scenes ---------- */
+function sCheck(j){
+  const ans=[4,9,11][j];
+  const f=function(el){const key="chk"+j;L[key]=L[key]||{};
+    el.innerHTML=`<div class="big">${["6 + ? = 10","5 + 4 = ?","8 + 3 = ?"][j]}</div>
+    <div id="cpic">${L[key].pic?rocket(fill(6),{label:"Rocket A with 6 astronauts"}):""}</div>
+    <div class="msg good" id="cans">${L[key].ans?`The answer is ${ans}.`:""}</div>
+    <div class="row">${j===0?`<button class="btn" id="pic">${L[key].pic?"Hide rocket":"Show Rocket A"}</button>`:""}<button class="btn pri" id="ra">${L[key].ans?"Hide answer":"Reveal answer"}</button></div>
+    <div class="dmeta">Record how the child solved it in the teacher panel.</div>`;
+    const p=$("#pic",el);if(p)p.onclick=()=>{L[key].pic=!L[key].pic;f(el)};
+    $("#ra",el).onclick=()=>{L[key].ans=!L[key].ans;f(el)};};
+  f.title=`Launch check ${j+1} of 3`;f.tag=`Question ${j+1}`;
+  f.mc=()=>[`Quick launch check, ${esc(nm())}. Rocket A has 6 astronauts. How many more do we need to make 10? Solve it any way you like.`,"Next one. How many astronauts is 5 and 4 more? Use any way you like.","Last check. 8 astronauts, and 3 more climb aboard. How many now?"][j];
+  return f;
+}
+
+/* ---------- Phase 3 scenes ---------- */
+function sFlash(el){
+  L.fn=L.fn??7;L.fstate=L.fstate||"show";L.fdur=L.fdur||2;
+  const say=n=>n<=5?`I see ${n} on top.`:`I see 5 on top and ${n-5} more. 5 and ${n-5} make ${n}.`;
+  el.innerHTML=`<div class="nums" aria-label="Choose a number">${Array.from({length:10},(_,i)=>`<button class="num ${L.fn===i+1?"on":""}" data-n="${i+1}">${i+1}</button>`).join("")}<button class="btn" id="frand">Random</button></div>
+  <div class="flashbox">${rocket(fill(L.fn),{label:`Ten-frame rocket with ${L.fn} astronauts`})}${L.fstate==="hide"?`<div class="cover">How many did you see?<br>How did you know so fast?</div>`:""}</div>
+  <div class="msg" id="fmsg">${L.fstate==="rev"?say(L.fn)+(L.fempty?` ${10-L.fn} empty seat${10-L.fn===1?"":"s"}.`:""):(L.fstate==="flashing"?"Look closely...":"")}</div>
+  <div class="row"><button class="btn pri" id="fgo">Flash for ${L.fdur} seconds</button><button class="btn" id="frev" ${L.fstate==="hide"?"":"disabled"}>Reveal</button>
+  <select class="select" id="fdur" aria-label="Flash length">${[1,2,3].map(s=>`<option value="${s}" ${s===L.fdur?"selected":""}>${s} s</option>`).join("")}</select>
+  <label class="task" style="align-items:center"><input type="checkbox" id="fempty" ${L.fempty?"checked":""}><span>Also ask about empty seats</span></label></div>
+  <div class="log">Flashes so far: <span>${S.c.flash}</span></div>`;
+  $$(".num",el).forEach(b=>b.onclick=()=>{L.fn=+b.dataset.n;L.fstate="hide";sFlash(el)});
+  $("#frand",el).onclick=()=>{let n;do{n=rnd(3,10)}while(n===L.fn);L.fn=n;L.fstate="hide";sFlash(el)};
+  $("#fdur",el).onchange=e=>{L.fdur=+e.target.value;sFlash(el)};
+  $("#fempty",el).onchange=e=>{L.fempty=e.target.checked;sFlash(el)};
+  $("#fgo",el).onclick=()=>{L.fstate="flashing";sFlash(el);clearTimeout(L.ft);L.ft=setTimeout(()=>{L.fstate="hide";if($("#fgo"))sFlash(el)},L.fdur*1000)};
+  $("#frev",el).onclick=()=>{L.fstate="rev";S.c.flash++;if(S.c.flash>=4)markTask("flash");else bump();sFlash(el)};
+  if(L.fstate==="hide"&&!L.fshown){}
+}
+sFlash.title="Activity A: Ten-frame flash";sFlash.tag="A. Flash";
+sFlash.mc=()=>"The rocket seats are in two rows of 5. I'll flash a rocket for just a moment. How many astronauts did you see? No time to count!";
+
+function sTreasure(el){
+  L.tm=L.tm||"mc";L.tk=L.tk??rnd(2,8);L.trev=L.trev||false;L.tlog=L.tlog||[];
+  let body="";
+  if(L.tm==="mc"){
+    const cells=Array.from({length:10},(_,i)=>i>=10-L.tk&&!L.trev?"q":"coin");
+    body=`<div class="nums"><span class="dmeta" style="align-self:center">Coins in the cave:</span>${Array.from({length:9},(_,i)=>`<button class="num ${L.tk===i+1?"on":""}" data-k="${i+1}">${i+1}</button>`).join("")}<button class="btn" id="trand">Random</button></div>
+    <div class="pair"><div class="flashbox">${rocket(cells,{label:"Treasure frame with a cave covering some coins"})}</div>${bond(10,10-L.tk,L.trev?L.tk:"?")}</div>
+    <div class="msg ${L.trev?"good":""}">${L.trev?`${10-L.tk} and ${L.tk} make 10. You found the treasure!`:`I can see ${10-L.tk} coins. How many are hiding in the cave?`}</div>
+    <div class="row"><button class="btn pri" id="tlift">${L.trev?"Hide the treasure again":"Lift the cave"}</button></div>`;
+  }else{
+    L.ts=L.ts??null;L.tg=L.tg||null;
+    body=`<div class="nums"><span class="dmeta" style="align-self:center">Coins the child shows:</span>${Array.from({length:11},(_,i)=>`<button class="num ${L.ts===i?"on":""}" data-s="${i}">${i}</button>`).join("")}</div>
+    <div class="pair"><div class="flashbox">${rocket(Array.from({length:10},(_,i)=>L.ts===null?null:(i<L.ts?"coin":(L.tg==="check"?"ghost":"q"))),{label:"Commander's treasure"})}</div>${bond(10,L.ts===null?"?":L.ts,L.tg==="check"?10-L.ts:"?")}</div>
+    <div class="msg ${L.tg==="check"?"good":""}">${L.ts===null?"Commander, hide some of your 10 treasures under your cup. Show me the rest!":L.tg==="check"?`${L.ts} and ${10-L.ts} make 10. Thank you for checking, Commander!`:L.tg!==null?`Mission Control thinks <strong>${L.tg}</strong> are hiding. Is that right? Check under your cup.`:`I can see ${L.ts}. Let me think...`}</div>
+    <div class="row"><button class="btn pri" id="tgR" ${L.ts===null?"disabled":""}>Guess</button><button class="btn" id="tgW" ${L.ts===null||L.ts===10?"disabled":""}>Guess wrong on purpose</button><button class="btn gold" id="tchk" ${L.tg===null||L.tg==="check"?"disabled":""}>Commander checks</button></div>`;
+  }
+  el.innerHTML=`<div class="tabs" role="tablist"><button class="tab ${L.tm==="mc"?"on":""}" data-m="mc" role="tab" aria-selected="${L.tm==="mc"}">Mission Control hides</button><button class="tab ${L.tm==="cmd"?"on":""}" data-m="cmd" role="tab" aria-selected="${L.tm==="cmd"}">Commander hides</button></div>${body}
+  <div class="log">Bonds found: ${L.tlog.length?L.tlog.map(x=>`<span>${x}</span>`).join(""):"none yet"} &nbsp; Rounds: <span>${S.c.treasure}</span></div>`;
+  $$(".tab",el).forEach(t=>t.onclick=()=>{L.tm=t.dataset.m;L.trev=false;L.ts=null;L.tg=null;sTreasure(el)});
+  const round=b=>{S.c.treasure++;addUnique(L.tlog,b);if(S.c.treasure>=4)markTask("treasure");else bump()};
+  if(L.tm==="mc"){
+    $$(".num",el).forEach(b=>b.onclick=()=>{L.tk=+b.dataset.k;L.trev=false;sTreasure(el)});
+    $("#trand",el).onclick=()=>{let k;do{k=rnd(1,9)}while(k===L.tk);L.tk=k;L.trev=false;sTreasure(el)};
+    $("#tlift",el).onclick=()=>{if(!L.trev){L.trev=true;round(`${10-L.tk} + ${L.tk}`)}else{let k;do{k=rnd(1,9)}while(k===L.tk);L.tk=k;L.trev=false}sTreasure(el)};
+  }else{
+    $$(".num",el).forEach(b=>b.onclick=()=>{L.ts=+b.dataset.s;L.tg=null;sTreasure(el)});
+    $("#tgR",el).onclick=()=>{L.tg=10-L.ts;sTreasure(el)};
+    $("#tgW",el).onclick=()=>{const c=10-L.ts;let g;do{g=c+(Math.random()<.5?-1:1)*rnd(1,2)}while(g<0||g>10||g===c);L.tg=g;sTreasure(el)};
+    $("#tchk",el).onclick=()=>{L.tg="check";round(`${L.ts} + ${10-L.ts}`);sTreasure(el)};
+  }
+}
+sTreasure.title="Activity B: Hidden treasure";sTreasure.tag="B. Treasure";
+sTreasure.mc=()=>`Here is our treasure: 10 gold coins, ${esc(nm())}. We take turns hiding some. You become a number breaker: you break 10 into two parts.`;
+
+function sSpill(el){
+  if(!L.sp){L.sp=Array.from({length:10},(_,i)=>i<6?"t":"g");L.pos=null}
+  if(!L.pos)L.pos=Array.from({length:10},(_,i)=>[70+(i%5)*95+rnd(-18,18),70+(i<5?0:95)+rnd(-18,18)]);
+  const t=L.sp.filter(x=>x==="t").length,g=10-t,key=Math.min(t,g);
+  const tray=`<svg class="tray" id="tray" viewBox="0 0 520 240" role="img" aria-label="${t} teal and ${g} gold counters"><rect x="6" y="6" width="508" height="228" rx="40" fill="#F7FCFC" stroke="var(--teal)" stroke-width="3"/>
+   ${L.pos.map(([x,y],i)=>`<g class="ctr" data-i="${i}"><circle cx="${x}" cy="${y}" r="30" fill="${L.sp[i]==="t"?"var(--teal)":"var(--gold)"}" stroke="#fff" stroke-width="4"/></g>`).join("")}</svg>`;
+  const pairs=[0,1,2,3,4,5];
+  el.innerHTML=`${tray}
+  <div class="eq"><span style="color:var(--teal-d)">${t} teal</span> + <span class="g">${g} gold</span> = 10</div>
+  <div class="row"><button class="btn pri" id="shake">Shake and spill</button><button class="btn" id="turn">Turnaround</button><button class="btn" id="fam">Fact family</button></div>
+  <div class="msg" id="smsg">${L.sview==="turn"?`${t} + ${g} = 10 and ${g} + ${t} = 10. Same buddies, swapped around!`:L.sview==="fam"?`${t} + ${g} = 10, &nbsp;${g} + ${t} = 10, &nbsp;10 − ${t} = ${g}, &nbsp;10 − ${g} = ${t}`:"When one colour goes up by one, what happens to the other?"}</div>
+  <div class="chips" aria-label="Pairs to 10 found">${pairs.map(a=>`<span class="chip ${S.c.pairs.includes(a)?"on":""}">${a} + ${10-a}</span>`).join("")}</div>
+  <div class="dmeta">Tap a counter to flip its colour.</div>`;
+  const found=()=>{addUnique(S.c.pairs,key);if(S.c.pairs.length>=4)markTask("spill");else bump()};
+  found();
+  $$(".ctr",el).forEach(c=>c.onclick=()=>{const i=+c.dataset.i;L.sp[i]=L.sp[i]==="t"?"g":"t";L.sview=null;sSpill(el)});
+  $("#shake",el).onclick=()=>{const tr=$("#tray",el);tr.classList.add("shaking");setTimeout(()=>{L.sp=L.sp.map(()=>Math.random()<.5?"t":"g");L.pos=null;L.sview=null;sSpill(el)},450)};
+  const both=()=>{if(L.sawTurn&&L.sawFam)markTask("turn")};
+  $("#turn",el).onclick=()=>{L.sview="turn";L.sawTurn=1;both();sSpill(el)};
+  $("#fam",el).onclick=()=>{L.sview="fam";L.sawFam=1;both();sSpill(el)};
+}
+sSpill.title="Activity C: Shake and spill";sSpill.tag="C. Spill";
+sSpill.mc=()=>"10 counters, two colours. Shake them up and spill them out. Do they still make 10? Let's find every pair of buddies.";
+
+/* ---------- Phase 4 scenes ---------- */
+function why(id){addUnique(S.c.why,id);if(S.c.why.length>=4)markTask("why");else bump()}
+function sWhyHands(el){
+  L.hf=L.hf||Array(10).fill(true);const up=L.hf.filter(Boolean).length;
+  el.innerHTML=`${hands(L.hf,{click:true})}<div class="eq">${up} up and <span class="g">${10-up} sleeping</span> make 10</div>
+  <div class="row"><button class="btn" id="hall">All fingers up</button></div><div class="dmeta">Tap a finger to fold it or raise it.</div>`;
+  $$(".finger",el).forEach(f=>f.onclick=()=>{const i=+f.dataset.i;L.hf[i]=!L.hf[i];sWhyHands(el)});
+  $("#hall",el).onclick=()=>{L.hf=Array(10).fill(true);sWhyHands(el)};
+  why("hands");
+}
+sWhyHands.title="Discovery 1: We carry 10 with us";sWhyHands.tag="1. Hands";
+sWhyHands.mc=()=>"Look at your hands. Why do you think people all over the world first counted in 10s?";
+function sWhyBundle(el){
+  const b=!!L.bun;let s="";
+  if(!b){for(let i=0;i<10;i++){const x=40+i*46+(i%3)*4,rot=((i*37)%13)-6;s+=`<rect x="${x}" y="30" width="14" height="120" rx="6" fill="var(--gold)" stroke="var(--burnt)" stroke-width="2" transform="rotate(${rot} ${x+7} 90)"/>`}}
+  else{for(let i=0;i<10;i++){s+=`<rect x="${200+i*12}" y="30" width="12" height="120" rx="5" fill="var(--gold)" stroke="var(--burnt)" stroke-width="1.5"/>`}s+=`<rect x="194" y="78" width="132" height="22" rx="6" fill="var(--teal)"/><text x="260" y="95" text-anchor="middle" class="svgt" font-size="18" fill="#fff">10</text>`}
+  el.innerHTML=`<svg viewBox="0 0 520 180" style="width:100%;max-width:520px" role="img" aria-label="${b?"One bundle of 10 sticks":"10 loose sticks"}">${s}</svg>
+  <div class="eq">${b?"1 bundle = 10 sticks":"10 loose sticks"}</div><div class="row"><button class="btn pri" id="bun">${b?"Untie the bundle":"Bundle them"}</button></div>`;
+  $("#bun",el).onclick=()=>{L.bun=!b;sWhyBundle(el)};why("bundle");
+}
+sWhyBundle.title="Discovery 2: 10 is a bundle";sWhyBundle.tag="2. Bundle";
+sWhyBundle.mc=()=>"Is it easier to count 10 loose sticks, or 1 bundle of 10?";
+function sWhyMoney(el){
+  L.reg=L.reg||"us";const us=L.reg==="us",tr=!!L.trade,u=us?"1¢":"1p",big=us?"10¢":"10p";let s="";
+  if(!tr){for(let i=0;i<10;i++){const x=50+(i%5)*70,y=i<5?50:125;s+=`<circle cx="${x}" cy="${y}" r="27" fill="#E9A35A" stroke="var(--burnt)" stroke-width="3"/><text x="${x}" y="${y+7}" text-anchor="middle" class="svgt" font-size="18" fill="#fff">${u}</text>`}}
+  else s=`<circle cx="190" cy="88" r="62" fill="#e4eced" stroke="#9fb2b4" stroke-width="4"/><text x="190" y="100" text-anchor="middle" class="svgt" font-size="36" fill="var(--ink)">${big}</text>`;
+  el.innerHTML=`<div class="tabs"><button class="tab ${us?"on":""}" data-r="us">US coins</button><button class="tab ${us?"":"on"}" data-r="uk">UK coins</button></div>
+  <svg viewBox="0 0 380 175" style="width:100%;max-width:420px" role="img" aria-label="${tr?"One coin worth 10":"Ten coins worth 1 each"}">${s}</svg>
+  <div class="eq">${tr?(us?"1 dime = 10 pennies":"One 10p coin = ten 1p coins"):(us?"10 pennies":"Ten 1p coins")}</div>
+  <div class="row"><button class="btn pri" id="trade">${tr?"Swap back to 10 coins":"Trade 10 for 1"}</button></div>`;
+  $$(".tab",el).forEach(t=>t.onclick=()=>{L.reg=t.dataset.r;sWhyMoney(el)});
+  $("#trade",el).onclick=()=>{L.trade=!tr;sWhyMoney(el)};why("money");
+}
+sWhyMoney.title="Discovery 3: Money loves 10";sWhyMoney.tag="3. Money";
+sWhyMoney.mc=()=>"Would you rather carry 10 little coins in your pocket, or just 1?";
+function sWhyTeen(el){
+  L.teen=L.teen||13;const n=L.teen,e=n-10,hl=!!L.teenHl;
+  el.innerHTML=`<div class="nums">${Array.from({length:9},(_,i)=>`<button class="num ${n===11+i?"on":""}" data-n="${11+i}">${11+i}</button>`).join("")}</div>
+  <div class="big">${n}</div>
+  <div class="stack"><span class="rlabel">Rocket 1</span>${rocket(fill(10),{ring:hl,label:"A full rocket of 10"})}<span class="rlabel">Rocket 2</span>${rocket(fill(e,"b"),{label:`Rocket with ${e} astronauts`})}</div>
+  <div class="eq">${hl?`10 and ${e} make ${n}`:`Where is the 10 hiding in ${n}?`}</div>
+  <div class="row"><button class="btn pri" id="thl">${hl?"Hide the 10":"Find the hidden 10"}</button></div>
+  <div class="banner">10 is a full rocket. Once I fill the rocket, the rest is easy.</div>`;
+  $$(".num",el).forEach(b=>b.onclick=()=>{L.teen=+b.dataset.n;L.teenHl=false;sWhyTeen(el)});
+  $("#thl",el).onclick=()=>{L.teenHl=!hl;sWhyTeen(el)};why("teen");
+}
+sWhyTeen.title="Discovery 4: Teen numbers hide a 10";sWhyTeen.tag="4. Teens";
+sWhyTeen.mc=()=>`Every teen number has a secret, ${esc(nm())}. There's a full rocket of 10 hiding inside it. Let's say it together: 10 is a full rocket. Once I fill the rocket, the rest is easy.`;
+
+/* ---------- Phase 5 scenes ---------- */
+function sBuddy(el){
+  L.bn=L.bn??7;const n=L.bn,rev=!!L.brev;
+  el.innerHTML=`<div class="nums">${Array.from({length:9},(_,i)=>`<button class="num ${n===i+1?"on":""}" data-n="${i+1}">${i+1}</button>`).join("")}</div>
+  ${hands(n,{sleepHi:rev})}
+  <div class="eq">${rev?`${n} and <span class="g">${10-n}</span> make 10`:`${n} fingers up. How many are sleeping?`}</div>
+  <div class="row"><button class="btn pri" id="brev">${rev?"Try another number":"Count the sleeping fingers"}</button></div>
+  <div class="banner">The sleeping fingers are always the buddy that makes 10.</div>`;
+  $$(".num",el).forEach(b=>b.onclick=()=>{L.bn=+b.dataset.n;L.brev=false;sBuddy(el)});
+  $("#brev",el).onclick=()=>{if(!rev){L.brev=true;addUnique(S.c.buddy,n);if(S.c.buddy.length>=3)markTask("buddy");else bump()}else{let k;do{k=rnd(1,9)}while(k===n);L.bn=k;L.brev=false}sBuddy(el)};
+}
+sBuddy.title="Trick 1: Folded fingers buddy";sBuddy.tag="Folded fingers";
+sBuddy.mc=()=>"Here's a secret. Hold up 7 fingers. Look at the fingers that are sleeping. That's the buddy that makes 10!";
+
+function make10(el,st,onDone){
+  const big=Math.max(st.a,st.b),small=Math.min(st.a,st.b),need=10-big,rest=small-need,sum=big+small,s=st.step;
+  let r1,r2;
+  if(s<3){r1=fill(big,"a",s>=1?"hi":null);for(let i=big;i<10;i++)r1[i]=s>=1?"hi":null;r2=Array.from({length:10},(_,i)=>i<small?(s>=2&&i<need?"mv":"b"):null)}
+  else{r1=Array.from({length:10},(_,i)=>i<big?"a":"mv");r2=fill(rest,"b")}
+  const text=[`Put ${big} astronauts in Rocket 1 and ${small} in Rocket 2.`,`How many empty seats in Rocket 1? <strong>${need}</strong>.`,`Break ${small} into <strong>${need}</strong> and <strong>${rest}</strong>.`,`Move ${need} into Rocket 1. It's full: 10!`,`10 and ${rest} make <strong>${sum}</strong>.`][s];
+  let eq=`${st.a} + ${st.b}`;if(st.a<st.b&&s>=0)eq+=` = ${big} + ${small}`;if(s>=2)eq+=` = ${big} + <span class="g">${need}</span> + ${rest}`;if(s>=3)eq+=` = 10 + ${rest}`;if(s>=4)eq+=` = ${sum}`;
+  el.innerHTML=`<div class="eq">${eq}</div>
+  <div class="pair"><div class="stack" style="max-width:470px"><span class="rlabel">Rocket 1</span>${rocket(r1,{label:"Rocket 1"})}<span class="rlabel">Rocket 2</span>${rocket(r2,{label:"Rocket 2"})}</div>${s>=2?bond(small,need,rest):""}</div>
+  <div class="msg">${text}${st.a<st.b&&s===0?" (Start with the bigger number.)":""}</div>
+  <div class="steps" aria-label="Step ${s+1} of 5">${[0,1,2,3,4].map(i=>`<i class="${i<=s?"on":""}"></i>`).join("")}</div>
+  <div class="row"><button class="btn" data-a="back" ${s===0?"disabled":""}>Back a step</button>${s<4?`<button class="btn pri" data-a="next">Next step</button>`:`<button class="btn" data-a="again">Start again</button>`}</div>`;
+  $$("button[data-a]",el).forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a==="next")st.step++;if(a==="back")st.step--;if(a==="again")st.step=0;make10(el,st,onDone);if(st.step===4&&onDone)onDone()});
+}
+function sMake10(el){
+  const probs=[[8,5],[9,4],[8,6],[7,5],[6,7]];
+  L.mp=L.mp||{a:8,b:5,step:0};
+  el.innerHTML=`<div class="chips" role="group" aria-label="Choose a problem">${probs.map(([a,b])=>`<button class="chip ${L.mp.a===a&&L.mp.b===b?"on":""}" data-p="${a},${b}">${a} + ${b}${S.c.m10.includes(a+"+"+b)?" ✓":""}</button>`).join("")}
+  <span class="row" style="gap:6px"><select class="select" id="ca" aria-label="First number">${[2,3,4,5,6,7,8,9].map(n=>`<option ${n===L.mp.a?"selected":""}>${n}</option>`).join("")}</select>+<select class="select" id="cb" aria-label="Second number">${[2,3,4,5,6,7,8,9].map(n=>`<option ${n===L.mp.b?"selected":""}>${n}</option>`).join("")}</select></span></div>
+  <div class="msg warn" id="cerr"></div><div class="body" id="m10"></div><div class="banner">Fill the rocket, then the rest!</div>`;
+  $$(".chip",el).forEach(c=>c.onclick=()=>{const [a,b]=c.dataset.p.split(",").map(Number);L.mp={a,b,step:0};sMake10(el)});
+  const custom=()=>{const a=+$("#ca",el).value,b=+$("#cb",el).value;if(a+b<10){$("#cerr",el).textContent=`${a} + ${b} doesn't reach 10. Choose two numbers that add to 10 or more.`;return}L.mp={a,b,step:0};sMake10(el)};
+  $("#ca",el).onchange=custom;$("#cb",el).onchange=custom;
+  make10($("#m10",el),L.mp,()=>{addUnique(S.c.m10,L.mp.a+"+"+L.mp.b);if(S.c.m10.length>=3)markTask("m10");else bump()});
+}
+sMake10.title="Trick 2: Make 10 First";sMake10.tag="Make 10 First";
+sMake10.mc=()=>`Adding past 10 is hard when we count in ones. So here's the grown-up trick, ${esc(nm())}: fill the rocket first, then add the rest.`;
+
+/* ---------- Phase 6 scenes ---------- */
+function sBlast(el){
+  L.bl=L.bl||{state:"ready",left:60,ok:0,tries:0,n:rnd(1,9),show:false};const b=L.bl;
+  const cells=b.show?Array.from({length:10},(_,i)=>i<b.n?"a":"ghost"):fill(b.n);
+  el.innerHTML=`<div class="row"><span class="timerbig ${b.left<=10?"low":""}" aria-live="off">${b.left}s</span><span class="scoreline">Rockets rescued: ${b.ok} of ${b.tries}</span></div>
+  ${b.state==="done"?`<div class="big">${b.ok} of ${b.tries}</div><div class="msg ${b.ok>=8?"good":""}">${b.ok>=8?`Target reached! ${esc(nm())} is a buddy blaster.`:"Great effort. The target is 8 of 10. Want another go?"}</div>`
+  :`<div class="flashbox">${rocket(cells,{label:`Rocket with ${b.n} astronauts`})}</div><div class="eq">${b.show?`${b.n} and <span class="g">${10-b.n}</span> make 10`:`${b.n} on board. What's the buddy?`}</div>`}
+  <div class="row">${b.state==="ready"?`<button class="btn pri" id="bgo">Start 60 seconds</button>`:b.state==="run"?`<button class="btn pri" id="bok" ${b.show?"disabled":""}>Correct</button><button class="btn" id="bno" ${b.show?"disabled":""}>Not yet</button>`:`<button class="btn" id="bre">Play again</button>`}</div>`;
+  const next=()=>{b.show=false;let k;do{k=rnd(1,9)}while(k===b.n);b.n=k;if(b.tries>=10)end();sBlast(el)};
+  const end=()=>{clearInterval(L.blT);b.state="done";markTask("blast")};
+  const g=$("#bgo",el);if(g)g.onclick=()=>{b.state="run";b.left=60;clearInterval(L.blT);L.blT=setInterval(()=>{b.left--;if(b.left<=0){b.left=0;end()}const box=$("#sbody");if(box&&PHASES[S.phase].scenes[S.scene[S.phase]]===sBlast)sBlast(box);else clearInterval(L.blT)},1000);sBlast(el)};
+  const mark=ok=>{b.tries++;if(ok)b.ok++;b.show=true;sBlast(el);setTimeout(()=>{if(b.state==="run")next()},900)};
+  const o=$("#bok",el);if(o)o.onclick=()=>mark(true);
+  const n=$("#bno",el);if(n)n.onclick=()=>mark(false);
+  const r=$("#bre",el);if(r)r.onclick=()=>{L.bl=null;sBlast(el)};
+}
+sBlast.title="Round 1: Buddy blast";sBlast.tag="1. Buddy blast";
+sBlast.mc=()=>`Emergency, ${esc(nm())}! Rockets are flashing on the radar. Tell me the buddy that fills each one. You have 60 seconds!`;
+
+function sBridge(el){
+  const probs=[[9,3],[8,7],[6,5]];L.br=L.br||{a:9,b:3,step:0};
+  el.innerHTML=`<div class="chips">${probs.map(([a,b])=>`<button class="chip ${L.br.a===a&&L.br.b===b?"on":""}" data-p="${a},${b}">${a} + ${b}${S.c.bridge.includes(a+"+"+b)?" ✓":""}</button>`).join("")}</div><div class="body" id="brb"></div>`;
+  $$(".chip",el).forEach(c=>c.onclick=()=>{const [a,b]=c.dataset.p.split(",").map(Number);L.br={a,b,step:0};sBridge(el)});
+  make10($("#brb",el),L.br,()=>{addUnique(S.c.bridge,L.br.a+"+"+L.br.b);if(S.c.bridge.length>=3)markTask("bridge");else bump()});
+}
+sBridge.title="Round 2: Bridge the 10";sBridge.tag="2. Bridge";
+sBridge.mc=()=>"Three rescue missions. Say each step out loud, Commander. Then Mission Control shows it on the screen.";
+
+function sTeach(el){
+  const show=!!L.tshow;L.tst=L.tst||{a:8,b:4,step:4};
+  el.innerHTML=`<div class="big">8 + 4</div>${show?`<div class="body" id="tsol"></div>`:`<div class="pair">${rocket(fill(8),{label:"Rocket 1 with 8 astronauts"})}${bond(4,"?","?")}</div>
+  <div class="msg">Mission Control is listening. What do I do first?</div>`}
+  <div class="row"><button class="btn ${show?"":"pri"}" id="tsh">${show?"Hide the solution":"Show the full solution"}</button></div>
+  <div class="dmeta">Tick each step the child explains in the teacher panel.</div>`;
+  if(show)make10($("#tsol",el),L.tst);
+  $("#tsh",el).onclick=()=>{L.tshow=!show;sTeach(el)};
+}
+sTeach.title="Round 3: Teach Mission Control";sTeach.tag="3. Teach back";
+sTeach.mc=()=>`Now it's your turn to be the teacher, ${esc(nm())}. I'm new at Mission Control and I don't know the trick. Teach me how to do 8 + 4.`;
+
+/* ---------- Whiteboard ---------- */
+const WB={on:false,board:false,tool:"pen",color:"#1b1b1b",size:6,cur:null,
+  cv:null,ctx:null,
+  strokes(){const k=S.finale?"fin":S.phase;return S.boards[k]||(S.boards[k]=[])},
+  init(){this.cv=$("#wb");this.ctx=this.cv.getContext("2d");
+    new ResizeObserver(()=>this.resize()).observe($("#stageWrap"));
+    const pt=e=>{const r=this.cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+    this.cv.addEventListener("pointerdown",e=>{const p=pt(e);
+      if(this.tool==="tenframe"||this.tool==="bond"){this.strokes().push({k:"stamp",kind:this.tool,x:p[0],y:p[1],c:this.color});this.draw();save();return}
+      this.cv.setPointerCapture(e.pointerId);this.cur={k:"line",t:this.tool,c:this.color,s:this.size,p:[p]};this.strokes().push(this.cur);this.draw()});
+    this.cv.addEventListener("pointermove",e=>{if(!this.cur)return;this.cur.p.push(pt(e));this.draw()});
+    const up=()=>{if(this.cur){this.cur=null;save()}};
+    this.cv.addEventListener("pointerup",up);this.cv.addEventListener("pointercancel",up);
+    const bar=$("#wbbar");
+    $$("[data-tool]",bar).forEach(b=>b.onclick=()=>{this.tool=b.dataset.tool;$$("[data-tool]",bar).forEach(x=>x.classList.toggle("on",x===b))});
+    $$("[data-color]",bar).forEach(b=>b.onclick=()=>{this.color=b.dataset.color;$$("[data-color]",bar).forEach(x=>x.classList.toggle("on",x===b));if(this.tool==="eraser"){this.tool="pen";$$("[data-tool]",bar).forEach(x=>x.classList.toggle("on",x.dataset.tool==="pen"))}});
+    $$("[data-size]",bar).forEach(b=>b.onclick=()=>{this.size=+b.dataset.size;$$("[data-size]",bar).forEach(x=>x.classList.toggle("on",x===b))});
+    $("#wbUndo").onclick=()=>{this.strokes().pop();this.draw();save()};
+    $("#wbClear").onclick=()=>{const s=this.strokes();s.length=0;this.draw();save()};
+    $("#wbMode").onclick=()=>{this.board=!this.board;this.cv.classList.toggle("board",this.board);$("#wbMode").textContent=this.board?"Draw on lesson":"Blank board"};
+    $("#wbClose").onclick=()=>this.toggle(false);
+  },
+  toggle(v){this.on=v??!this.on;$("#stageWrap").classList.toggle("wbon",this.on);$("#wbBtn").setAttribute("aria-pressed",this.on);if(this.on)this.resize()},
+  resize(){const r=this.cv.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;this.cv.width=r.width*d;this.cv.height=r.height*d;this.ctx.setTransform(d,0,0,d,0,0);this.draw()},
+  load(){if(this.ctx)this.draw()},
+  draw(){const c=this.ctx,r=this.cv.getBoundingClientRect(),W=r.width,H=r.height;if(!W)return;c.clearRect(0,0,W,H);
+    for(const s of this.strokes()){
+      c.save();
+      if(s.k==="stamp"){const x=s.x*W,y=s.y*H;c.strokeStyle=s.c;c.fillStyle=s.c;c.lineWidth=3;
+        if(s.kind==="tenframe"){const cw=44;const ox=x-cw*2.5,oy=y-cw;c.strokeRect(ox,oy,cw*5,cw*2);for(let i=1;i<5;i++){c.beginPath();c.moveTo(ox+cw*i,oy);c.lineTo(ox+cw*i,oy+cw*2);c.stroke()}c.beginPath();c.moveTo(ox,oy+cw);c.lineTo(ox+cw*5,oy+cw);c.stroke()}
+        else{const pts=[[x,y-46],[x-64,y+40],[x+64,y+40]];c.beginPath();c.moveTo(pts[0][0],pts[0][1]);c.lineTo(pts[1][0],pts[1][1]);c.moveTo(pts[0][0],pts[0][1]);c.lineTo(pts[2][0],pts[2][1]);c.stroke();pts.forEach(([a,b])=>{c.beginPath();c.arc(a,b,28,0,Math.PI*2);c.fillStyle="#fff";c.fill();c.stroke()})}
+      }else{
+        c.lineCap="round";c.lineJoin="round";c.strokeStyle=s.c;c.lineWidth=s.s;
+        if(s.t==="hl"){c.globalAlpha=.3;c.lineWidth=s.s*4}
+        if(s.t==="eraser"){c.globalCompositeOperation="destination-out";c.lineWidth=s.s*5;c.strokeStyle="#000"}
+        c.beginPath();s.p.forEach(([px,py],i)=>{const X=px*W,Y=py*H;i?c.lineTo(X,Y):c.moveTo(X,Y)});if(s.p.length===1){c.lineTo(s.p[0][0]*W+.1,s.p[0][1]*H)}c.stroke();
+      }
+      c.restore();
+    }
+  }
+};
+
+/* ---------- Wire up ---------- */
+$("#wbBtn").onclick=()=>WB.toggle();
+$("#dockBtn").onclick=()=>{const p=$("#app").classList.toggle("presenter");$("#dockBtn").setAttribute("aria-pressed",!p)};
+document.addEventListener("keydown",e=>{
+  if(e.target.closest("input,select,textarea")||e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key.toLowerCase();
+  if(k==="w"){WB.toggle();e.preventDefault()}
+  else if(k==="t"){$("#dockBtn").click();e.preventDefault()}
+  else if(e.key==="Escape"&&WB.on)WB.toggle(false);
+  else if(!S.finale&&(e.key==="ArrowRight"||e.key==="ArrowLeft")&&!WB.on){const n=PHASES[S.phase].scenes.length,k2=S.scene[S.phase]+(e.key==="ArrowRight"?1:-1);if(k2>=0&&k2<n)goScene(k2)}
+});
+PHASES.forEach(p=>p.scenes.forEach(s=>{if(!s.tag)s.tag=s.title}));
+WB.init();renderAll();
+setInterval(()=>tick(false),1000);
+})();
+</script>
+</body></html>
