@@ -1,0 +1,1464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Algebra Crime Scene: Find the Missing Rule | MyMasteryLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#00A7B2; --teal2:#21DED7; --tealDeep:#00747C; --yel:#FAA71C; --burnt:#D77F28; --crim:#C92426;
+  --ink:#1A1A1A; --paper:#FFFFFF; --floor:#DDF4F5; --pTeal:#D6F3F4; --pYel:#FFF1D0; --pBurnt:#FBE3CC; --pCrim:#FCE0E0;
+  --muted:#4F5B62; --line:#C9D6D8;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+/* The factory floor is a light, brand-coloured scene in both viewer themes */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#FFFFFF; --floor:#D3F0F1; --ink:#1A1A1A; } }
+:root[data-theme="dark"]{ --paper:#FFFFFF; --floor:#D3F0F1; --ink:#1A1A1A; }
+html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0; font-family:'Nunito',system-ui,-apple-system,'Segoe UI',Arial,sans-serif; color:var(--ink);
+  background-color:var(--floor);
+  background-image:radial-gradient(rgba(0,167,178,.22) 1.6px, transparent 1.8px), linear-gradient(180deg, rgba(250,167,28,.10), rgba(0,167,178,.06));
+  background-size:22px 22px, 100% 100%; min-height:100vh;}
+.disp{font-family:'Bungee','Arial Black',Impact,sans-serif; font-weight:400; letter-spacing:.01em}
+button{font-family:inherit}
+:focus-visible{outline:4px solid var(--crim); outline-offset:2px}
+img,svg{max-width:100%}
+
+/* ---------- Header: factory sign ---------- */
+.sign{background:var(--teal); color:#fff; border-bottom:4px solid var(--ink); display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 18px; position:sticky; top:env(safe-area-inset-top,0px); z-index:30}
+.brand{display:flex; flex-direction:column; line-height:1.05}
+.brand b{font-weight:900; font-size:19px}
+.brand span{font-size:13px; font-weight:700; opacity:.92}
+.casetitle{font-family:'Bungee','Arial Black',sans-serif; font-size:clamp(17px,2.1vw,25px); text-shadow:3px 3px 0 var(--ink); flex:1; min-width:240px}
+.dtag{background:var(--yel); color:var(--ink); border:3px solid var(--ink); border-radius:12px; padding:5px 12px; font-weight:900; box-shadow:3px 3px 0 var(--ink); display:flex; align-items:center; gap:8px}
+.clock{background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:12px; padding:5px 10px; font-weight:900; font-variant-numeric:tabular-nums}
+.hbtn{background:#fff; color:var(--ink); border:3px solid var(--ink); border-radius:12px; padding:6px 12px; font-weight:900; font-size:15px; box-shadow:3px 3px 0 var(--ink); cursor:pointer}
+.hbtn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+.hbtn.on{background:var(--yel)}
+
+/* ---------- Conveyor belt ---------- */
+.belt{background:var(--yel); border-bottom:4px solid var(--ink); position:relative; padding:12px 0 0}
+.belt::before{content:""; position:absolute; left:0; right:0; top:0; height:8px; background:repeating-linear-gradient(45deg,var(--ink) 0 10px,var(--yel) 10px 20px)}
+.track{display:flex; gap:14px; overflow-x:auto; padding:16px 18px 14px; scrollbar-width:thin}
+.crate{flex:0 0 auto; width:146px; min-height:92px; background:#fff; border:3px solid var(--ink); border-radius:10px; box-shadow:4px 4px 0 var(--ink); padding:8px 10px 8px; cursor:pointer; position:relative; text-align:left; transition:transform .25s ease, box-shadow .25s ease}
+.crate .cn{font-family:'Bungee',sans-serif; font-size:12px; color:#fff; background:var(--pc); border:2px solid var(--ink); border-radius:6px; padding:1px 6px; display:inline-block}
+.crate .ci{font-size:22px; position:absolute; right:8px; top:6px}
+.crate .ct{display:block; font-weight:900; font-size:14px; line-height:1.15; margin-top:6px}
+.crate .cs{display:block; font-size:12px; font-weight:800; color:var(--muted); margin-top:3px}
+.crate.locked{background:repeating-linear-gradient(135deg,#f3f3f3 0 8px,#e8e8e8 8px 16px); cursor:not-allowed}
+.crate.locked .ct,.crate.locked .ci{opacity:.5}
+.crate.current{transform:translateY(-7px); box-shadow:4px 11px 0 var(--ink); outline:4px solid var(--crim); outline-offset:2px}
+.crate.done::after{content:"Cleared"; position:absolute; right:6px; bottom:6px; font-family:'Bungee',sans-serif; font-size:11px; color:var(--tealDeep); border:2px solid var(--tealDeep); border-radius:5px; padding:0 5px; transform:rotate(-8deg); background:rgba(255,255,255,.85)}
+.crate.finale{background:linear-gradient(135deg,#FFE29A,#FAA71C)}
+.crate.finale.locked{background:repeating-linear-gradient(135deg,#fff3d6 0 8px,#ffe7b3 8px 16px)}
+.crate.pop{animation:pop .7s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1)}}
+.rail{height:14px; border-top:3px solid var(--ink); background:repeating-linear-gradient(90deg,var(--burnt) 0 26px,#B5661F 26px 30px); background-size:30px 14px}
+.rail.moving{animation:roll .9s linear}
+@keyframes roll{to{background-position:-120px 0}}
+
+/* ---------- Floor layout ---------- */
+.floor{display:grid; grid-template-columns:minmax(0,1fr) 350px; gap:24px; padding:24px 22px 40px; max-width:1480px; margin:0 auto}
+@media (max-width:1040px){.floor{grid-template-columns:1fr}}
+
+/* Phase heading */
+.phead{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.pbig{width:74px; height:74px; flex:0 0 74px; background:var(--pc); border:3px solid var(--ink); border-radius:12px; box-shadow:5px 5px 0 var(--ink); display:grid; place-items:center; color:#fff; font-family:'Bungee',sans-serif; font-size:30px; text-shadow:2px 2px 0 var(--ink)}
+.phead h2{margin:0; font-family:'Bungee',sans-serif; font-weight:400; font-size:clamp(24px,3vw,36px); line-height:1.05}
+.phead .goal{margin:4px 0 0; font-size:17px; font-weight:700; color:var(--muted); max-width:70ch}
+.ptimer{margin-left:auto; background:#fff; border:3px solid var(--ink); border-radius:12px; padding:6px 12px; font-weight:900; font-variant-numeric:tabular-nums}
+.ptimer.over{background:var(--pCrim)}
+
+/* Story */
+.story{margin-top:22px; display:flex; gap:16px; align-items:flex-end; background:var(--pc); border:3px solid var(--ink); border-radius:20px; padding:16px; box-shadow:7px 7px 0 var(--ink); position:relative; overflow:hidden}
+.story::before{content:""; position:absolute; inset:0; background:repeating-linear-gradient(120deg,rgba(255,255,255,.13) 0 18px,transparent 18px 44px); pointer-events:none}
+.story .av{width:110px; height:110px; flex:0 0 110px; position:relative}
+.bubble{flex:1; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 18px; position:relative; min-height:110px}
+.bubble::before{content:""; position:absolute; left:-15px; bottom:22px; width:24px; height:24px; background:#fff; border-left:3px solid var(--ink); border-bottom:3px solid var(--ink); transform:rotate(45deg)}
+.who{display:inline-block; font-weight:900; font-size:14px; background:var(--ink); color:#fff; border-radius:8px; padding:2px 10px; margin-bottom:6px}
+.line{font-size:20px; font-weight:700; line-height:1.45; margin:0; max-width:68ch}
+.line.robot{font-family:'Bungee',sans-serif; font-weight:400; font-size:17px; color:var(--tealDeep)}
+.snav{display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap}
+.dots{display:flex; gap:6px}
+.dots i{width:10px; height:10px; border-radius:50%; border:2px solid var(--ink); background:#fff}
+.dots i.on{background:var(--ink)}
+
+/* Task cards */
+.task{background:#fff; border:3px solid var(--ink); border-radius:18px; box-shadow:7px 7px 0 var(--pc); margin:26px 0; overflow:hidden; scroll-margin-top:120px}
+.task>header{display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--pcPale); border-bottom:3px solid var(--ink)}
+.tnum{width:36px; height:36px; flex:0 0 36px; border-radius:50%; background:var(--pc); color:#fff; border:3px solid var(--ink); display:grid; place-items:center; font-family:'Bungee',sans-serif; font-size:15px}
+.task h3{margin:0; font-size:21px; font-weight:900; flex:1}
+.tstat{font-weight:900; font-size:14px; border:2px solid var(--ink); border-radius:999px; padding:3px 12px; background:#fff}
+.task.done>header{background:var(--pTeal)}
+.task.done .tstat{background:var(--teal); color:#fff}
+.tbody{padding:18px 20px; font-size:18px; line-height:1.5}
+.tbody p{margin:0 0 12px; max-width:72ch}
+.lead{font-weight:700}
+.task.flash{animation:flash 1.2s ease}
+@keyframes flash{0%,100%{box-shadow:7px 7px 0 var(--pc)}30%{box-shadow:0 0 0 8px var(--crim)}}
+
+/* Answer rows */
+.frow{display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; margin:10px 0; padding:10px 12px; border:2px dashed var(--line); border-radius:14px; background:#fbfeff}
+.frow.ok{border:2px solid var(--teal); background:#EEFBFB}
+.fexpr{font-size:22px; font-weight:800; display:flex; align-items:center; flex-wrap:wrap; gap:6px}
+.fi{font:inherit; font-size:22px; font-weight:900; text-align:center; border:3px solid var(--ink); border-radius:10px; padding:3px 6px; background:#FFFBEE; color:var(--ink); min-width:56px; max-width:100%}
+.fi:focus{outline:4px solid var(--yel); outline-offset:1px}
+.fi:disabled{background:#D9F6F6; border-color:var(--teal); color:var(--tealDeep); opacity:1}
+.okmark{font-weight:900; color:#fff; background:var(--teal); border:2px solid var(--ink); border-radius:999px; padding:2px 12px}
+.fb{flex-basis:100%; font-size:16px; font-weight:800}
+.fb:empty{display:none}
+.fb.bad{color:var(--crim)}
+.fb.good{color:var(--tealDeep)}
+.keychip{background:var(--ink); color:#fff; border-radius:8px; padding:2px 10px; font-size:14px; font-weight:800}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+.btn{font-weight:900; font-size:17px; border:3px solid var(--ink); background:var(--yel); color:var(--ink); border-radius:12px; padding:8px 16px; box-shadow:3px 3px 0 var(--ink); cursor:pointer; line-height:1.2}
+.btn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none}
+.btn.sm{font-size:15px; padding:6px 12px}
+.btn.lg{font-size:20px; padding:12px 22px}
+.btn.teal{background:var(--teal); color:#fff}
+.btn.crim{background:var(--crim); color:#fff}
+.btn.white{background:#fff}
+.btn.burnt{background:var(--burnt); color:#fff}
+
+.chrow{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0}
+.opt{font-weight:900; font-size:17px; border:3px solid var(--ink); background:#fff; border-radius:12px; padding:7px 16px; cursor:pointer; box-shadow:3px 3px 0 var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--teal); color:#fff}
+.opt.nope{background:var(--crim); color:#fff; animation:shake .45s}
+
+/* Phase 1 */
+.labels{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
+.shiplabel{background:var(--pYel); border:3px dashed var(--burnt); border-radius:12px; padding:12px; position:relative}
+.sl-top{font-size:12px; font-weight:900; color:var(--burnt)}
+.sl-sum{font-size:19px; font-weight:800}
+.sl-res{font-size:22px; color:var(--crim); margin:2px 0 6px}
+.sit{display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:10px 0; border-bottom:2px dotted var(--line)}
+.sit .q{flex:1 1 320px; font-size:19px; font-weight:800}
+.notes{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 4px}
+.note{width:74px; height:38px; border:3px solid var(--ink); border-radius:6px; display:grid; place-items:center; font-weight:900; font-size:15px; background:#CFF2E0}
+.note.five{background:#FFE3B8; width:62px}
+.badgecard{display:flex; gap:14px; align-items:center; background:var(--pTeal); border:3px solid var(--ink); border-radius:16px; padding:12px 16px; box-shadow:4px 4px 0 var(--teal)}
+.badgecard .seal{width:72px; height:72px; border-radius:50%; background:var(--yel); border:3px solid var(--ink); display:grid; place-items:center; font-size:34px}
+.badgecard b{font-size:22px}
+.minisus{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+.minisus div{display:flex; align-items:center; gap:8px; background:#fff; border:2px solid var(--ink); border-radius:12px; padding:4px 10px 4px 4px; font-weight:800; font-size:15px}
+.minisus .av{width:40px; height:40px}
+
+/* Ratings */
+.rate{display:flex; gap:10px; flex-wrap:wrap}
+.rate button{width:68px; height:68px; border:3px solid var(--ink); border-radius:14px; background:#fff; font-size:26px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:900}
+.rate button small{font-size:13px}
+.rate button.on{background:var(--yel)}
+.rate-legend{display:flex; justify-content:space-between; max-width:380px; font-size:14px; font-weight:800; color:var(--muted)}
+
+/* Phase 3 */
+.bigexpr{font-size:34px; font-weight:900; display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:6px 0 14px}
+.bigexpr .tm{border:3px solid var(--ink); border-radius:12px; padding:2px 12px; background:#fff}
+.bigexpr .tm .co{color:var(--burnt)} .bigexpr .tm .va{color:var(--teal)}
+.match{display:grid; grid-template-columns:1fr 1fr; gap:12px 26px}
+.mcol{display:flex; flex-direction:column; gap:10px}
+.mi{border:3px solid var(--ink); border-radius:12px; padding:9px 12px; background:#fff; font-weight:800; font-size:17px; cursor:pointer; text-align:left; box-shadow:3px 3px 0 var(--ink)}
+.mi.sel{outline:4px solid var(--crim)}
+.mi.paired{cursor:default; box-shadow:none; color:#fff}
+.mi.nope{animation:shake .45s; background:var(--pCrim)}
+.cards{display:flex; flex-wrap:wrap; gap:12px; min-height:58px; padding:12px; border:3px dashed var(--ink); border-radius:14px; background:var(--pYel); margin-bottom:16px}
+.cards:empty::after{content:"Evidence table cleared"; font-weight:800; color:var(--muted)}
+.tc{font-size:24px; font-weight:900; background:#fff; border:3px solid var(--ink); border-radius:10px; padding:4px 14px; box-shadow:3px 3px 0 var(--teal); cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none}
+.tc.sel{outline:4px solid var(--crim); outline-offset:2px}
+.tc.in{cursor:default; box-shadow:none; font-size:19px; padding:2px 10px}
+.ghost{position:fixed; z-index:200; pointer-events:none; transform:translate(-50%,-50%) rotate(-4deg); box-shadow:6px 6px 0 var(--ink)}
+.bags{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px}
+@media (max-width:620px){.bags{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bag{border:3px solid var(--ink); border-radius:10px 10px 28px 28px; background:var(--pBurnt); min-height:150px; padding:10px; display:flex; flex-direction:column; gap:8px; align-items:center; cursor:pointer; position:relative}
+.bag .bt{font-family:'Bungee',sans-serif; font-size:16px; background:var(--burnt); color:#fff; border:2px solid var(--ink); border-radius:8px; padding:0 10px}
+.bag .bin{display:flex; flex-wrap:wrap; gap:6px; justify-content:center}
+.bag.hot{background:var(--yel); transform:scale(1.03)}
+.bag.nope{animation:shake .45s; background:var(--pCrim)}
+.clueslip{background:repeating-linear-gradient(0deg,#fff 0 30px,#E7F7F8 30px 31px); border:3px solid var(--ink); border-left:12px solid var(--crim); border-radius:12px; padding:14px 16px; box-shadow:5px 5px 0 var(--ink)}
+.clueslip .ck{display:flex; gap:12px; align-items:center}
+.clueslip .ck .ic{font-size:44px}
+.clueslip h4{margin:0; font-family:'Bungee',sans-serif; font-weight:400; font-size:18px; color:var(--crim)}
+
+/* Phase 4 boxes */
+.boxrow{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:10px 0 14px}
+.mb{width:60px; height:60px; border:3px solid var(--ink); border-radius:8px; background:var(--teal); color:#fff; display:grid; place-items:center; font-family:'Bungee',sans-serif; font-size:22px; box-shadow:inset 0 -9px 0 rgba(0,0,0,.18); position:relative; transition:transform .3s}
+.mb::before{content:""; position:absolute; left:-3px; right:-3px; top:-9px; height:9px; background:var(--tealDeep); border:3px solid var(--ink); border-radius:4px 4px 0 0}
+.mb.n{background:var(--burnt); width:46px; height:46px; font-size:17px}
+.mb.n::before{background:#A85E17}
+.mb.open{background:#fff; color:var(--ink); border-style:dashed}
+.mb.open::before{transform:translate(10px,-10px) rotate(25deg)}
+.sym{font-size:28px; font-weight:900}
+.mtoggle{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:6px}
+.mtoggle .opt.on{background:var(--yel)}
+.versus{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+.sent{font-size:20px; font-weight:800; line-height:2.2; background:var(--pYel); border:3px solid var(--ink); border-radius:14px; padding:10px 16px}
+.blank{display:inline-block; min-width:150px; border-bottom:4px solid var(--ink); background:#fff; border-radius:8px 8px 0 0; padding:0 10px; cursor:pointer; text-align:center; color:var(--tealDeep); font-weight:900; line-height:1.6}
+.blank.empty{color:#9aa}
+.blank.badb{background:var(--pCrim); color:var(--crim)}
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0}
+.chip{border:3px solid var(--ink); border-radius:999px; background:#fff; padding:5px 14px; font-weight:800; font-size:16px; cursor:pointer}
+.chip.used{opacity:.35}
+textarea.say{width:100%; min-height:70px; font:inherit; font-size:17px; border:3px solid var(--ink); border-radius:12px; padding:8px 12px; background:#FFFBEE}
+.locker{display:inline-grid; place-items:center; width:84px; height:110px; background:var(--teal); border:3px solid var(--ink); border-radius:8px; position:relative; color:#fff; font-family:'Bungee',sans-serif; font-size:30px}
+.locker::after{content:""; position:absolute; left:10px; right:10px; top:12px; height:18px; background:repeating-linear-gradient(0deg,var(--ink) 0 3px,transparent 3px 6px)}
+
+/* Phase 5 freeze */
+.freeze{display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:center}
+@media (max-width:620px){.freeze{grid-template-columns:1fr}}
+.fzav{width:150px; height:150px; position:relative}
+.fzav.jump{animation:jump .6s ease}
+@keyframes jump{40%{transform:translateY(-34px) scale(1.04)}}
+.fzav.frozen::after{content:"Frozen!"; position:absolute; inset:0; display:grid; place-items:center; font-family:'Bungee',sans-serif; color:#fff; font-size:22px; background:rgba(33,222,215,.55); border-radius:50%; text-shadow:2px 2px 0 var(--ink)}
+.callcard{border:3px solid var(--ink); border-radius:18px; background:var(--pYel); padding:16px; text-align:center}
+.pair{font-size:46px; font-weight:900; display:flex; justify-content:center; gap:22px; align-items:center}
+.pair span{background:#fff; border:3px solid var(--ink); border-radius:14px; padding:2px 18px}
+.fzbtns{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:12px}
+.fzdots{display:flex; gap:6px; justify-content:center; margin-top:10px}
+.fzdots i{width:16px; height:16px; border-radius:50%; border:2px solid var(--ink); background:#fff}
+.fzdots i.on{background:var(--teal)}
+
+/* Phase 6 */
+.pig{display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center}
+@media (max-width:620px){.pig{grid-template-columns:1fr}}
+.steps{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0}
+.term{display:inline-flex; align-items:center; gap:8px; border:3px solid var(--ink); border-radius:14px; padding:6px 14px 6px 8px; background:#fff; font-size:26px; font-weight:900}
+.term.act{background:var(--yel)}
+.term.past{opacity:.55}
+.bdg{width:40px; height:40px; border-radius:50%; border:3px solid var(--ink); display:grid; place-items:center; font-size:24px; font-weight:900; background:#eee; cursor:pointer; line-height:1}
+.bdg.plus{background:var(--teal); color:#fff}
+.bdg.minus{background:var(--crim); color:#fff}
+.bags-coins{display:flex; flex-wrap:wrap; gap:4px; min-height:40px; font-size:28px}
+.ladder{display:flex; flex-direction:column-reverse; gap:8px; border-left:10px solid var(--burnt); border-right:10px solid var(--burnt); padding:6px 12px; border-radius:6px; background:repeating-linear-gradient(180deg,transparent 0 6px, transparent 6px)}
+.rung{position:relative}
+.rung .climber{position:absolute; right:8px; top:6px; font-size:26px}
+
+/* Phase 7 */
+.swatches{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:6px 0 12px}
+.sw{width:46px; height:46px; border-radius:12px; border:3px solid var(--ink); cursor:pointer}
+.sw.on{outline:4px solid var(--ink); outline-offset:3px}
+.paintrow{display:flex; gap:10px; flex-wrap:wrap}
+.pt{font-size:26px; font-weight:900; border:3px solid var(--ink); border-radius:12px; padding:4px 14px; background:#fff; cursor:pointer}
+.lt-h{display:inline-block; min-width:.7em}
+.race{display:grid; gap:10px; margin:8px 0 12px}
+.rbar{height:26px; border:3px solid var(--ink); border-radius:999px; background:#fff; overflow:hidden; position:relative}
+.rbar i{position:absolute; left:0; top:0; bottom:0; background:var(--teal); width:0; transition:width .4s}
+.rbar.sorto i{background:var(--crim)}
+.rlabel{display:flex; justify-content:space-between; font-weight:900; font-size:15px}
+.caught{display:inline-block; font-family:'Bungee',sans-serif; color:var(--crim); border:4px solid var(--crim); border-radius:8px; padding:2px 12px; transform:rotate(-6deg); font-size:22px; background:#fff}
+
+/* Phase 8 */
+.lineup{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px}
+.suspect{background:#fff; border:3px solid var(--ink); border-radius:14px; padding:12px; text-align:center; box-shadow:4px 4px 0 var(--ink); position:relative}
+.suspect .av{width:96px; height:96px; margin:0 auto}
+.suspect b{display:block; font-size:17px}
+.suspect small{display:block; font-weight:800; color:var(--muted); margin-bottom:6px}
+.ids{display:flex; justify-content:center; gap:6px; margin:6px 0 10px; flex-wrap:wrap}
+.ids span{border:2px solid var(--ink); border-radius:8px; padding:1px 7px; font-weight:900; font-size:15px; background:var(--pYel)}
+.ids span.no{background:var(--pCrim); text-decoration:line-through}
+.ids span.yes{background:#CFF5F3}
+.cluebar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+.cluebar span{border:3px solid var(--ink); border-radius:10px; padding:4px 12px; font-weight:900; background:var(--pTeal)}
+.conf{display:grid; gap:10px}
+.crow{display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:10px 12px; border:2px dashed var(--line); border-radius:12px}
+.crow .gx{flex:1 1 220px; font-size:21px; font-weight:900; font-family:'Bungee',sans-serif; font-weight:400; color:var(--crim)}
+
+/* Phase 9 */
+.builder{display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:24px; font-weight:900}
+.builder input{width:64px}
+.msteps{display:grid; gap:10px; margin-top:10px}
+.mstep{text-align:left; font-size:18px; font-weight:800; border:3px solid var(--ink); border-radius:12px; padding:10px 14px; background:#fff; cursor:pointer; box-shadow:3px 3px 0 var(--ink)}
+.mstep.bad{background:var(--pCrim); border-color:var(--crim)}
+.mstep.nope{animation:shake .45s}
+.proof{background:var(--pTeal); border:3px solid var(--ink); border-radius:12px; padding:10px 14px; font-weight:800}
+
+/* Nav row */
+.navrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px; padding:16px; background:#fff; border:3px solid var(--ink); border-radius:16px; box-shadow:5px 5px 0 var(--ink)}
+.navrow .mid{flex:1; font-weight:800; min-width:200px}
+.waiting{background:var(--pYel); border:3px dashed var(--burnt); border-radius:14px; padding:12px 16px; font-weight:800; display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:16px}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05); box-shadow:3px 3px 0 var(--ink),0 0 0 8px rgba(250,167,28,.45)}}
+
+/* ---------- Case board ---------- */
+.board{align-self:start; position:sticky; top:96px; display:grid; gap:16px}
+@media (max-width:1040px){.board{position:static}}
+.panel{background:#fff; border:3px solid var(--ink); border-radius:16px; box-shadow:5px 5px 0 var(--ink); overflow:hidden}
+.panel>h4{margin:0; padding:9px 14px; font-family:'Bungee',sans-serif; font-weight:400; font-size:16px; border-bottom:3px solid var(--ink); background:var(--crim); color:#fff}
+.panel.t>h4{background:var(--teal)}
+.panel.o>h4{background:var(--burnt)}
+.pbody{padding:12px 14px}
+.clues{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.clue{border:3px solid var(--ink); border-radius:12px; background:var(--pYel); text-align:center; padding:6px 4px}
+.clue .k{font-size:13px; font-weight:900}
+.clue .v{font-family:'Bungee',sans-serif; font-size:26px; color:#B5B5B5}
+.clue.got{background:var(--yel)}
+.clue.got .v{color:var(--ink)}
+.susp{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.pol{background:#fff; border:3px solid var(--ink); border-radius:6px; padding:6px 6px 8px; text-align:center; position:relative; box-shadow:3px 3px 0 var(--ink)}
+.pol:nth-child(odd){transform:rotate(-1.5deg)} .pol:nth-child(even){transform:rotate(1.4deg)}
+.pol .av{width:60px; height:60px; margin:0 auto}
+.pol b{display:block; font-size:14px; line-height:1.1}
+.pol small{display:block; font-size:12px; font-weight:800; color:var(--muted)}
+.pol .nums{font-size:12px; font-weight:900; margin-top:3px}
+.stamp{position:absolute; left:0; right:0; top:6px; height:64px; display:grid; place-items:center; pointer-events:none}
+.stamp span{font-family:'Bungee',sans-serif; font-size:15px; color:var(--tealDeep); border:3px solid var(--tealDeep); border-radius:6px; padding:1px 7px; transform:rotate(-16deg); background:rgba(255,255,255,.85)}
+.stamp.cul span{color:var(--crim); border-color:var(--crim); font-size:17px}
+.stamp.new span{animation:stampIn .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stampIn{from{transform:rotate(-16deg) scale(2.6); opacity:0}}
+.rulecard{border:3px dashed var(--crim); border-radius:12px; padding:10px 12px; background:var(--pCrim); font-weight:800; display:flex; gap:10px; align-items:center}
+.rulecard.ok{border:3px solid var(--ink); background:linear-gradient(135deg,#FFE7A6,var(--yel))}
+.rulecard .av{width:56px; height:56px; flex:0 0 56px}
+.todo{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+.todo li button{width:100%; text-align:left; border:2px solid var(--ink); border-radius:10px; background:var(--pYel); padding:6px 10px; font-weight:800; font-size:15px; cursor:pointer}
+.todo li button:hover{background:var(--yel)}
+.todo .alldone{font-weight:900; color:var(--tealDeep)}
+.prog{height:18px; border:3px solid var(--ink); border-radius:999px; overflow:hidden; background:#fff; margin-top:8px}
+.prog i{display:block; height:100%; background:repeating-linear-gradient(45deg,var(--teal) 0 10px,var(--teal2) 10px 20px); transition:width .5s}
+.small{font-size:14px; font-weight:800; color:var(--muted)}
+
+/* ---------- Mentor drawer ---------- */
+.drawer{position:fixed; top:0; right:0; bottom:0; width:min(460px,100%); background:#fff; border-left:4px solid var(--ink); z-index:60; transform:translateX(105%); transition:transform .3s ease; display:flex; flex-direction:column; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+.drawer header{background:var(--ink); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:10px}
+.drawer header b{flex:1; font-family:'Bungee',sans-serif; font-weight:400; font-size:18px}
+.dbody{overflow:auto; padding:14px 16px 30px; display:grid; gap:16px; font-size:15px}
+.dsec{border:3px solid var(--ink); border-radius:12px; padding:10px 12px}
+.dsec h5{margin:0 0 8px; font-size:16px; font-weight:900}
+.dsec ul{margin:0; padding-left:20px}
+.dsec li{margin:3px 0}
+.dgrid{display:flex; flex-wrap:wrap; gap:8px}
+.switch{display:flex; align-items:center; gap:10px; font-weight:900}
+.switch input{width:22px; height:22px; accent-color:var(--teal)}
+.trace{display:grid; gap:6px}
+.trace .tp{font-weight:900; margin-top:6px}
+.trace .tt{display:flex; align-items:center; gap:6px; font-size:14px}
+.trace .tt span{flex:1}
+.trace .tt.ok span{color:var(--tealDeep); text-decoration:line-through}
+.diag td,.diag th{border:1px solid var(--line); padding:4px 6px; text-align:left; font-size:14px}
+.diag{border-collapse:collapse; width:100%}
+
+/* ---------- Whiteboard ---------- */
+.wb{position:fixed; inset:0; z-index:80; display:none}
+.wb.open{display:block}
+.wb.bg-clear{background:rgba(255,255,255,.04)}
+.wb.bg-white{background:#fff}
+.wb.bg-grid{background-color:#fff; background-image:linear-gradient(#D6F3F4 1.5px,transparent 1.5px),linear-gradient(90deg,#D6F3F4 1.5px,transparent 1.5px); background-size:32px 32px}
+.wb.bg-lined{background-color:#FFFDF6; background-image:linear-gradient(transparent 38px,#BDE8EA 38px,#BDE8EA 40px); background-size:100% 40px}
+#wbc{position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:crosshair}
+.wbbar{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(12px + env(safe-area-inset-bottom,0px)); display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:8px 10px; box-shadow:5px 5px 0 var(--ink); max-width:calc(100% - 20px); z-index:2}
+.wt{min-width:40px; height:40px; border:2px solid var(--ink); border-radius:10px; background:#fff; font-weight:900; font-size:16px; cursor:pointer; padding:0 8px}
+.wt.on{background:var(--yel)}
+.wc{width:30px; height:30px; border-radius:50%; border:3px solid var(--ink); cursor:pointer}
+.wc.on{outline:3px solid var(--ink); outline-offset:2px}
+.wsep{width:2px; height:30px; background:var(--line)}
+.wbtag{position:fixed; top:calc(12px + env(safe-area-inset-top,0px)); left:12px; background:var(--ink); color:#fff; padding:6px 12px; border-radius:10px; font-weight:900; z-index:2}
+.wbtext{position:absolute; z-index:3; font:800 22px Nunito,sans-serif; border:2px dashed var(--teal); background:rgba(255,255,255,.9); padding:2px 6px; min-width:120px}
+
+/* ---------- Overlays ---------- */
+.modal{position:fixed; inset:0; background:rgba(26,26,26,.55); z-index:85; display:none; place-items:center; padding:20px}
+.modal.open{display:grid}
+.mcard{background:#fff; border:4px solid var(--ink); border-radius:20px; box-shadow:8px 8px 0 var(--yel); max-width:620px; width:100%; max-height:88vh; overflow:auto; padding:22px}
+.mcard h3{margin:0 0 10px; font-family:'Bungee',sans-serif; font-weight:400; font-size:24px}
+.reveal{text-align:center}
+.reveal .av{width:150px; height:150px; margin:0 auto}
+.bigstamp{display:inline-block; font-family:'Bungee',sans-serif; font-size:30px; color:var(--crim); border:5px solid var(--crim); border-radius:10px; padding:2px 16px; transform:rotate(-7deg); margin:10px 0; animation:stampIn .6s cubic-bezier(.2,1.6,.4,1)}
+
+.finale{position:fixed; inset:0; z-index:90; display:none; overflow:auto; background:conic-gradient(from 0deg at 50% 40%, #00A7B2 0 15deg, #21DED7 15deg 30deg, #00A7B2 30deg 45deg, #FAA71C 45deg 60deg, #00A7B2 60deg 75deg, #D77F28 75deg 90deg, #00A7B2 90deg 105deg, #21DED7 105deg 120deg, #00A7B2 120deg 135deg, #FAA71C 135deg 150deg, #00A7B2 150deg 165deg, #C92426 165deg 180deg, #00A7B2 180deg 195deg, #21DED7 195deg 210deg, #00A7B2 210deg 225deg, #FAA71C 225deg 240deg, #00A7B2 240deg 255deg, #D77F28 255deg 270deg, #00A7B2 270deg 285deg, #21DED7 285deg 300deg, #00A7B2 300deg 315deg, #FAA71C 315deg 330deg, #00A7B2 330deg 345deg, #C92426 345deg 360deg); padding:30px 16px 60px}
+.finale.open{display:block}
+.fwrap{max-width:980px; margin:0 auto; display:grid; gap:18px}
+.fhead{text-align:center; color:#fff}
+.fhead h1{margin:0; font-family:'Bungee',sans-serif; font-weight:400; font-size:clamp(34px,6vw,68px); text-shadow:5px 5px 0 var(--ink); line-height:1}
+.fhead p{font-size:20px; font-weight:900; text-shadow:2px 2px 0 var(--ink); margin:8px 0 0}
+.trophy{font-size:96px; animation:bob 2s ease-in-out infinite; display:inline-block; filter:drop-shadow(5px 5px 0 var(--ink))}
+@keyframes bob{50%{transform:translateY(-12px) rotate(4deg)}}
+.cert{background:#fff; border:5px solid var(--ink); border-radius:22px; box-shadow:10px 10px 0 var(--ink); padding:24px; text-align:center; position:relative; outline:3px dashed var(--yel); outline-offset:-16px}
+.cert .lab{font-weight:900; color:var(--burnt); font-size:15px}
+.cert h2{font-family:'Bungee',sans-serif; font-weight:400; font-size:clamp(26px,4vw,40px); margin:6px 0; color:var(--teal); text-shadow:2px 2px 0 var(--ink)}
+.cert .nm{font-size:clamp(26px,4vw,42px); font-weight:900; border-bottom:4px solid var(--yel); display:inline-block; padding:0 20px}
+.awards{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px}
+.aw{background:#fff; border:3px solid var(--ink); border-radius:16px; padding:14px; box-shadow:5px 5px 0 var(--ink); text-align:center; animation:awIn .6s both}
+.aw .ai{font-size:44px}
+.aw b{display:block; font-size:18px}
+.aw span{display:block; font-size:15px; font-weight:700; color:var(--muted)}
+@keyframes awIn{from{transform:translateY(30px) scale(.8); opacity:0}}
+.msg{background:#fff; border:3px solid var(--ink); border-radius:18px; padding:16px 18px; box-shadow:5px 5px 0 var(--ink); display:flex; gap:14px; align-items:center}
+.msg .av{width:84px; height:84px; flex:0 0 84px}
+.msg p{margin:0; font-size:18px; font-weight:700; line-height:1.5}
+.fbtns{display:flex; justify-content:center; gap:12px; flex-wrap:wrap}
+
+#fx{position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:95}
+.toasts{position:fixed; left:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:96; display:grid; gap:8px; max-width:min(420px,calc(100% - 32px))}
+.toast{background:#fff; border:3px solid var(--ink); border-radius:12px; padding:10px 14px; font-weight:900; box-shadow:4px 4px 0 var(--teal); animation:tin .35s ease}
+.toast.unlock{background:var(--yel); box-shadow:4px 4px 0 var(--ink)}
+@keyframes tin{from{transform:translateY(20px); opacity:0}}
+.av{display:inline-block; flex-shrink:0; line-height:0; vertical-align:middle}
+.pol .av,.suspect .av,.reveal .av{display:block}
+.av svg{width:100%; height:100%; display:block}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+<header class="sign">
+  <div class="brand"><b>MyMasteryLab</b><span>Hollow Oak Toy Factory case file</span></div>
+  <div class="casetitle">🕵️ Algebra Crime Scene: Find the Missing Rule</div>
+  <div class="dtag" id="dtag">🔍 <span id="dname">New detective</span></div>
+  <div class="clock" id="clock" title="Session time">⏱ 0:00</div>
+  <button class="hbtn" data-act="wb" title="Whiteboard (W)">✏️ Whiteboard</button>
+  <button class="hbtn" data-act="mentor" title="Mentor controls (M)">🎓 Mentor</button>
+  <button class="hbtn" data-act="sound" id="sndBtn" title="Sound on/off">🔊</button>
+</header>
+<section class="belt" aria-label="Lesson phases">
+  <div class="track" id="track"></div>
+  <div class="rail" id="rail"></div>
+</section>
+<main class="floor">
+  <section id="stage" aria-live="polite"></section>
+  <aside class="board" id="board" aria-label="Case file"></aside>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Mentor controls">
+  <header><b>Mentor desk</b><button class="hbtn" data-act="mentor">Close</button></header>
+  <div class="dbody" id="dbody"></div>
+</aside>
+
+<div class="wb bg-clear" id="wb" aria-label="Whiteboard">
+  <div class="wbtag" id="wbtag">Whiteboard: page 1</div>
+  <canvas id="wbc"></canvas>
+  <div class="wbbar" id="wbbar"></div>
+</div>
+
+<div class="modal" id="modal"><div class="mcard" id="mcard"></div></div>
+<div class="finale" id="finale"></div>
+<canvas id="fx"></canvas>
+<div class="toasts" id="toasts"></div>
+<script>
+"use strict";
+/* =================== STATE =================== */
+const STORE = 'mml-algebra-crime-scene-v1';
+function fresh(){
+  return {name:'', phase:0, unlocked:0, solved:{}, draft:{}, miss:{}, announced:{}, forced:{},
+    auto:true, sound:true, showAns:false, finaleUnlocked:false, start:Date.now(), phaseStart:{0:Date.now()}, hits:0, misses:0,
+    d:{story:{}, match:{pairs:{}, sel:null, cols:{}}, bags:{}, bagSel:null, fi:0, fzLast:null, mval:10, open1:false, open2:false,
+       pig:0, badges:['?','?','?'], paint:[null,null,null,null,null], hc:0, hide:false,
+       race:{start:null,end:null,won:null}, chips:{}, trap:null, r2shown:false, accused:[], say:''}};
+}
+function load(){
+  try{ const r = localStorage.getItem(STORE); if(r){ const o = JSON.parse(r), f = fresh(); const m = Object.assign(f, o); m.d = Object.assign(fresh().d, o.d||{}); return m; } }catch(e){}
+  return fresh();
+}
+let S = load();
+let saveT = null;
+function save(){ clearTimeout(saveT); saveT = setTimeout(()=>{ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }, 120); }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).toLowerCase().replace(/\s+/g,'').replace(/[−–—]/g,'-').replace(/^\+/,'');
+const $ = (q, el=document) => el.querySelector(q);
+const $$ = (q, el=document) => [...el.querySelectorAll(q)];
+const fmtT = ms => { const s = Math.max(0, Math.floor(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const dn = () => S.name ? 'Detective ' + S.name : 'Detective';
+
+/* =================== CHARACTERS =================== */
+function person(o){
+  const id = 'cp' + o.id;
+  let hairBack = '', hairTop = '', hat = '', extra = '';
+  if(o.style === 'long') hairBack = `<path d="M24 48 C22 20 78 20 76 48 L79 80 L21 80Z" fill="${o.hair}"/>`;
+  if(o.style === 'bald'){ hairTop = `<ellipse cx="29.5" cy="46" rx="4" ry="8" fill="${o.hair}"/><ellipse cx="70.5" cy="46" rx="4" ry="8" fill="${o.hair}"/>`; }
+  else hairTop = `<path d="M28 44 C27 20 73 20 72 44 C66 35 54 31 41 34 C35 36 31 40 28 44Z" fill="${o.hair}"/>`;
+  if(o.style === 'bun') hairTop += `<circle cx="50" cy="20" r="9" fill="${o.hair}"/>`;
+  if(o.hat === 'deer') hat = `<path d="M26 37 C27 15 73 15 74 37Z" fill="#D77F28" stroke="#1A1A1A" stroke-width="2.5"/><path d="M34 25 L66 25" stroke="#8A4A12" stroke-width="2" stroke-dasharray="3 3"/><rect x="20" y="34" width="60" height="6" rx="3" fill="#B5661F" stroke="#1A1A1A" stroke-width="2.5"/>`;
+  if(o.hat === 'cap') hat = `<path d="M28 36 C28 18 72 18 72 36Z" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2.5"/><path d="M60 34 L84 36 L72 39Z" fill="#D77F28" stroke="#1A1A1A" stroke-width="2"/>`;
+  if(o.hat === 'guard') hat = `<path d="M27 33 C29 17 71 17 73 33Z" fill="#00747C" stroke="#1A1A1A" stroke-width="2.5"/><rect x="24" y="31" width="52" height="7" rx="2" fill="#1A1A1A"/><circle cx="50" cy="26" r="4.5" fill="#FAA71C" stroke="#1A1A1A" stroke-width="1.5"/>`;
+  if(o.goggles) extra += `<rect x="27" y="29" width="46" height="6" fill="#1A1A1A"/><circle cx="40" cy="31" r="7" fill="#21DED7" stroke="#1A1A1A" stroke-width="2.5"/><circle cx="60" cy="31" r="7" fill="#21DED7" stroke="#1A1A1A" stroke-width="2.5"/>`;
+  if(o.glasses) extra += `<circle cx="42" cy="46" r="6.5" fill="none" stroke="#1A1A1A" stroke-width="2.2"/><circle cx="58" cy="46" r="6.5" fill="none" stroke="#1A1A1A" stroke-width="2.2"/><path d="M48.5 46 L51.5 46" stroke="#1A1A1A" stroke-width="2.2"/>`;
+  if(o.bow) extra += `<path d="M50 70 L41 65 L41 75Z M50 70 L59 65 L59 75Z" fill="#C92426" stroke="#1A1A1A" stroke-width="1.5"/>`;
+  if(o.tool === 'glass') extra += `<circle cx="80" cy="76" r="9" fill="#D6F3F4" stroke="#1A1A1A" stroke-width="3"/><path d="M73 83 L64 93" stroke="#1A1A1A" stroke-width="5" stroke-linecap="round"/>`;
+  if(o.tool === 'pencil') extra += `<path d="M76 92 L86 66" stroke="#FAA71C" stroke-width="6" stroke-linecap="round"/><path d="M86 66 L88 60" stroke="#1A1A1A" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="${id}"><circle cx="50" cy="50" r="47"/></clipPath></defs>
+  <circle cx="50" cy="50" r="47" fill="${o.bg}"/>
+  <g clip-path="url(#${id})">${hairBack}
+  <path d="M12 106 C14 78 33 68 50 68 C67 68 86 78 88 106Z" fill="${o.shirt}" stroke="#1A1A1A" stroke-width="2.5"/>
+  <rect x="44" y="58" width="12" height="12" fill="${o.skin}"/>
+  <circle cx="50" cy="45" r="21" fill="${o.skin}" stroke="#1A1A1A" stroke-width="2.5"/>${hairTop}
+  <circle cx="42" cy="46" r="2.6" fill="#1A1A1A"/><circle cx="58" cy="46" r="2.6" fill="#1A1A1A"/>
+  <circle cx="37" cy="53" r="3.2" fill="#F08A7E" opacity=".45"/><circle cx="63" cy="53" r="3.2" fill="#F08A7E" opacity=".45"/>
+  <path d="${o.frown ? 'M44 57 Q50 53 56 57' : 'M43 54 Q50 60 57 54'}" stroke="#1A1A1A" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  ${hat}${extra}</g>
+  <circle cx="50" cy="50" r="47" fill="none" stroke="#1A1A1A" stroke-width="3.5"/></svg>`;
+}
+function robot(fixed){
+  const card = fixed
+    ? `<rect x="38" y="70" width="24" height="15" rx="2" fill="#FAA71C" stroke="#1A1A1A" stroke-width="2"/><path d="M42 76 H58 M42 80 H54" stroke="#1A1A1A" stroke-width="1.6"/>`
+    : `<path d="M38 70 H62 V85 H50 L46 80 L42 85 H38Z" fill="#fff" stroke="#C92426" stroke-width="2" stroke-dasharray="3 2"/><text x="50" y="80" font-size="7" text-anchor="middle" fill="#C92426" font-family="Arial" font-weight="bold">?</text>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="#FFF1D0"/>
+  <path d="M50 10 V20" stroke="#1A1A1A" stroke-width="3"/><circle cx="50" cy="9" r="5" fill="#C92426" stroke="#1A1A1A" stroke-width="2.5"/>
+  <rect x="24" y="20" width="52" height="38" rx="10" fill="#00A7B2" stroke="#1A1A1A" stroke-width="3"/>
+  <rect x="31" y="27" width="38" height="24" rx="6" fill="#fff" stroke="#1A1A1A" stroke-width="2.5"/>
+  <rect x="38" y="33" width="7" height="9" rx="2" fill="#00747C"/><rect x="55" y="33" width="7" height="9" rx="2" fill="#00747C"/>
+  <path d="M42 46 H58" stroke="#00747C" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="18" y="34" width="6" height="12" rx="2" fill="#D77F28" stroke="#1A1A1A" stroke-width="2"/><rect x="76" y="34" width="6" height="12" rx="2" fill="#D77F28" stroke="#1A1A1A" stroke-width="2"/>
+  <rect x="28" y="62" width="44" height="32" rx="6" fill="#FAA71C" stroke="#1A1A1A" stroke-width="3"/>${card}
+  <circle cx="50" cy="50" r="47" fill="none" stroke="#1A1A1A" stroke-width="3.5"/></svg>`;
+}
+function learnerAv(){
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="#FAA71C" stroke="#1A1A1A" stroke-width="3.5"/>
+  <circle cx="45" cy="44" r="20" fill="#fff" stroke="#1A1A1A" stroke-width="5"/><path d="M59 58 L76 75" stroke="#1A1A1A" stroke-width="9" stroke-linecap="round"/>
+  <text x="45" y="52" text-anchor="middle" font-family="Arial Black,Arial" font-size="20" font-weight="900" fill="#00A7B2">x</text></svg>`;
+}
+const CH = {
+  ruby:   {name:'Detective Ruby Hart', role:'Senior detective', svg:()=>person({id:'ruby', skin:'#F2C9A5', hair:'#B5452B', style:'long', shirt:'#00A7B2', bg:'#FFE3B0', hat:'deer', tool:'glass'})},
+  penrose:{name:'Mr Oliver Penrose', role:'Factory owner', svg:()=>person({id:'pen', skin:'#EAC2A0', hair:'#D9D9D9', style:'bald', shirt:'#D77F28', bg:'#D6F3F4', glasses:true, bow:true})},
+  sorto:  {name:'SORT-O', role:'Sorting robot', svg:()=>robot(!!S.solved.u2rule)},
+  felix:  {name:'Felix Fudge', role:'Packing lead', svg:()=>person({id:'fel', skin:'#C98E62', hair:'#3B2A20', style:'short', shirt:'#FAA71C', bg:'#FBE3CC', hat:'cap'})},
+  barnaby:{name:'Barnaby Bolt', role:'Night guard', svg:()=>person({id:'bar', skin:'#F0C7A6', hair:'#5A3A26', style:'short', shirt:'#00747C', bg:'#D6F3F4', hat:'guard'})},
+  ivy:    {name:'Ivy Quill', role:'Label designer', svg:()=>person({id:'ivy', skin:'#8D5A3B', hair:'#1F1A17', style:'bun', shirt:'#E46A6B', bg:'#FCE0E0', glasses:true, tool:'pencil'})},
+  greta:  {name:'Greta Gearwright', role:'Speed engineer', svg:()=>person({id:'gre', skin:'#F5D3B8', hair:'#E9B53F', style:'long', shirt:'#C92426', bg:'#FFE9D6', goggles:true})},
+  kid:    {name:'You', role:'Rule detective', svg:learnerAv},
+};
+const SUSPECTS = [
+  {k:'felix', shoe:9, locker:8, key:8, clearKey:'e4clue'},
+  {k:'barnaby', shoe:6, locker:10, key:8, clearKey:'m4clue'},
+  {k:'ivy', shoe:6, locker:8, key:4, clearKey:'g4clue'},
+  {k:'greta', shoe:6, locker:8, key:8, clearKey:null},
+];
+const av = (k, cls='') => `<span class="av ${cls}">${CH[k].svg()}</span>`;
+
+/* =================== SOUND =================== */
+const Snd = {
+  ctx:null,
+  ac(){ if(!this.ctx){ const A = window.AudioContext || window.webkitAudioContext; if(!A) return null; this.ctx = new A(); } if(this.ctx.state === 'suspended') this.ctx.resume(); return this.ctx; },
+  tone(f, d, type='sine', v=.18, t0=0, slide){
+    if(!S.sound) return; const c = this.ac(); if(!c) return;
+    const t = c.currentTime + t0, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if(slide) o.frequency.exponentialRampToValueAtTime(slide, t + d);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + d + .05);
+  },
+  noise(d=.15, v=.15, t0=0){
+    if(!S.sound) return; const c = this.ac(); if(!c) return;
+    const b = c.createBuffer(1, Math.floor(c.sampleRate*d), c.sampleRate), a = b.getChannelData(0);
+    for(let i=0;i<a.length;i++) a[i] = (Math.random()*2-1) * (1 - i/a.length);
+    const s = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 900;
+    s.buffer = b; g.gain.value = v; s.connect(f).connect(g).connect(c.destination); s.start(c.currentTime + t0);
+  },
+  good(){ [523.25,659.25,783.99].forEach((f,i)=>this.tone(f,.22,'triangle',.2,i*.08)); this.tone(1046.5,.4,'sine',.13,.24); },
+  miss(){ this.tone(240,.32,'sawtooth',.08,0,140); this.tone(190,.42,'square',.05,.14,100); },
+  stamp(){ this.tone(120,.2,'sine',.35,0,50); this.noise(.09,.18); },
+  clue(){ [1318.5,1568,2093,2637].forEach((f,i)=>this.tone(f,.2,'sine',.11,i*.06)); this.stamp(); },
+  unlock(){ [392,523.25,659.25,783.99,1046.5].forEach((f,i)=>this.tone(f,.28,'triangle',.17,i*.075)); },
+  tick(){ this.tone(1400,.04,'square',.03); },
+  boom(){ this.noise(.7,.28); this.tone(90,.6,'sine',.25,0,40); },
+  fanfare(){
+    const N=[[523.25,0,.18],[523.25,.2,.18],[523.25,.4,.18],[659.25,.6,.5],[587.33,1.15,.18],[659.25,1.35,.18],[783.99,1.55,.9],[698.46,2.5,.2],[783.99,2.72,.2],[880,2.94,.2],[1046.5,3.16,1.2]];
+    N.forEach(([f,t,d])=>{ this.tone(f,d,'triangle',.2,t); this.tone(f/2,d,'sine',.1,t); });
+    [130.81,196,261.63].forEach(f=>this.tone(f,2.2,'sine',.08,1.55)); [174.61,261.63,349.23].forEach(f=>this.tone(f,1.8,'sine',.08,3.16));
+    [0,.6,1.55,3.16].forEach(t=>this.noise(.25,.12,t));
+  }
+};
+
+/* =================== EFFECTS =================== */
+const FX = {
+  c:null, x:null, p:[], run:false,
+  COLS:['#00A7B2','#FAA71C','#D77F28','#C92426','#21DED7','#FFFFFF','#FFD86B'],
+  init(){ this.c = $('#fx'); this.x = this.c.getContext('2d'); this.size(); addEventListener('resize', ()=>this.size()); },
+  size(){ const d = devicePixelRatio || 1; this.c.width = innerWidth*d; this.c.height = innerHeight*d; this.x.setTransform(d,0,0,d,0,0); },
+  burst(x, y, n=36){
+    if(reduced) n = Math.min(n, 10);
+    for(let i=0;i<n;i++) this.p.push({x, y, vx:(Math.random()-.5)*10, vy:-Math.random()*9-3, g:.28, life:70+Math.random()*40, col:this.COLS[i%this.COLS.length], s:5+Math.random()*6, r:Math.random()*6, vr:(Math.random()-.5)*.35, sh:i%3});
+    this.loop();
+  },
+  firework(x, y){
+    const n = reduced ? 16 : 80, col = this.COLS[Math.floor(Math.random()*5)];
+    for(let i=0;i<n;i++){ const a = i/n*Math.PI*2, sp = 3+Math.random()*4; this.p.push({x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, g:.07, life:60+Math.random()*30, col: Math.random()<.25?'#FFFFFF':col, s:3.2, r:0, vr:0, sh:2}); }
+    this.loop();
+  },
+  rain(n=8){ for(let i=0;i<n;i++) this.p.push({x:Math.random()*innerWidth, y:-10, vx:(Math.random()-.5)*2, vy:2+Math.random()*2, g:.03, life:260, col:this.COLS[Math.floor(Math.random()*this.COLS.length)], s:6+Math.random()*6, r:Math.random()*6, vr:(Math.random()-.5)*.25, sh:i%2}); this.loop(); },
+  loop(){
+    if(this.run) return; this.run = true;
+    const step = () => {
+      const x = this.x; x.clearRect(0,0,innerWidth,innerHeight);
+      this.p = this.p.filter(p => p.life-- > 0 && p.y < innerHeight + 40);
+      for(const p of this.p){
+        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.vx *= .985; p.r += p.vr;
+        x.globalAlpha = Math.min(1, p.life/25); x.fillStyle = p.col; x.save(); x.translate(p.x, p.y); x.rotate(p.r);
+        if(p.sh === 2){ x.beginPath(); x.arc(0,0,p.s,0,Math.PI*2); x.fill(); }
+        else if(p.sh === 1){ x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); }
+        else { x.fillRect(-p.s/2,-p.s/2,p.s,p.s); x.strokeStyle = '#1A1A1A'; x.lineWidth = 1; x.strokeRect(-p.s/2,-p.s/2,p.s,p.s); }
+        x.restore();
+      }
+      x.globalAlpha = 1;
+      if(this.p.length) requestAnimationFrame(step); else { this.run = false; x.clearRect(0,0,innerWidth,innerHeight); }
+    };
+    requestAnimationFrame(step);
+  }
+};
+function burstAt(el, n=34){ if(!el) return; const r = el.getBoundingClientRect(); FX.burst(r.left + r.width/2, r.top + r.height/2, n); }
+function toast(msg, cls=''){
+  const t = document.createElement('div'); t.className = 'toast ' + cls; t.textContent = msg; $('#toasts').appendChild(t);
+  setTimeout(()=>{ t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(()=>t.remove(), 450); }, 3600);
+}
+function modal(html){ $('#mcard').innerHTML = html; $('#modal').classList.add('open'); }
+function closeModal(){ $('#modal').classList.remove('open'); }
+
+/* =================== ANSWER COMPONENTS =================== */
+const FIELDS = {}, CHOICES = {};
+function field(key, fmt, accept, opt={}){
+  FIELDS[key] = {accept, opt};
+  const sol = S.solved[key];
+  const vals = Array.isArray(sol) ? sol : (S.draft[key] || []);
+  const dis = sol !== undefined || opt.disabled;
+  let i = 0;
+  const inner = fmt.replace(/\{\}/g, () => { const idx = i++; const w = (opt.ws && opt.ws[idx]) || opt.w || 64;
+    return `<input class="fi" data-key="${key}" data-idx="${idx}" value="${esc(vals[idx] ?? '')}" ${dis?'disabled':''} style="width:${w}px" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Answer box ${idx+1}">`; });
+  const log = opt.mode === 'log';
+  const ans = opt.show || (accept && accept[0] ? accept[0].join(' and ') : '');
+  const done = sol !== undefined;
+  return `<div class="frow ${done?'ok':''}" data-row="${key}"><div class="fexpr">${inner}</div>`
+    + (done ? `<span class="okmark">${log ? 'Logged' : '✔ Solved'}</span>` : `<button class="btn sm teal" data-act="check" data-key="${key}" ${opt.disabled?'disabled':''}>${log ? 'Log it' : 'Check'}</button>`)
+    + (S.showAns && !done && !log ? `<span class="keychip">Answer: ${esc(ans)}</span>` : '')
+    + `<div class="fb ${done?'good':''}" id="fb-${key}">${done && opt.ok ? opt.ok : ''}</div></div>`;
+}
+function checkField(key){
+  const F = FIELDS[key]; if(!F || S.solved[key] !== undefined || F.opt.disabled) return;
+  const vals = $$(`.fi[data-key="${key}"]`).map(x => x.value.trim());
+  const fb = document.getElementById('fb-' + key); if(!fb) return;
+  if(!vals.length || vals.some(v => v === '')){ fb.className = 'fb bad'; fb.textContent = 'Fill every box first, Detective.'; return; }
+  if(F.opt.mode === 'log'){ Snd.stamp(); markSolved(key, vals); return; }
+  let res;
+  if(F.opt.validate) res = F.opt.validate(vals);
+  else { const j = vals.map(norm).join('|'); res = F.accept.some(a => a.map(norm).join('|') === j) ? true : ((F.opt.traps && F.opt.traps[j]) || false); }
+  if(res === true){ S.hits++; Snd.good(); burstAt(fb.parentElement, 28); markSolved(key, vals); }
+  else {
+    S.misses++; S.miss[key] = (S.miss[key]||0) + 1; Snd.miss();
+    const row = fb.parentElement; row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake');
+    fb.className = 'fb bad';
+    fb.textContent = typeof res === 'string' ? res : (S.miss[key] >= 2 && F.opt.hint ? 'Hint: ' + F.opt.hint : 'Not quite. Check the evidence and try again.');
+    save();
+  }
+}
+function choice(key, opts, correct, opt={}){
+  CHOICES[key] = {correct, opt};
+  const sol = S.solved[key] !== undefined;
+  return `<div class="chrow" data-row="${key}">${opts.map((o,i)=>`<button class="opt ${sol && i===correct ? 'right' : ''}" data-act="choose" data-key="${key}" data-i="${i}" ${sol?'disabled':''}>${o}</button>`).join('')}`
+    + (S.showAns && !sol ? `<span class="keychip">Answer: ${esc(opts[correct])}</span>` : '')
+    + `<div class="fb ${sol?'good':''}" id="fb-${key}">${sol && opt.ok ? opt.ok : ''}</div></div>`;
+}
+function choose(key, i, btn){
+  const C = CHOICES[key]; if(!C || S.solved[key] !== undefined) return;
+  if(i === C.correct){ S.hits++; Snd.good(); burstAt(btn, 26); markSolved(key, i); }
+  else {
+    S.misses++; S.miss[key] = (S.miss[key]||0) + 1; Snd.miss();
+    btn.classList.add('nope'); setTimeout(()=>btn.classList.remove('nope'), 650);
+    const fb = document.getElementById('fb-' + key); fb.className = 'fb bad';
+    fb.textContent = (C.opt.why && C.opt.why[i]) || C.opt.bad || 'Look again, Detective.';
+    save();
+  }
+}
+function rating(key){
+  const v = S.solved[key];
+  const icons = ['😟','🙁','😐','🙂','😎'];
+  return `<div class="rate">${[1,2,3,4,5].map(n=>`<button class="${v===n?'on':''}" data-act="rate" data-key="${key}" data-v="${n}" aria-label="Confidence ${n} of 5">${icons[n-1]}<small>${n}</small></button>`).join('')}</div>
+  <div class="rate-legend"><span>Not sure yet</span><span>Super sure</span></div>`;
+}
+function chipSentence(key, parts, chips){
+  const blanks = parts.filter(p => typeof p !== 'string').length;
+  let fill = S.d.chips[key] || Array(blanks).fill(null);
+  const sol = S.solved[key] !== undefined;
+  if(sol) fill = parts.filter(p => typeof p !== 'string').map(p => p.a);
+  let bi = 0;
+  const sent = parts.map(p => { if(typeof p === 'string') return esc(p); const i = bi++; const v = fill[i];
+    return `<span class="blank ${v?'':'empty'} ${(!sol && S.d.chips[key+'_bad'] && S.d.chips[key+'_bad'].includes(i))?'badb':''}" data-act="blank" data-key="${key}" data-i="${i}" role="button" tabindex="0">${v ? esc(v) : 'tap a chip'}</span>`; }).join('');
+  const used = fill.filter(Boolean);
+  return `<div class="sent">${sent}</div>`
+    + (sol ? `<div class="fb good">✔ Rule written in detective words!</div>` :
+      `<div class="chips">${chips.map(c=>`<button class="chip ${used.includes(c)?'used':''}" data-act="chip" data-key="${key}" data-v="${esc(c)}" ${used.includes(c)?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+       <button class="btn teal" data-act="chipcheck" data-key="${key}">Check my sentence</button>${S.showAns ? `<span class="keychip">Answer: ${esc(parts.filter(p=>typeof p!=='string').map(p=>p.a).join(' / '))}</span>` : ''}<div class="fb" id="fb-${key}"></div>`);
+}
+const CHIPDEF = {};
+/* =================== PHASES =================== */
+const COLORS = ['#00A7B2','#FAA71C','#D77F28','#C92426'];
+const PALE = {'#00A7B2':'#D6F3F4','#FAA71C':'#FFF1D0','#D77F28':'#FBE3CC','#C92426':'#FCE0E0'};
+const hx = expr => expr.replace(/([a-z])/g, m => `<span class="lt-h">${S.d.hide ? '👍' : m}</span>`);
+
+const PHASES = [
+/* ---------- 1 ---------- */
+{ title:'Crime scene briefing', icon:'🚨', target:5,
+  goal:'SORT-O’s Rule Card is gone and the labels make no sense. Spot the nonsense and take the case.',
+  story:[
+    ['penrose','Detective, thank goodness you’re here! I’m Oliver Penrose, owner of Hollow Oak Toy Factory.'],
+    ['penrose','Every night SORT-O packs our toy deliveries. Taped to its chest is a little Rule Card. Last night… someone stole it!'],
+    ['sorto','BEEP. GOOD MORNING. I HAVE PACKED 5 ROBEDDIES AND 5 YO-KITES. I AM VERY FAST.'],
+    ['ruby','I’m Detective Ruby Hart. Four people were in the factory last night, and three clues are hidden in the maths. Let’s look at the evidence first.'],
+  ],
+  notes:['Laugh with the learner at "robeddies". No definitions yet: let them feel the rule.','Money twist: they DO have 5 notes, but they are worth 40, not 50.','Learner types their detective name to pin the badge.'],
+  key:['Exhibit A: Nonsense, Nonsense, Real','Real or Nonsense: Real, Nonsense, Real, Nonsense; worth 40'],
+  tasks:[
+    {id:'b1', title:'Exhibit A: SORT-O’s delivery labels', keys:['b1a','b1b','b1c'], html:()=>{
+      const L = [['3 robots + 2 teddies','5 ROBEDDIES',1,'Nonsense! There’s no such toy as a robeddy. The honest label is 3 robots + 2 teddies.'],
+                 ['4 yo-yos + 1 kite','5 YO-KITES',1,'Nonsense! Yo-yos and kites can’t share one count.'],
+                 ['2 trains + 6 trains','8 TRAINS',0,'Real. Trains plus trains is still trains.']];
+      return `<p class="lead">These labels came off SORT-O this morning. Which ones would a customer understand?</p><div class="labels">`
+        + L.map((l,i)=>`<div class="shiplabel"><div class="sl-top">Hollow Oak delivery label</div><div class="sl-sum">${l[0]} =</div><div class="sl-res disp">${l[1]}</div>${choice('b1'+'abc'[i], ['Real','Nonsense'], l[2], {ok:l[3], bad:'Look again. Could you buy that in a toy shop?'})}</div>`).join('') + `</div>`; }},
+    {id:'b2', title:'Real or nonsense?', keys:['b2a','b2b','b2c','b2d','b2e'], html:()=>{
+      const Q = [['2 pizzas + 3 pizzas = 5 pizzas',0,'Real. Same kind, so the count works.'],
+                 ['3 socks + 2 shoes = 5 shocks',1,'Nonsense! Honest version: 3 socks + 2 shoes.'],
+                 ['4 cats + 1 cat + 2 dogs = 5 cats + 2 dogs',0,'Real. The cats joined up and the dogs stayed separate.'],
+                 ['3 ten-dollar notes + 2 five-dollar notes = 5 tens = $50',1,'Nonsense! You do have 5 notes, but they aren’t all tens.']];
+      let h = Q.map((q,i)=>`<div class="sit"><div class="q">${q[0]}</div>${choice('b2'+'abcd'[i], ['Real','Nonsense'], q[1], {ok:q[2]})}</div>`).join('');
+      if(S.solved.b2d !== undefined){
+        h += `<div class="notes"><div class="note">$10</div><div class="note">$10</div><div class="note">$10</div><div class="note five">$5</div><div class="note five">$5</div></div>`
+          + field('b2e', 'So what are the 5 notes really worth? $ {}', [['40']], {traps:{'50':'That’s SORT-O’s answer! Count the tens, then the fives.'}, hint:'Three tens make 30. Two fives make 10.', ok:'Exactly: $40 (or £40 with £10 and £5 notes). Different things can’t share one count.'});
+      }
+      return h; }},
+    {id:'b3', title:'Pin your detective badge', keys:['b3name'], html:()=>{
+      if(S.solved.b3name !== undefined) return `<div class="badgecard"><div class="seal">🔍</div><div><b>${esc(dn())}</b><br><span class="small">Rule Detective, Hollow Oak Toy Factory</span><p style="margin:6px 0 0">Mission: find the missing rule and unmask who took it. The suspects are pinned to your case file.</p></div></div>
+        <div class="minisus">${SUSPECTS.map(s=>`<div>${av(s.k)}${CH[s.k].name}</div>`).join('')}</div>`;
+      return `<p>Type your name to pin your badge and accept the mission.</p><div class="frow"><div class="fexpr">Detective <input class="fi" id="nameIn" style="width:220px" maxlength="20" aria-label="Your name" value="${esc(S.draft.name||'')}"></div><button class="btn teal" data-act="setname">Pin my badge</button><div class="fb" id="fb-name"></div></div>`; }},
+  ]},
+/* ---------- 2 ---------- */
+{ title:'Fingerprint scan', icon:'🖐️', target:3,
+  goal:'Every new detective gets fingerprinted. Answer quickly. Nothing is marked right or wrong yet: it’s all logged as evidence.',
+  story:[['ruby','Every new detective gets fingerprinted on day one. Answer these quickly. There’s no wrong move: I’m just logging your detective style.']],
+  notes:['Do NOT correct anything here. Say "Evidence logged."','The mentor desk shows which answers match the expected ones (baseline for the parent report).','Confidence rating is the "before" number.'],
+  key:['Expected: 9 bats; 6 balls + 2 bats; 4a + 3b; 6c'],
+  tasks:[
+    {id:'s1', title:'Fingerprint scan: four quick ones', keys:['s1a','s1b','s1c','s1d'], html:()=>
+      field('s1a','6 bats + 3 bats = {}',null,{mode:'log',w:200}) + field('s1b','5 balls + 2 bats + 1 ball = {}',null,{mode:'log',w:240})
+      + field('s1c','4a + 3b = {}',null,{mode:'log',w:170}) + field('s1d','7c − 2c + 1c = {}',null,{mode:'log',w:170})},
+    {id:'s2', title:'How sure do you feel when you see letters in maths?', keys:['s2conf'], html:()=>rating('s2conf')},
+  ]},
+/* ---------- 3 ---------- */
+{ title:'Clue 1: Sort the evidence', icon:'🧳', target:7,
+  goal:'Learn the parts of an expression and sort terms into families. The footprint clue is hiding in the t-bag.',
+  story:[
+    ['ruby','Real detectives write fast. Instead of “4 trains” we write 4t. The letter is the family name, and the number in front tells us how many.'],
+    ['sorto','I PUT EVERYTHING IN ONE BAG. ONE BAG IS FASTER.'],
+    ['ruby','Not today, SORT-O. Detective, sort the evidence into family bags.'],
+  ],
+  notes:['Introduce the words: term, variable (letter), coefficient (count in front), constant (loner), like terms.','Silent 1: a plain r means 1r.','Loners only join loners.','If the learner says shoe size 9, let Felix be "framed", then re-check the bags.'],
+  key:['Bags: t = 4t, 2t, 6t; r = 3r, r, 3r; b = 5b, 2b; loners = 7, 1','12t, 7r, 7b, 8; plain r = 1r','Clue 1: shoe size 6'],
+  tasks:[
+    {id:'e1', title:'Detective dictionary', keys:['e1m'], html:()=>{
+      const L = ['Family name','The count in front','One suspect on the board','Loner number (no letter)','Same family'];
+      const R = ['Variable (the letter)','Coefficient','Term','Constant','Like terms'];
+      const order = [2,4,0,3,1], M = S.d.match, done = S.solved.e1m !== undefined;
+      const pc = ['#00A7B2','#D77F28','#C92426','#FAA71C','#00747C'];
+      return `<div class="bigexpr"><span class="tm"><span class="co">4</span><span class="va">t</span></span>+<span class="tm"><span class="co">3</span><span class="va">r</span></span>+<span class="tm">7</span></div>
+      <p>Tap a detective word, then tap its maths word. Use 4t + 3r + 7 as your evidence.</p>
+      <div class="match"><div class="mcol">${L.map((l,i)=>{ const p = done || M.pairs[i] !== undefined; return `<button class="mi ${p?'paired':''} ${M.sel===i?'sel':''}" style="${p?'background:'+pc[i]:''}" data-act="ml" data-i="${i}" ${p?'disabled':''}>${l}</button>`; }).join('')}</div>
+      <div class="mcol">${order.map(r=>{ const li = Object.keys(M.pairs).find(k=>M.pairs[k]===r); const p = done || li !== undefined; return `<button class="mi ${p?'paired':''}" style="${p?'background:'+pc[r]:''}" data-act="mr" data-i="${r}" ${p?'disabled':''}>${R[r]}</button>`; }).join('')}</div></div>
+      ${S.showAns && !done ? '<span class="keychip">Answer: family name → variable, count → coefficient, suspect → term, loner → constant, same family → like terms</span>' : ''}<div class="fb ${done?'good':''}" id="fb-e1m">${done?'✔ Dictionary complete. Silent bonus: a plain r is really 1r.':''}</div>`; }},
+    {id:'e2', title:'Evidence bags', keys:['e2bags'], html:()=>{
+      const B = S.d.bags; const bagNames = {t:'t-bag', r:'r-bag', b:'b-bag', L:'Loners'};
+      const loose = TERMS.map((c,i)=>[c,i]).filter(([c,i])=>!B[i]);
+      return `<p>Drag each term card into its family bag, or tap a card and then tap a bag. Numbers with no letter go to the Loners bag.</p>
+      <div class="cards" id="cards">${loose.map(([c,i])=>`<span class="tc ${S.d.bagSel===i?'sel':''}" data-act="tc" data-i="${i}" tabindex="0" role="button">${c[0]}</span>`).join('')}</div>
+      <div class="bags">${Object.keys(bagNames).map(b=>`<div class="bag" data-bag="${b}" data-act="bag" role="button" tabindex="0"><span class="bt">${bagNames[b]}</span><div class="bin">${TERMS.map((c,i)=>B[i]===b?`<span class="tc in">${c[0]}</span>`:'').join('')}</div></div>`).join('')}</div>
+      ${S.showAns && S.solved.e2bags===undefined ? '<span class="keychip">Answer: t: 4t 2t 6t / r: 3r r 3r / b: 5b 2b / loners: 7 1</span>' : ''}<div class="fb" id="fb-e2bags">${S.solved.e2bags!==undefined?'✔ Every piece of evidence is in the right family bag.':''}</div>`; }},
+    {id:'e3', title:'Squash each bag', keys:['e3t','e3r','e3b','e3l','e3one'], html:()=>
+      `<p>Now count inside each bag. Same family, same letter.</p>`
+      + field('e3t','t-bag: 4t + 2t + 6t = {} t',[['12']],{hint:'4 + 2 + 6'})
+      + field('e3r','r-bag: 3r + r + 3r = {} r',[['7']],{traps:{'6':'Careful: a plain r counts too. It’s a silent 1r!'}})
+      + field('e3b','b-bag: 5b + 2b = {} b',[['7']])
+      + field('e3l','Loners bag: 7 + 1 = {}',[['8']])
+      + field('e3one','A plain r is really {} r',[['1']],{ok:'Yes! The silent 1.'})},
+    {id:'e4', title:'Clue 1: The footprint', keys:['e4clue'], html:()=>
+      `<div class="clueslip"><div class="ck"><span class="ic">👟</span><div><h4>Clue 1</h4><p style="margin:0">A muddy footprint was found next to SORT-O. <b>The shoe size equals the number of t’s in 4t + 3r + 2t.</b></p></div></div></div>`
+      + field('e4clue','Shoe size = {}',[['6'],['6t']],{traps:{'9':'That points to Felix Fudge… but Felix was on the packing line with 12 witnesses! Did the 3r sneak into the t-bag? Re-check.'}, hint:'Only the t-family counts: 4t and 2t.', ok:'Shoe size 6! Felix (size 9) is cleared.'})},
+  ]},
+/* ---------- 4 ---------- */
+{ title:'Clue 2: The mystery box', icon:'📦', target:8,
+  goal:'Open the boxes to find out WHY like terms can join and unlike terms cannot. Then crack the locker clue.',
+  story:[
+    ['sorto','WHY CAN’T I JUST ADD ALL THE NUMBERS? IT IS FASTER!'],
+    ['ruby','Let’s prove SORT-O wrong, properly. At Hollow Oak, toys are packed in sealed boxes. Every box with the same letter holds exactly the same number of toys.'],
+    ['ruby','So m doesn’t mean “marbles”. m means how many toys are in one m-box. It’s a mystery number. Let’s open some boxes!'],
+  ],
+  notes:['Big upgrade: a letter is a NUMBER (how many in one box), never an object. Avoid "fruit-salad algebra".','Like terms = same-size boxes, so you just count boxes. Works for EVERY m.','Unlike: 3m + 2n with m = 10, n = 4 is 38. SORT-O’s 5mn = 200, 5m = 50, 5n = 20, all wrong.','Get the WHY in the learner’s own words.'],
+  key:['m = 10: 50 and 50; m = 7: 35 and 35; own m: both 5 × m','38; 200; 50; 20; cannot be squashed (No)','Sentence: same-size boxes / count the boxes / different-size boxes / wrong total','Clue 2: locker 8; 8m + 2n is not 10mn'],
+  tasks:[
+    {id:'m1', title:'Same-size boxes', keys:['m1a','m1b','m1c'], html:()=>{
+      const m = S.d.mval, op = S.d.open1, bx = (n,l) => Array.from({length:n},()=>`<span class="mb ${op?'open':''}">${op?m:l}</span>`).join('');
+      return `<p>Each m-box holds the same mystery number of toys. 3 m-boxes and 2 m-boxes make how many m-boxes?</p>
+      <div class="boxrow">${bx(3,'m')}<span class="sym">+</span>${bx(2,'m')}<span class="sym">=</span>${bx(5,'m')}</div>
+      <div class="mtoggle"><button class="btn ${op?'white':''}" data-act="open1">${op?'Close the boxes':'Open the boxes'}</button><span class="small">Peek with m =</span>${[10,7].map(v=>`<button class="opt ${m===v?'on':''}" data-act="mval" data-v="${v}">${v}</button>`).join('')}</div>`
+      + field('m1a','If m = 10:  3m + 2m = {}  and  5m = {}',[['50','50']],{ws:[80,80], hint:'3 boxes of 10 plus 2 boxes of 10.'})
+      + field('m1b','If m = 7:  3m + 2m = {}  and  5m = {}',[['35','35']],{ws:[80,80]})
+      + field('m1c','You choose!  m = {}  →  3m + 2m = {}  and  5m = {}',null,{ws:[70,90,90], show:'any m; both answers 5 × m', validate:v=>{ const m=+v[0], a=+v[1], b=+v[2]; if(!Number.isFinite(m)||m<=0||m!==Math.round(m)) return 'Pick a whole number for m.'; if(a!==5*m) return `Open the boxes: 3 boxes of ${m} plus 2 boxes of ${m}.`; if(b!==5*m) return `5m means 5 boxes of ${m}.`; return true; }, ok:'It works for EVERY number. That’s why it’s a rule, not a guess!'}); }},
+    {id:'m2', title:'Different-size boxes', keys:['m2a','m2b','m2c','m2d','m2e'], html:()=>{
+      const op = S.d.open2, bx = (n,l,v,c) => Array.from({length:n},()=>`<span class="mb ${c} ${op?'open':''}">${op?v:l}</span>`).join('');
+      return `<p>Now SORT-O packs 3 m-boxes and 2 n-boxes. They are different sizes: m = 10 and n = 4.</p>
+      <div class="boxrow">${bx(3,'m',10,'')}<span class="sym">+</span>${bx(2,'n',4,'n')}</div>
+      <div class="mtoggle"><button class="btn ${op?'white':''}" data-act="open2">${op?'Close the boxes':'Open the boxes'}</button></div>`
+      + field('m2a','The truth: 3m + 2n = 30 + 8 = {}',[['38']])
+      + `<p class="lead" style="margin-top:12px">SORT-O tries to squash them. Work out each fake answer:</p><div class="versus">`
+      + field('m2b','“5mn” = 5 × 10 × 4 = {}',[['200']],{ok:'200, not 38. Nonsense!'})
+      + field('m2c','“5m” = 5 × 10 = {}',[['50']],{ok:'50: too many.'})
+      + field('m2d','“5n” = 5 × 4 = {}',[['20']],{ok:'20: too few.'}) + `</div>`
+      + `<p class="lead" style="margin-top:10px">So can 3m + 2n be squashed into one term?</p>` + choice('m2e',['Yes','No'],1,{ok:'Right. Different-size boxes have no single box to count, so it stays 3m + 2n.', bad:'Every squashed version gave the wrong total. Try again.'}); }},
+    {id:'m3', title:'The WHY, in detective words', keys:['m3why'], html:()=>
+      `<p>Fill the gaps by tapping the chips. Tap a filled gap to empty it.</p>`
+      + chipSentence('m3why', ['Like terms are ',{a:'same-size boxes'},', so I can just ',{a:'count the boxes'},'. Unlike terms are ',{a:'different-size boxes'},', so adding their counts gives a ',{a:'wrong total'},'.'],
+        ['add all the numbers','same-size boxes','right total','count the boxes','different-size boxes','the same number','wrong total'])
+      + `<p class="small" style="margin-top:12px">Say it your way (optional):</p><textarea class="say" data-say="1" placeholder="Like terms can join because…">${esc(S.d.say||'')}</textarea>`},
+    {id:'m4', title:'Clue 2: The locker', keys:['m4clue','m4proof'], html:()=>
+      `<div class="clueslip"><div class="ck"><span class="locker">?</span><div><h4>Clue 2</h4><p style="margin:0">The culprit’s locker number is hidden in SORT-O’s memory. <b>Locker number = the number of m’s in 5m + 2n + 3m.</b></p></div></div></div>`
+      + field('m4clue','Locker number = {}',[['8'],['8m']],{traps:{'10':'Locker 10 belongs to Barnaby Bolt… but you squashed the 2n in with the m’s! Different-size boxes. Try again.'}, hint:'Only the m-boxes: 5m and 3m.', ok:'Locker 8! Barnaby (locker 10) is cleared.'})
+      + `<p class="lead" style="margin-top:10px">Quick proof: is 8m + 2n the same as 10mn?</p>` + choice('m4proof',['Yes','No'],1,{ok:'No! With m = 10 and n = 4: 8m + 2n = 88, but 10mn = 400.', bad:'Open the boxes: try m = 10 and n = 4 on both.'})},
+  ]},
+/* ---------- 5 ---------- */
+{ title:'Freeze frame', icon:'🧊', target:2,
+  goal:'Brain break! Stand up. Same family: jump and clap. Different family: freeze like a suspect on camera.',
+  story:[['ruby','Detective, stand up where I can see you! Same family? JUMP & JOIN and clap your hands. Different family? FREEZE like a suspect caught on camera. Remember: the letter decides, not the number.']],
+  notes:['Learner stands and moves; mentor taps the button the learner calls out, or the learner taps it.','Traps: 3x vs 3y (same number), 5 vs 5k (loner).'],
+  key:['Jump, Freeze, Freeze, Jump, Freeze, Jump, Freeze, Jump'],
+  tasks:[
+    {id:'f1', title:'Jump & Join or Freeze?', keys:['f1'], html:()=>{
+      const done = S.solved.f1 !== undefined, i = Math.min(S.d.fi, CALLS.length-1), c = CALLS[i];
+      const last = S.d.fzLast;
+      return `<div class="freeze"><div class="fzav ${last||''}" id="fzav">${CH.kid.svg()}</div><div class="callcard">
+        ${done ? `<div class="pair"><span>🎉</span></div><p class="lead" style="margin:10px 0 0">All 8 calls done. The letter decides!</p>` :
+        `<div class="small">Call ${i+1} of ${CALLS.length}</div><div class="pair"><span>${c[0]}</span><span>${c[1]}</span></div>
+        <div class="fzbtns"><button class="btn teal lg" data-act="fz" data-v="J">🙌 Jump & Join</button><button class="btn white lg" data-act="fz" data-v="F" style="background:#BFF4F2">🧊 Freeze!</button></div>`}
+        <div class="fzdots">${CALLS.map((_,k)=>`<i class="${(done||k<S.d.fi)?'on':''}"></i>`).join('')}</div>
+        ${S.showAns && !done ? `<span class="keychip">Answer: ${c[2]==='J'?'Jump & Join':'Freeze'}</span>` : ''}<div class="fb" id="fb-f1"></div></div></div>`; }},
+  ]},
+/* ---------- 6 ---------- */
+{ title:'Clue 3: The sign badge', icon:'🐷', target:6,
+  goal:'Every term wears its own + or − badge, and the badge never leaves its term. This fixes sign slips for good.',
+  story:[
+    ['penrose','Detectives! We found scratches on the culprit’s key tag: 9k − 3k + 2k. SORT-O says that’s 4k.'],
+    ['ruby','Every term wears a badge on its left. A plus badge means put coins IN the piggy bank. A minus badge means take coins OUT. The badge never leaves its term.'],
+    ['sorto','BADGES? I THOUGHT THE MINUS SIGN WAS IN CHARGE OF EVERYTHING AFTER IT.'],
+  ],
+  notes:['The first term wears an invisible + badge.','Classic error: 9 − (3 + 2) = 4. The minus "kidnaps" the +2k.','Badge Shuffle: terms can move if they take their badge with them.'],
+  key:['Piggy bank: 5k − 2k + 3k = 6k','Badges: + + −; 4p + 4q','Ladder: 5y; 5n; 6a + 3b; 3c + 7d','Clue 3: key tag 8'],
+  tasks:[
+    {id:'g1', title:'The piggy bank', keys:['g1steps','g1ans'], html:()=>{
+      const st = [['+',5],['−',2],['+',3]], s = S.d.pig; let bags = 0; for(let i=0;i<s;i++) bags += st[i][0]==='+' ? st[i][1] : -st[i][1];
+      return `<p>Watch each badge do its job on <b>5k − 2k + 3k</b>. Each k is one bag of coins.</p>
+      <div class="pig"><div style="width:130px">${PIGSVG(bags)}</div><div>
+        <div class="steps">${st.map((t,i)=>`<span class="term ${i===s?'act':''} ${i<s?'past':''}"><span class="bdg ${t[0]==='+'?'plus':'minus'}">${t[0]}</span>${t[1]}k</span>`).join('')}</div>
+        <div class="bags-coins" aria-label="${bags} bags">${'💰'.repeat(Math.max(0,bags))}</div>
+        ${s<3 ? `<button class="btn" data-act="pig">${st[s][0]==='+'?'Put '+st[s][1]+' bags in':'Take '+st[s][1]+' bags out'}</button>` : `<div class="fb good">✔ ${bags} bags left in the bank.</div>`}
+      </div></div>` + field('g1ans','5k − 2k + 3k = {} k',[['6']],{traps:{'0':'The minus kidnapped the +3k! The 3k wears a plus badge: it puts coins IN.'}, hint:'In 5, out 2, in 3.'}); }},
+    {id:'g2', title:'Pin the badges, then shuffle', keys:['g2badges','g2ans'], html:()=>{
+      const T = ['6p','4q','2p'], b = S.d.badges, ok = S.solved.g2badges !== undefined;
+      const cls = v => v==='+'?'plus':(v==='−'?'minus':'');
+      let h = `<p>The expression is <b>6p + 4q − 2p</b>. Tap each badge to pin the right sign on each term. (The first term wears an invisible plus.)</p>
+      <div class="steps">${T.map((t,i)=>`<span class="term"><button class="bdg ${cls(ok?['+','+','−'][i]:b[i])}" data-act="badge" data-i="${i}" ${ok?'disabled':''} aria-label="Badge for ${t}">${ok?['+','+','−'][i]:b[i]}</button>${t}</span>`).join('')}</div>`;
+      if(!ok) h += `<button class="btn teal" data-act="badgecheck">Check my badges</button>${S.showAns?'<span class="keychip">Answer: + + −</span>':''}<div class="fb" id="fb-g2badges"></div>`;
+      else h += `<p class="lead" style="margin-top:12px">Badge shuffle: families move together, badges and all.</p>
+        <div class="steps"><span class="term" style="background:#FFF1D0"><span class="bdg plus">+</span>6p</span><span class="term" style="background:#FFF1D0"><span class="bdg minus">−</span>2p</span><span class="term" style="background:#D6F3F4"><span class="bdg plus">+</span>4q</span></div>`
+        + field('g2ans','6p + 4q − 2p = {} p + {} q',[['4','4']],{traps:{'8|4':'The −2p badge takes away! 6 − 2.'}});
+      return h; }},
+    {id:'g3', title:'Badge ladder: climb to the top', keys:['g3a','g3b','g3c','g3d'], html:()=>{
+      const R = [['g3a','8y − 3y = {} y',[['5']],{traps:{'11':'The −3y badge takes 3 away.'}}],
+                 ['g3b','7n + 2n − 4n = {} n',[['5']],{traps:{'13':'The −4n badge takes away.','1':'7 − (2 + 4)? The minus only belongs to 4n!'}}],
+                 ['g3c','10a − 4a + 3b = {} a + {} b',[['6','3']],{traps:{'14|3':'−4a takes away.'}}],
+                 ['g3d','5c + 6d − 2c + d = {} c + {} d',[['3','7']],{traps:{'3|6':'Don’t forget the silent 1 on +d!','7|7':'The −2c badge takes away.'}}]];
+      const top = R.filter(r=>S.solved[r[0]]!==undefined).length;
+      return `<p>Each rung you solve lifts you higher. Keep every badge glued to its term.</p><div class="ladder">${R.map((r,i)=>`<div class="rung">${field(r[0],r[1],r[2],r[3])}${i===top-1||(top===4&&i===3)?'<span class="climber">🕵️</span>':''}</div>`).join('')}</div>`; }},
+    {id:'g4', title:'Clue 3: The key tag', keys:['g4clue'], html:()=>
+      `<div class="clueslip"><div class="ck"><span class="ic">🗝️</span><div><h4>Clue 3</h4><p style="margin:0">Scratched on the culprit’s key tag: <b>9k − 3k + 2k</b>. SORT-O says 4k. <b>The key tag number is the number of k’s.</b></p></div></div></div>`
+      + field('g4clue','9k − 3k + 2k = {} k',[['8']],{traps:{'4':'Key tag 4 belongs to Ivy Quill… but that’s SORT-O’s mistake! The minus kidnapped the +2k. Use the piggy bank.'}, hint:'In 9, out 3, in 2.', ok:'Key tag 8! Ivy (key 4) is cleared.'})},
+  ]},
+/* ---------- 7 ---------- */
+{ title:'Smart tricks', icon:'⚡', target:6,
+  goal:'Three detective tricks for being fast AND right: colour the families, hide the letter, then check with a fingerprint test.',
+  story:[
+    ['ruby','Speed is great, as long as the rule comes with it. Here are three detective tricks: Colour, Hide, Check.'],
+    ['sorto','I CHALLENGE YOU TO A RACE, DETECTIVE. I WILL DRAW EVERY SINGLE BOX.'],
+  ],
+  notes:['Highlighter Sweep: colour first, calculate second (badge included).','Hide-the-Letter: thumb over the letter, do the number sum, put the letter back.','Friendly tens: 3 + 7 and 8 + 2.','Fingerprint Test: swap the letter for an easy number (2 or 10).'],
+  key:['Sweep: c-family one colour, d-family one colour, loner its own; 3c + 7d + 4','Hide: 9 (9x); 6 (6w)','Race: 20x; 10g + 5h; 10w; 10m + 10','Fingerprint (m = 2): 30, 30, 40'],
+  tasks:[
+    {id:'t1', title:'Trick 1: Highlighter sweep', keys:['t1paint','t1ans'], html:()=>{
+      const T = ['+5c','+6d','−2c','+d','+4'], ok = S.solved.t1paint !== undefined;
+      return `<p>Pick a highlighter, then tap terms to colour them. Give each family its own colour, badge included. The loner gets a colour of its own.</p>
+      <div class="swatches">${HL.map((c,i)=>`<button class="sw ${S.d.hc===i?'on':''}" style="background:${c}" data-act="hc" data-i="${i}" aria-label="Highlighter ${i+1}"></button>`).join('')}</div>
+      <div class="paintrow">${T.map((t,i)=>`<button class="pt" data-act="paint" data-i="${i}" style="background:${S.d.paint[i]!==null?HL[S.d.paint[i]]:'#fff'}" ${ok?'disabled':''}>${t}</button>`).join('')}</div>`
+      + (ok ? `<div class="fb good">✔ Families coloured. Nothing can hide now.</div>` + field('t1ans','5c + 6d − 2c + d + 4 = {} c + {} d + {}',[['3','7','4']],{traps:{'3|6|4':'The +d is a silent 1d!'}})
+            : `<div style="margin-top:12px"><button class="btn teal" data-act="paintcheck">Check my colours</button>${S.showAns?'<span class="keychip">Answer: +5c and −2c same colour; +6d and +d same colour; +4 its own</span>':''}<div class="fb" id="fb-t1paint"></div></div>`); }},
+    {id:'t2', title:'Trick 2: Hide the letter', keys:['t2a','t2b'], html:()=>
+      `<p>Cover the letters with your thumb and the algebra turns into plain number work.</p>
+      <button class="btn" data-act="hide">${S.d.hide?'Show the letters':'👍 Hide the letters'}</button>
+      ${field('t2a', hx('4x + 5x') + '  →  number sum = {}', [['9']], {ok:'Put the letter back: 9x'})}
+      ${field('t2b', hx('8w − 3w + w') + '  →  number sum = {}', [['6']], {traps:{'4':'The minus kidnapped the +w! In 8, out 3, in 1.','5':'Silent 1! The +w is +1w.'}, ok:'Put the letter back: 6w'})}`},
+    {id:'t3', title:'Trick 3: Beat SORT-O (60-second race)', keys:['t3a','t3b','t3c','t3d'], html:()=>{
+      const R = S.d.race, started = !!R.start, done = TASKS_KEYS('t3').every(k=>S.solved[k]!==undefined);
+      const solved = TASKS_KEYS('t3').filter(k=>S.solved[k]!==undefined).length;
+      return `<p>SORT-O draws every box by hand. You use your tricks. Solve all four before SORT-O’s bar fills up!</p>
+      <div class="race"><div class="rlabel"><span>🕵️ ${esc(dn())}: ${solved}/4</span><span id="raceClock">${started ? fmtT((R.end||Date.now())-R.start) : '0:00'}</span></div>
+        <div class="rbar"><i style="width:${solved*25}%"></i></div>
+        <div class="rlabel"><span>🤖 SORT-O drawing boxes</span><span>${R.won===true?'You won! 🏆':R.won===false?'SORT-O finished first':''}</span></div>
+        <div class="rbar sorto"><i id="sortoBar" style="width:${started?Math.min(100,((R.end||Date.now())-R.start)/600):0}%"></i></div></div>
+      ${started ? '' : `<button class="btn crim lg" data-act="racestart">Start the race</button>`}`
+      + field('t3a','3x + 8x + 7x + 2x = {} x',[['20']],{disabled:!started, hint:'Friendly tens: 3 + 7 and 8 + 2.'})
+      + field('t3b','6g + 5h + 4g = {} g + {} h',[['10','5']],{disabled:!started})
+      + field('t3c','12w − 5w + 3w = {} w',[['10']],{disabled:!started, traps:{'4':'The minus kidnapped the +3w!'}})
+      + field('t3d','4m + 9 + 6m + 1 = {} m + {}',[['10','10']],{disabled:!started, traps:{'20|0':'Loners stay loners! 9 and 1 have no letter.','10|0':'The loners 9 and 1 still need adding.'}})
+      + (done && R.won!==null ? `<div class="fb good">${R.won ? 'You beat SORT-O in ' + fmtT(R.end-R.start) + '! Tricks + rules = speed.' : 'SORT-O got there first this time, but every one of your answers is right. That’s what counts.'}</div>` : ''); }},
+    {id:'t4', title:'The fingerprint test', keys:['t4a','t4b','t4c'], html:()=>
+      `<p>Is <b>4m + 9 + 6m + 1 = 10m + 10</b> really right? Swap m for an easy number, <b>m = 2</b>, and test both sides. SORT-O claims the answer is 20m.</p>`
+      + field('t4a','The question: 4(2) + 9 + 6(2) + 1 = {}',[['30']],{hint:'8 + 9 + 12 + 1'})
+      + field('t4b','Your answer: 10(2) + 10 = {}',[['30']],{ok:'Same fingerprint as the question. Clean answer!'})
+      + field('t4c','SORT-O’s 20m: 20 × 2 = {}',[['40']],{ok:'40 is not 30. Caught red-handed!'})
+      + (S.solved.t4c!==undefined ? `<p style="margin-top:8px"><span class="caught">Caught!</span></p>` : '')},
+  ]},
+/* ---------- 8 ---------- */
+{ title:'Unmask the culprit', icon:'🎯', target:4,
+  goal:'Put the three clues together, name the culprit, restore the missing rule and fix the culprit’s answers.',
+  story:[
+    ['ruby','Shoe size, locker number and key tag. We have all three clues. Time to name the culprit.'],
+    ['penrose','Whoever it is, I want SORT-O’s Rule Card back on its chest!'],
+  ],
+  notes:['Clues: shoe 6, locker 8, key 8. Only Greta matches all three.','Ruby’s line after the reveal: "Speed without the rule just makes faster mistakes."','Restore the rule in the learner’s words; then the learner judges Greta’s four answers (one is correct on purpose).'],
+  key:['Culprit: Greta Gearwright','Rule: like / same-size boxes / sticks to the term after it','Greta: ✘ 4a + 3b; ✘ 12n; ✘ 6 + 6t; ✔ 6r'],
+  tasks:[
+    {id:'u1', title:'The line-up', keys:['u1accuse'], html:()=>{
+      const cl = clues(), ok = S.solved.u1accuse !== undefined;
+      const tag = (v, need) => need===null ? `<span>${v}</span>` : `<span class="${v===need?'yes':'no'}">${v}</span>`;
+      return `<div class="cluebar"><span>👟 Shoe ${cl.shoe ?? '?'}</span><span>🔐 Locker ${cl.locker ?? '?'}</span><span>🗝️ Key ${cl.key ?? '?'}</span></div>
+      <p>Compare each suspect’s ID card with your three clues. Then accuse the only one who matches all three.</p>
+      <div class="lineup">${SUSPECTS.map(s=>`<div class="suspect">${av(s.k)}<b>${CH[s.k].name}</b><small>${CH[s.k].role}</small>
+        <div class="ids">${tag('👟'+s.shoe, cl.shoe===null?null:'👟'+cl.shoe)}${tag('🔐'+s.locker, cl.locker===null?null:'🔐'+cl.locker)}${tag('🗝️'+s.key, cl.key===null?null:'🗝️'+cl.key)}</div>
+        ${ok ? (s.k==='greta' ? '<span class="caught">Culprit</span>' : '<span class="small">Innocent</span>') : `<button class="btn crim sm" data-act="accuse" data-k="${s.k}">Accuse</button>`}</div>`).join('')}</div>
+      ${S.showAns && !ok ? '<span class="keychip">Answer: Greta Gearwright</span>' : ''}<div class="fb" id="fb-u1accuse"></div>`; }},
+    {id:'u2', title:'Restore the missing rule', keys:['u2rule'], html:()=>
+      `<p>Write SORT-O’s Rule Card. Tap the chips to fill the gaps.</p>`
+      + chipSentence('u2rule', ['Only ',{a:'like'},' terms can be combined, because they are ',{a:'same-size boxes'},'. Every sign ',{a:'sticks to the term after it'},'.'],
+        ['unlike','like','different-size boxes','same-size boxes','belongs to the first term','sticks to the term after it','can float anywhere'])
+      + (S.solved.u2rule!==undefined ? `<div class="rulecard ok" style="margin-top:12px">${av('sorto')}<span>RULE CARD RESTORED. SORTING BY FAMILY. THANK YOU, ${esc(dn().toUpperCase())}.</span></div>` : '')},
+    {id:'u3', title:'Greta’s confession sheet', keys:['u3a','u3aF','u3b','u3bF','u3c','u3cF','u3d'], html:()=>
+      `<p>Greta wrote these “fast” answers. Mark each one, then fix the wrong ones.</p><div class="conf">${GRETA.map((g,i)=>{ const k='u3'+'abcd'[i];
+        return `<div class="crow"><span class="gx">${g[0]}</span>${choice(k,['✔ Right','✘ Wrong'], g[1]?0:1, {ok: g[1] ? 'Correct! 5r + r = 6r (silent 1). Greta got one right.' : 'Wrong! Now fix it:', bad: g[1] ? 'Check again: 5r + 1r…' : 'Look closer. Did Greta follow the rule?'})}
+        ${(!g[1] && S.solved[k]!==undefined) ? field(k+'F','Fixed: {}', g[2], {w:170, show:g[3], hint:g[4]}) : ''}</div>`; }).join('')}</div>`},
+  ]},
+/* ---------- 9 ---------- */
+{ title:'Stump the detective', icon:'🔄', target:2,
+  goal:'Role reversal! You build an expression, the mentor solves it… and slips up somewhere. Catch the slip and prove the fix.',
+  story:[['ruby','Now YOU set a trap for me. Build an expression and I’ll solve it… I might slip up. Watch my badges very closely!']],
+  notes:['The mentor’s working always has one deliberate sign slip in the p-family.','Ask: "How would you prove you’re right?" The proof panel runs a fingerprint test with p = 2, q = 1.'],
+  key:['Wrong step: the p-family step (mentor added instead of taking away)','Fix: (a − c)p + (b + d)q'],
+  tasks:[
+    {id:'r1', title:'Build your trap', keys:['r1build'], html:()=>{
+      const t = S.d.trap;
+      if(t) return `<div class="bigexpr">${t.a}p + ${t.b}q − ${t.c}p + ${t.d}q</div><div class="fb good">✔ Trap locked in. Over to the mentor!</div>`;
+      return `<p>Choose numbers from 1 to 20. The first p-number must be bigger than the second one.</p>
+      <div class="builder"><input class="fi" id="ra" inputmode="numeric" aria-label="first p number">p + <input class="fi" id="rb" inputmode="numeric" aria-label="first q number">q − <input class="fi" id="rc" inputmode="numeric" aria-label="second p number">p + <input class="fi" id="rd" inputmode="numeric" aria-label="second q number">q
+      <button class="btn teal" data-act="r1lock">Lock it in</button></div><div class="fb" id="fb-r1"></div>`; }},
+    {id:'r2', title:'Catch the mentor’s slip', keys:['r2catch'], html:()=>{
+      const t = S.d.trap; if(!t) return `<p class="small">Lock in your trap first.</p>`;
+      const caught = S.solved.r2catch !== undefined;
+      if(!S.d.r2shown) return `<button class="btn crim lg" data-act="r2show">Mentor, solve it!</button>`;
+      const steps = [`Step 1: Highlight families. p-family: +${t.a}p and −${t.c}p. q-family: +${t.b}q and +${t.d}q.`,
+        `Step 2: p-family: ${t.a} + ${t.c} = ${t.a+t.c}, so ${t.a+t.c}p.`,
+        `Step 3: q-family: ${t.b} + ${t.d} = ${t.b+t.d}, so ${t.b+t.d}q.`,
+        `Answer: ${t.a+t.c}p + ${t.b+t.d}q`];
+      return `<p>Tap the step where the mentor slipped.</p><div class="msteps">${steps.map((s,i)=>`<button class="mstep ${caught&&i===1?'bad':''}" data-act="r2step" data-i="${i}" ${caught?'disabled':''}>${s}</button>`).join('')}</div>
+      ${S.showAns && !caught ? '<span class="keychip">Answer: Step 2</span>' : ''}<div class="fb ${caught?'good':''}" id="fb-r2">${caught?`✔ Caught! The −${t.c}p badge means take away, not add.`:''}</div>`; }},
+    {id:'r3', title:'Fix it and prove it', keys:['r3fix'], html:()=>{
+      const t = S.d.trap; if(!t) return `<p class="small">Lock in your trap first.</p>`;
+      let h = field('r3fix', `${t.a}p + ${t.b}q − ${t.c}p + ${t.d}q = {} p + {} q`, [[String(t.a-t.c), String(t.b+t.d)]],
+        {traps:{[`${t.a+t.c}|${t.b+t.d}`]:'That’s the mentor’s slip! The −' + t.c + 'p badge takes away.'}});
+      if(S.solved.r3fix !== undefined){ const q = t.a*2 + t.b - t.c*2 + t.d, y = (t.a-t.c)*2 + (t.b+t.d), w = (t.a+t.c)*2 + (t.b+t.d);
+        h += `<div class="proof">Fingerprint test with p = 2 and q = 1:<br>Your expression: ${q} &nbsp;|&nbsp; Your fix: ${y} ✔ &nbsp;|&nbsp; Mentor’s answer: ${w} ✘</div>`; }
+      return h; }},
+  ]},
+/* ---------- 10 ---------- */
+{ title:'Case closed', icon:'📁', target:2,
+  goal:'Two exit questions and one last confidence check. Then close the case!',
+  story:[
+    ['penrose','SORT-O is working perfectly again! One last report before we close the case.'],
+    ['sorto','RULE CARD DETECTED. SORTING BY FAMILY. THANK YOU, DETECTIVE.'],
+  ],
+  notes:['Exit ticket is independent: no hints from the mentor.','Compare confidence before and after out loud.','When everything is done, the Close the case button unlocks the grand finale.'],
+  key:['7p + 2q − 3p = 4p + 2q','3x + 3 is not 6x: x = 2 gives 9 and 12'],
+  tasks:[
+    {id:'c1', title:'Exit question 1', keys:['c1'], html:()=> field('c1','7p + 2q − 3p = {} p + {} q',[['4','2']],{traps:{'10|2':'Badge check: −3p takes away.'}})},
+    {id:'c2', title:'Exit question 2', keys:['c2a','c2b'], html:()=>
+      `<p class="lead">Is 3x + 3 the same as 6x?</p>` + choice('c2a',['Yes','No'],1,{ok:'Right: the loner 3 can’t join the x-family. Now prove it.', bad:'The 3 is a loner. Can a loner join the x-family?'})
+      + (S.solved.c2a!==undefined ? field('c2b','Fingerprint test with x = 2:  3x + 3 = {}  and  6x = {}',[['9','12']],{ws:[70,70], ok:'9 is not 12. Proved!'}) : '')},
+    {id:'c3', title:'How sure do you feel about algebra now?', keys:['c3conf'], html:()=> rating('c3conf') + (S.solved.s2conf!==undefined && S.solved.c3conf!==undefined ? `<p class="lead" style="margin-top:10px">You started at ${S.solved.s2conf} and now you’re at ${S.solved.c3conf}. That’s evidence!</p>` : '')},
+  ]},
+];
+const TERMS = [['4t','t'],['3r','r'],['2t','t'],['5b','b'],['r','r'],['6t','t'],['2b','b'],['7','L'],['3r','r'],['1','L']];
+const CALLS = [['4p','9p','J','Same letter p: same family!'],['3x','3y','F','Same number, different letters. The letter decides!'],['5','5k','F','5 is a loner with no family letter.'],['7w','w','J','w is 1w: the silent 1.'],['6d','6','F','Loner trap again!'],['q','10q','J','Silent 1 again: q is 1q.'],['4h','4k','F','Different letters: freeze!'],['2ab','3ab','J','Bonus: the whole family name ab matches.']];
+const HL = ['#FFD86B','#7FE3E0','#FF9C8A'];
+const GRETA = [['4a + 3b = 7ab',false,[['4a+3b'],['3b+4a']],'4a + 3b (it can’t be squashed)','Different families stay apart.'],
+               ['9n − 2n + 5n = 2n',false,[['12n']],'12n','In 9, out 2, in 5.'],
+               ['6 + 6t = 12t',false,[['6+6t'],['6t+6']],'6 + 6t (loner stays separate)','The 6 has no letter.'],
+               ['5r + r = 6r',true]];
+function PIGSVG(n){ return `<svg viewBox="0 0 120 100" aria-hidden="true"><ellipse cx="60" cy="58" rx="46" ry="34" fill="#FF9C8A" stroke="#1A1A1A" stroke-width="3.5"/><circle cx="100" cy="52" r="12" fill="#FF8577" stroke="#1A1A1A" stroke-width="3"/><circle cx="97" cy="50" r="2" fill="#1A1A1A"/><circle cx="103" cy="50" r="2" fill="#1A1A1A"/><circle cx="86" cy="42" r="3" fill="#1A1A1A"/><path d="M38 28 L44 14 L52 26Z" fill="#FF8577" stroke="#1A1A1A" stroke-width="3"/><rect x="46" y="22" width="22" height="5" rx="2" fill="#1A1A1A"/><rect x="30" y="86" width="10" height="12" fill="#FF8577" stroke="#1A1A1A" stroke-width="3"/><rect x="76" y="86" width="10" height="12" fill="#FF8577" stroke="#1A1A1A" stroke-width="3"/><text x="58" y="68" text-anchor="middle" font-family="Bungee,Arial Black,Arial" font-size="24" fill="#1A1A1A">${n}</text></svg>`; }
+PHASES.forEach((p,i)=>{ p.color = COLORS[i%4]; p.pale = PALE[p.color]; });
+const TASK = {}, KEY2TASK = {}, TASK2PHASE = {};
+PHASES.forEach((p,pi)=>p.tasks.forEach(t=>{ TASK[t.id]=t; TASK2PHASE[t.id]=pi; t.keys.forEach(k=>KEY2TASK[k]=t.id); }));
+function TASKS_KEYS(id){ return TASK[id].keys; }
+function clues(){ return {shoe: S.solved.e4clue!==undefined?6:null, locker: S.solved.m4clue!==undefined?8:null, key: S.solved.g4clue!==undefined?8:null}; }
+/* =================== PROGRESS =================== */
+const taskDone = id => !!S.forced[id] || TASK[id].keys.every(k => S.solved[k] !== undefined);
+const phaseDone = i => PHASES[i].tasks.every(t => taskDone(t.id));
+const allDone = () => PHASES.every((_,i) => phaseDone(i));
+const totalTasks = () => Object.keys(TASK).length;
+const doneTasks = () => Object.keys(TASK).filter(taskDone).length;
+const openTasks = i => PHASES[i].tasks.filter(t => !taskDone(t.id));
+
+function markSolved(key, val=true){
+  S.solved[key] = val;
+  hooks(key);
+  const tid = KEY2TASK[key];
+  if(tid){
+    rerenderTask(tid);
+    if(taskDone(tid) && !S.announced[tid]){
+      S.announced[tid] = true;
+      setTimeout(()=>{ Snd.clue(); toast('✅ Activity complete: ' + TASK[tid].title); burstAt($('#task-'+tid+' header'), 50); }, 280);
+    }
+  }
+  save(); afterChange();
+}
+function hooks(key){
+  if(['e4clue','m4clue','g4clue'].includes(key)){ S.d.newStamp = key; setTimeout(()=>{ Snd.stamp(); }, 500); }
+  if(key.startsWith('t3') && TASKS_KEYS('t3').every(k => S.solved[k] !== undefined) && S.d.race.start && !S.d.race.end){
+    S.d.race.end = Date.now(); S.d.race.won = (S.d.race.end - S.d.race.start) <= 60000;
+  }
+}
+function afterChange(){
+  if(S.auto){
+    while(S.unlocked < PHASES.length-1 && phaseDone(S.unlocked)){
+      S.unlocked++; const n = S.unlocked;
+      setTimeout(()=>{ Snd.unlock(); toast(`🔓 Phase ${n+1} unlocked: ${PHASES[n].title}`, 'unlock'); const c = $(`.crate[data-i="${n}"]`); if(c){ c.classList.add('pop'); burstAt(c, 40); } }, 900);
+    }
+  }
+  if(allDone() && !S.finaleUnlocked){
+    S.finaleUnlocked = true;
+    setTimeout(()=>{ Snd.unlock(); toast('🏆 Every activity is done. The case can be closed!', 'unlock'); burstAt($('.crate.finale'), 60); }, 1500);
+  }
+  save(); renderHeader(); renderBelt(); renderBoard(); renderNav(); if(mentorOpen) renderMentor();
+}
+
+/* =================== RENDER =================== */
+function renderHeader(){
+  $('#dname').textContent = S.name ? 'Detective ' + S.name : 'New detective';
+  $('#sndBtn').textContent = S.sound ? '🔊' : '🔇';
+}
+function renderBelt(){
+  const crates = PHASES.map((p,i)=>{
+    const locked = i > S.unlocked, done = phaseDone(i), cur = i === S.phase;
+    const open = openTasks(i).length;
+    return `<button class="crate ${locked?'locked':''} ${done?'done':''} ${cur?'current':''}" style="--pc:${p.color}" data-act="goto" data-i="${i}" aria-label="Phase ${i+1}: ${esc(p.title)}${locked?' (locked)':''}">
+      <span class="cn">Phase ${i+1}</span><span class="ci">${locked?'🔒':p.icon}</span><span class="ct">${esc(p.title)}</span>
+      <span class="cs">${locked?'Locked':done?'All done':open+' to do'}</span></button>`;
+  }).join('');
+  const fin = `<button class="crate finale ${S.finaleUnlocked?'':'locked'}" style="--pc:#C92426" data-act="finale" aria-label="Grand finale"><span class="cn">Finale</span><span class="ci">${S.finaleUnlocked?'🏆':'🔒'}</span><span class="ct">Close the case</span><span class="cs">${S.finaleUnlocked?'Ready!':'Unlocks when all done'}</span></button>`;
+  $('#track').innerHTML = crates + fin;
+}
+function renderStage(){
+  const i = S.phase, p = PHASES[i];
+  const st = S.d.story[i] || 0, line = p.story[st], who = line[0];
+  $('#stage').innerHTML = `<div style="--pc:${p.color};--pcPale:${p.pale}">
+    <div class="phead"><div class="pbig">${i+1}</div><div><h2>${esc(p.title)}</h2><p class="goal">${esc(p.goal)}</p></div><div class="ptimer" id="ptimer">⏱ 0:00 / ${p.target}:00</div></div>
+    <div class="story">${av(who)}<div class="bubble"><span class="who">${esc(CH[who].name)}</span><p class="line ${who==='sorto'?'robot':''}">${esc(line[1].replace(/Detective,/,dn()+','))}</p>
+      <div class="snav"><button class="btn sm white" data-act="story" data-d="-1" ${st===0?'disabled':''}>Back</button><div class="dots">${p.story.map((_,k)=>`<i class="${k===st?'on':''}"></i>`).join('')}</div><button class="btn sm" data-act="story" data-d="1" ${st===p.story.length-1?'disabled':''}>Next line</button></div></div></div>
+    <div id="tasks">${p.tasks.map((t,k)=>taskCard(t,k)).join('')}</div>
+    <div id="navwrap"></div></div>`;
+  renderNav(); tickTimers();
+}
+function taskCard(t, k){
+  const d = taskDone(t.id);
+  return `<article class="task ${d?'done':''}" id="task-${t.id}"><header><span class="tnum">${k+1}</span><h3>${esc(t.title)}</h3><span class="tstat">${d?'Done ✔':'To do'}</span></header><div class="tbody">${t.html()}</div></article>`;
+}
+function rerenderTask(id){
+  const el = document.getElementById('task-' + id); if(!el) return;
+  const p = PHASES[TASK2PHASE[id]], k = p.tasks.findIndex(t => t.id === id);
+  const active = document.activeElement && document.activeElement.classList.contains('fi');
+  el.outerHTML = taskCard(TASK[id], k);
+  if(active){ const nx = $(`#task-${id} .fi:not(:disabled)`); if(nx) nx.focus({preventScroll:true}); }
+}
+function renderNav(){
+  const w = $('#navwrap'); if(!w) return;
+  const i = S.phase, done = phaseDone(i), last = i === PHASES.length-1, open = openTasks(i);
+  let h = '';
+  if(done && !last && S.unlocked === i && !S.auto){
+    h += `<div class="waiting">✋ Phase complete! Waiting for the mentor to unlock the next phase. <button class="btn teal" data-act="unlocknext">Mentor: unlock Phase ${i+2}</button></div>`;
+  }
+  let right;
+  if(last) right = `<button class="btn crim lg ${S.finaleUnlocked?'pulse':''}" data-act="finale" ${S.finaleUnlocked?'':'disabled'}>🏆 Close the case</button>`;
+  else right = `<button class="btn teal lg ${(i < S.unlocked && done)?'pulse':''}" data-act="next" ${i < S.unlocked ? '' : 'disabled'}>Go to Phase ${i+2}</button>`;
+  const mid = done ? (last ? (S.finaleUnlocked ? 'Every activity is done. Close the case!' : 'Finish the open activities in earlier phases to unlock the finale.') : (i < S.unlocked ? `Phase ${i+2} is unlocked.` : 'Phase complete.'))
+                   : `${open.length} activit${open.length===1?'y':'ies'} left: ${open.map(t=>t.title).join(', ')}`;
+  h += `<div class="navrow"><button class="btn white" data-act="prev" ${i===0?'disabled':''}>Back to Phase ${Math.max(1,i)}</button><div class="mid">${esc(mid)}</div>${right}</div>`;
+  w.innerHTML = h;
+}
+function renderBoard(){
+  const cl = clues(), ns = S.d.newStamp; S.d.newStamp = null;
+  const susp = SUSPECTS.map(s=>{
+    const cleared = s.clearKey && S.solved[s.clearKey] !== undefined, cul = s.k === 'greta' && S.solved.u1accuse !== undefined;
+    const st = cul ? `<div class="stamp cul new"><span>Culprit</span></div>` : cleared ? `<div class="stamp ${ns===s.clearKey?'new':''}"><span>Cleared</span></div>` : '';
+    return `<div class="pol">${av(s.k)}<b>${CH[s.k].name}</b><small>${CH[s.k].role}</small><div class="nums">👟${s.shoe} 🔐${s.locker} 🗝️${s.key}</div>${st}</div>`;
+  }).join('');
+  const open = openTasks(S.phase);
+  const others = PHASES.map((p,i)=>({i, n: i<S.phase ? openTasks(i).length : 0})).filter(o=>o.n);
+  const rule = S.solved.u2rule !== undefined;
+  $('#board').innerHTML = `
+    <div class="panel"><h4>Case file: clues</h4><div class="pbody"><div class="clues">
+      <div class="clue ${cl.shoe?'got':''}"><div class="k">👟 Shoe</div><div class="v">${cl.shoe ?? '?'}</div></div>
+      <div class="clue ${cl.locker?'got':''}"><div class="k">🔐 Locker</div><div class="v">${cl.locker ?? '?'}</div></div>
+      <div class="clue ${cl.key?'got':''}"><div class="k">🗝️ Key tag</div><div class="v">${cl.key ?? '?'}</div></div></div></div></div>
+    <div class="panel o"><h4>Suspects</h4><div class="pbody"><div class="susp">${susp}</div></div></div>
+    <div class="panel t"><h4>SORT-O’s rule card</h4><div class="pbody"><div class="rulecard ${rule?'ok':''}">${av('sorto')}<span>${rule ? 'Only like terms combine: same-size boxes. Every sign sticks to the term after it.' : 'Missing! Find it to fix SORT-O.'}</span></div></div></div>
+    <div class="panel"><h4>Still to do</h4><div class="pbody">
+      ${open.length ? `<ul class="todo">${open.map(t=>`<li><button data-act="todo" data-t="${t.id}">⬜ ${esc(t.title)}</button></li>`).join('')}</ul>` : `<p class="alldone">✔ Everything in Phase ${S.phase+1} is done.</p>`}
+      ${others.length ? `<p class="small" style="margin:10px 0 4px">Also open in:</p><ul class="todo">${others.map(o=>`<li><button data-act="goto" data-i="${o.i}">Phase ${o.i+1}: ${o.n} left</button></li>`).join('')}</ul>` : ''}
+      <div class="prog" aria-label="Overall progress"><i style="width:${Math.round(doneTasks()/totalTasks()*100)}%"></i></div>
+      <p class="small" style="margin:6px 0 0">${doneTasks()} of ${totalTasks()} activities complete</p></div></div>`;
+}
+
+/* =================== NAVIGATION =================== */
+function goPhase(i){
+  if(i < 0 || i >= PHASES.length) return;
+  if(i > S.unlocked){ Snd.miss(); lockedModal(i); return; }
+  const changed = i !== S.phase;
+  S.phase = i; if(!S.phaseStart[i]) S.phaseStart[i] = Date.now();
+  save(); renderStage(); renderBelt(); renderBoard(); if(mentorOpen) renderMentor();
+  if(changed){ const r = $('#rail'); r.classList.remove('moving'); void r.offsetWidth; r.classList.add('moving'); Snd.tick(); window.scrollTo({top:0, behavior: reduced?'auto':'smooth'}); }
+  const c = $(`.crate[data-i="${i}"]`); if(c) c.scrollIntoView({inline:'center', block:'nearest', behavior: reduced?'auto':'smooth'});
+}
+function lockedModal(i){
+  const need = []; for(let k=0;k<i;k++) openTasks(k).forEach(t=>need.push([k,t]));
+  modal(`<h3>🔒 Phase ${i+1} is locked</h3><p>Finish these activities first and it unlocks automatically${S.auto?'':' (or the mentor can unlock it)'}:</p>
+    <ul class="todo">${need.map(([k,t])=>`<li><button data-act="todo" data-t="${t.id}">Phase ${k+1}: ${esc(t.title)}</button></li>`).join('')}</ul>
+    <p style="margin-top:14px"><button class="btn" data-act="closemodal">OK</button></p>`);
+}
+function incompleteModal(){
+  const rows = []; PHASES.forEach((p,k)=>openTasks(k).forEach(t=>rows.push([k,t])));
+  modal(`<h3>🏆 Not quite yet</h3><p>The finale unlocks automatically when every activity is finished. Still open:</p>
+    <ul class="todo">${rows.map(([k,t])=>`<li><button data-act="todo" data-t="${t.id}">Phase ${k+1}: ${esc(t.title)}</button></li>`).join('')}</ul>
+    <p style="margin-top:14px"><button class="btn" data-act="closemodal">OK</button></p>`);
+}
+function goTask(id){
+  closeModal(); const pi = TASK2PHASE[id];
+  if(pi > S.unlocked){ lockedModal(pi); return; }
+  if(pi !== S.phase) goPhase(pi);
+  setTimeout(()=>{ const el = $('#task-'+id); if(el){ el.scrollIntoView({behavior: reduced?'auto':'smooth', block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }, 120);
+}
+
+/* =================== ACTIONS =================== */
+let drag = null;
+const ACT = {
+  check: b => checkField(b.dataset.key),
+  choose: b => choose(b.dataset.key, +b.dataset.i, b),
+  goto: b => goPhase(+b.dataset.i),
+  next: () => goPhase(S.phase+1),
+  prev: () => goPhase(S.phase-1),
+  todo: b => goTask(b.dataset.t),
+  closemodal: () => closeModal(),
+  story: b => { const p = PHASES[S.phase]; S.d.story[S.phase] = Math.max(0, Math.min(p.story.length-1, (S.d.story[S.phase]||0) + (+b.dataset.d))); Snd.tick(); save(); renderStage(); },
+  sound: () => { S.sound = !S.sound; save(); renderHeader(); if(S.sound) Snd.good(); },
+  setname: () => { const v = ($('#nameIn').value||'').trim().replace(/[<>]/g,''); const fb = $('#fb-name');
+    if(!v){ fb.className='fb bad'; fb.textContent='Type your name first.'; return; }
+    S.name = v.slice(0,20); Snd.good(); burstAt($('#nameIn'), 40); markSolved('b3name', S.name); renderStage(); },
+  rate: b => { const k = b.dataset.key; S.solved[k] = +b.dataset.v; Snd.good(); burstAt(b, 20); markSolved(k, +b.dataset.v); },
+  ml: b => { S.d.match.sel = +b.dataset.i; Snd.tick(); rerenderTask('e1'); },
+  mr: b => { const M = S.d.match, r = +b.dataset.i; if(M.sel === null){ toast('Tap a detective word first.'); return; }
+    if(M.sel === r){ M.pairs[M.sel] = r; M.sel = null; Snd.good(); burstAt(b, 18);
+      if(Object.keys(M.pairs).length === 5){ S.hits++; markSolved('e1m'); } else { save(); rerenderTask('e1'); } }
+    else { S.misses++; Snd.miss(); b.classList.add('nope'); setTimeout(()=>b.classList.remove('nope'), 600); const fb = $('#fb-e1m'); fb.className = 'fb bad'; fb.textContent = 'Not that one. Think about what the word does in 4t + 3r + 7.'; } },
+  tc: (b) => { if(drag && drag.moved) return; S.d.bagSel = S.d.bagSel === +b.dataset.i ? null : +b.dataset.i; Snd.tick(); rerenderTask('e2'); },
+  bag: b => { if(S.d.bagSel === null || S.d.bagSel === undefined){ toast('Pick a term card first, then tap its bag.'); return; } dropCard(S.d.bagSel, b.dataset.bag, b); },
+  mval: b => { S.d.mval = +b.dataset.v; S.d.open1 = true; Snd.tick(); save(); rerenderTask('m1'); },
+  open1: () => { S.d.open1 = !S.d.open1; Snd.tick(); save(); rerenderTask('m1'); },
+  open2: () => { S.d.open2 = !S.d.open2; Snd.tick(); save(); rerenderTask('m2'); },
+  chip: b => { const k = b.dataset.key, n = CHIPN(k); const f = S.d.chips[k] || Array(n).fill(null); const at = f.indexOf(null); if(at < 0){ toast('All gaps are full. Tap a gap to empty it.'); return; } f[at] = b.dataset.v; S.d.chips[k] = f; S.d.chips[k+'_bad'] = []; Snd.tick(); save(); rerenderTask(KEY2TASK[k]); },
+  blank: b => { const k = b.dataset.key; if(S.solved[k] !== undefined) return; const f = S.d.chips[k]; if(!f) return; f[+b.dataset.i] = null; Snd.tick(); save(); rerenderTask(KEY2TASK[k]); },
+  chipcheck: b => { const k = b.dataset.key, want = CHIPANS(k), f = S.d.chips[k] || []; const fb = $('#fb-'+k);
+    if(f.length < want.length || f.some(v=>!v)){ fb.className='fb bad'; fb.textContent='Fill every gap first.'; return; }
+    const bad = want.map((w,i)=>f[i]===w?-1:i).filter(i=>i>=0);
+    if(!bad.length){ S.hits++; Snd.good(); burstAt(b, 40); markSolved(k); }
+    else { S.misses++; Snd.miss(); S.d.chips[k+'_bad'] = bad; save(); rerenderTask(KEY2TASK[k]); const f2 = $('#fb-'+k); if(f2){ f2.className='fb bad'; f2.textContent = `${bad.length} gap${bad.length>1?'s':''} need another look (shown in red).`; } } },
+  fz: b => { const c = CALLS[S.d.fi]; const fb = $('#fb-f1'), avEl = $('#fzav');
+    if(b.dataset.v === c[2]){ S.hits++; Snd.good(); S.d.fzLast = c[2]==='J' ? 'jump' : 'frozen'; S.d.fi++; burstAt(b, 22);
+      if(S.d.fi >= CALLS.length){ markSolved('f1'); } else { save(); rerenderTask('f1'); const f = $('#fb-f1'); if(f){ f.className='fb good'; f.textContent = '✔ ' + c[3]; } } }
+    else { S.misses++; Snd.miss(); fb.className='fb bad'; fb.textContent = c[2]==='J' ? 'Look at the letters. Are they the same family?' : 'Check the letter, not the number. Same family?'; if(avEl){ avEl.classList.remove('jump'); void avEl.offsetWidth; avEl.classList.add('shake'); } } },
+  pig: () => { S.d.pig++; const st = [['+',5],['−',2],['+',3]][S.d.pig-1]; if(st[0]==='+') Snd.good(); else Snd.stamp();
+    if(S.d.pig >= 3) markSolved('g1steps'); else { save(); rerenderTask('g1'); } },
+  badge: b => { const i = +b.dataset.i, cyc = {'?':'+','+':'−','−':'+'}; S.d.badges[i] = cyc[S.d.badges[i]]; Snd.tick(); save(); rerenderTask('g2'); },
+  badgecheck: b => { const want = ['+','+','−']; const fb = $('#fb-g2badges');
+    if(S.d.badges.join('') === want.join('')){ S.hits++; Snd.good(); burstAt(b, 30); markSolved('g2badges'); }
+    else { S.misses++; Snd.miss(); fb.className='fb bad'; fb.textContent = S.d.badges.includes('?') ? 'Pin a badge on every term.' : 'Read the expression again: which sign sits just before each term?'; } },
+  hc: b => { S.d.hc = +b.dataset.i; Snd.tick(); save(); rerenderTask('t1'); },
+  paint: b => { const i = +b.dataset.i; S.d.paint[i] = S.d.hc; Snd.tick(); save(); rerenderTask('t1'); },
+  paintcheck: b => { const fam = ['c','d','c','d','L'], P = S.d.paint, fb = $('#fb-t1paint');
+    if(P.some(v=>v===null)){ Snd.miss(); fb.className='fb bad'; fb.textContent='Colour every term first, including the loner.'; return; }
+    const ok = fam.every((f,i)=>fam.every((g,j)=> (f===g) === (P[i]===P[j])));
+    if(ok){ S.hits++; Snd.good(); burstAt(b, 34); markSolved('t1paint'); }
+    else { S.misses++; Snd.miss(); fb.className='fb bad'; fb.textContent='Same family means same colour, and different families need different colours.'; } },
+  hide: () => { S.d.hide = !S.d.hide; Snd.tick(); save(); rerenderTask('t2'); },
+  racestart: () => { S.d.race = {start:Date.now(), end:null, won:null}; Snd.unlock(); save(); rerenderTask('t3'); const f = $('#task-t3 .fi'); if(f) f.focus(); },
+  accuse: b => { const k = b.dataset.k, fb = $('#fb-u1accuse');
+    if(k === 'greta'){ S.hits++; markSolved('u1accuse'); revealCulprit(); }
+    else { S.misses++; Snd.miss(); const s = SUSPECTS.find(x=>x.k===k);
+      const why = s.shoe!==6 ? `${CH[k].name} wears size ${s.shoe}, but the footprint is size 6.` : s.locker!==8 ? `${CH[k].name} uses locker ${s.locker}, but the clue says locker 8.` : `${CH[k].name}’s key tag is ${s.key}, but the clue says 8.`;
+      fb.className='fb bad'; fb.textContent = 'Not guilty! ' + why; } },
+  r1lock: () => { const v = ['ra','rb','rc','rd'].map(id=>+($('#'+id).value)); const fb = $('#fb-r1');
+    if(v.some(x=>!Number.isInteger(x)||x<1||x>20)){ Snd.miss(); fb.className='fb bad'; fb.textContent='Use whole numbers from 1 to 20 in every box.'; return; }
+    if(v[0] <= v[2]){ Snd.miss(); fb.className='fb bad'; fb.textContent='Make the first p-number bigger than the second one.'; return; }
+    S.d.trap = {a:v[0], b:v[1], c:v[2], d:v[3]}; Snd.good(); markSolved('r1build'); rerenderTask('r2'); rerenderTask('r3'); },
+  r2show: () => { S.d.r2shown = true; Snd.tick(); save(); rerenderTask('r2'); },
+  r2step: b => { const i = +b.dataset.i, fb = $('#fb-r2');
+    if(i === 1){ S.hits++; Snd.good(); burstAt(b, 40); markSolved('r2catch'); }
+    else { S.misses++; Snd.miss(); b.classList.add('nope'); setTimeout(()=>b.classList.remove('nope'),600); fb.className='fb bad'; fb.textContent = i===3 ? 'That’s the final line. Which step caused it?' : 'That step is clean. Check the badges in another step.'; } },
+  unlocknext: () => { if(S.unlocked < PHASES.length-1){ S.unlocked++; Snd.unlock(); toast(`🔓 Phase ${S.unlocked+1} unlocked by the mentor`, 'unlock'); } save(); renderBelt(); renderNav(); renderBoard(); if(mentorOpen) renderMentor(); },
+  finale: () => { if(S.finaleUnlocked) openFinale(); else { Snd.miss(); incompleteModal(); } },
+  mentor: () => toggleMentor(),
+  wb: () => WB.toggle(),
+};
+function CHIPN(k){ return CHIPANS(k).length; }
+function CHIPANS(k){ return k === 'm3why' ? ['same-size boxes','count the boxes','different-size boxes','wrong total'] : ['like','same-size boxes','sticks to the term after it']; }
+
+function dropCard(i, bag, el){
+  if(TERMS[i][1] === bag){ S.d.bags[i] = bag; S.d.bagSel = null; Snd.good(); burstAt(el, 18);
+    if(Object.keys(S.d.bags).length === TERMS.length){ S.hits++; markSolved('e2bags'); } else { save(); rerenderTask('e2'); } }
+  else { S.misses++; Snd.miss(); if(el){ el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); }
+    const fb = $('#fb-e2bags'); if(fb){ fb.className='fb bad'; fb.textContent = TERMS[i][1]==='L' ? `${TERMS[i][0]} has no letter. It’s a loner!` : `Check the family letter on ${TERMS[i][0]}.`; } }
+}
+function revealCulprit(){
+  Snd.boom(); setTimeout(()=>Snd.fanfare(), 400);
+  modal(`<div class="reveal">${av('greta')}<div class="bigstamp">Culprit found</div>
+    <p class="line"><b>Greta Gearwright:</b> “Fine, it was me! Checking families slowed SORT-O down, so I tore off the Rule Card. I wanted it FASTER.”</p>
+    <div class="msg" style="margin-top:14px;text-align:left">${av('ruby')}<p><b>Detective Ruby Hart:</b> “Speed without the rule just makes faster mistakes. Now let’s write that rule back on SORT-O.”</p></div>
+    <p style="margin-top:16px"><button class="btn teal lg" data-act="closemodal">Restore the rule</button></p></div>`);
+  setTimeout(()=>{ for(let k=0;k<3;k++) setTimeout(()=>FX.firework(innerWidth*(.25+.25*k), innerHeight*.3), k*250); }, 300);
+}
+
+/* drag for evidence cards */
+document.addEventListener('pointerdown', e => {
+  const c = e.target.closest('.tc[data-act="tc"]'); if(!c) return;
+  drag = {i:+c.dataset.i, el:c, x:e.clientX, y:e.clientY, moved:false, ghost:null};
+});
+document.addEventListener('pointermove', e => {
+  if(!drag) return;
+  if(!drag.moved && Math.hypot(e.clientX-drag.x, e.clientY-drag.y) > 8){
+    drag.moved = true; drag.ghost = drag.el.cloneNode(true); drag.ghost.classList.add('ghost'); document.body.appendChild(drag.ghost); drag.el.style.opacity = '.3';
+  }
+  if(drag.moved){ e.preventDefault(); drag.ghost.style.left = e.clientX+'px'; drag.ghost.style.top = e.clientY+'px';
+    $$('.bag').forEach(b=>b.classList.remove('hot')); const t = document.elementFromPoint(e.clientX, e.clientY); const bg = t && t.closest('.bag'); if(bg) bg.classList.add('hot'); }
+}, {passive:false});
+document.addEventListener('pointerup', e => {
+  if(!drag) return; const d = drag;
+  if(d.moved){ d.ghost.remove(); d.el.style.opacity = ''; $$('.bag').forEach(b=>b.classList.remove('hot'));
+    const t = document.elementFromPoint(e.clientX, e.clientY); const bg = t && t.closest('.bag');
+    if(bg) dropCard(d.i, bg.dataset.bag, bg);
+    setTimeout(()=>{ drag = null; }, 0);
+  } else drag = null;
+});
+document.addEventListener('pointercancel', () => { if(drag && drag.ghost){ drag.ghost.remove(); drag.el.style.opacity=''; } drag = null; });
+
+document.addEventListener('click', e => {
+  if(e.target.id === 'modal'){ closeModal(); return; }
+  const b = e.target.closest('[data-act]'); if(!b || b.disabled) return;
+  Snd.ac();
+  const f = ACT[b.dataset.act] || MACT[b.dataset.act]; if(f) f(b, e);
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if(e.key === 'Enter' && t.classList && t.classList.contains('fi')){ e.preventDefault(); if(t.id === 'nameIn') ACT.setname(); else if(t.dataset.key) checkField(t.dataset.key); return; }
+  if((e.key === 'Enter' || e.key === ' ') && t.matches && t.matches('[role="button"][data-act]')){ e.preventDefault(); t.click(); return; }
+  const typing = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
+  if(e.key === 'Escape'){ if(WB.open) WB.toggle(false); else if($('#modal').classList.contains('open')) closeModal(); else if(mentorOpen) toggleMentor(false); else if($('#finale').classList.contains('open')) closeFinale(); return; }
+  if(typing) return;
+  if(WB.open && (e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); WB.undo(); return; }
+  if(e.key === 'w' || e.key === 'W') WB.toggle();
+  else if(e.key === 'm' || e.key === 'M') toggleMentor();
+  else if(!WB.open && e.key === 'ArrowRight' && e.altKey) goPhase(S.phase+1);
+  else if(!WB.open && e.key === 'ArrowLeft' && e.altKey) goPhase(S.phase-1);
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if(t.classList.contains('fi') && t.dataset.key){ const k = t.dataset.key; (S.draft[k] = S.draft[k] || [])[+t.dataset.idx] = t.value; save(); }
+  if(t.id === 'nameIn'){ S.draft.name = t.value; save(); }
+  if(t.dataset && t.dataset.say){ S.d.say = t.value; save(); }
+});
+
+/* =================== TIMERS =================== */
+function tickTimers(){
+  $('#clock').textContent = '⏱ ' + fmtT(Date.now() - S.start);
+  const pt = $('#ptimer'); if(pt){ const el = Date.now() - (S.phaseStart[S.phase] || Date.now()), tg = PHASES[S.phase].target*60000; pt.textContent = `⏱ ${fmtT(el)} / ${PHASES[S.phase].target}:00`; pt.classList.toggle('over', el > tg); }
+  const R = S.d.race;
+  if(R.start && !R.end){ const el = Date.now() - R.start; const rc = $('#raceClock'); if(rc) rc.textContent = fmtT(el);
+    const sb = $('#sortoBar'); if(sb) sb.style.width = Math.min(100, el/600) + '%';
+    if(el > 60000 && !R.timeout){ R.timeout = true; toast('🤖 SORT-O finished drawing! Keep going, accuracy still wins.'); Snd.miss(); } }
+}
+setInterval(tickTimers, 1000);
+
+/* =================== MENTOR DESK =================== */
+let mentorOpen = false;
+function toggleMentor(force){ mentorOpen = force === undefined ? !mentorOpen : force; $('#drawer').classList.toggle('open', mentorOpen); if(mentorOpen) renderMentor(); }
+function diagRows(){
+  const D = [['s1a','6 bats + 3 bats', v=>/\b9\b/.test(v)], ['s1b','5 balls + 2 bats + 1 ball', v=>/6\s*balls?/i.test(v) && /2\s*bats?/i.test(v)], ['s1c','4a + 3b', v=>['4a+3b','3b+4a'].includes(norm(v))], ['s1d','7c − 2c + 1c', v=>norm(v)==='6c']];
+  return D.map(([k,q,f])=>{ const v = S.solved[k]; const a = Array.isArray(v) ? v[0] : ''; return `<tr><td>${q}</td><td>${esc(a||'–')}</td><td>${a ? (f(a)?'✔':'✘') : ''}</td></tr>`; }).join('');
+}
+function renderMentor(){
+  const p = PHASES[S.phase];
+  const trace = PHASES.map((ph,i)=>`<div class="tp">Phase ${i+1}: ${esc(ph.title)} ${i>S.unlocked?'🔒':phaseDone(i)?'✔':''}</div>` + ph.tasks.map(t=>`<div class="tt ${taskDone(t.id)?'ok':''}"><span>${esc(t.title)}</span>${taskDone(t.id)?'':`<button class="btn sm white" data-act="todo" data-t="${t.id}">Go</button><button class="btn sm" data-act="mforce" data-t="${t.id}">Mark done</button>`}</div>`).join('')).join('');
+  $('#dbody').innerHTML = `
+  <div class="dsec"><h5>Unlocking</h5>
+    <label class="switch"><input type="checkbox" data-mset="auto" ${S.auto?'checked':''}> Auto-unlock the next phase when every activity is done</label>
+    <div class="dgrid" style="margin-top:10px"><button class="btn sm teal" data-act="unlocknext">Unlock next phase</button><button class="btn sm" data-act="munlockall">Unlock all phases</button><button class="btn sm white" data-act="mrelock">Re-lock ahead of current</button><button class="btn sm crim" data-act="mfinale">Open finale now</button></div>
+    <p class="small" style="margin:8px 0 0">Unlocked up to Phase ${S.unlocked+1}. Finale ${S.finaleUnlocked?'unlocked':'locked'}.</p></div>
+  <div class="dsec"><h5>Session tools</h5><div class="dgrid">
+    <label class="switch"><input type="checkbox" data-mset="showAns" ${S.showAns?'checked':''}> Show answers on screen</label>
+    <label class="switch"><input type="checkbox" data-mset="sound" ${S.sound?'checked':''}> Sound effects</label></div>
+    <div class="dgrid" style="margin-top:10px"><button class="btn sm white" data-act="wb">Open whiteboard (W)</button><button class="btn sm white" data-act="mtest">Test sounds</button><button class="btn sm crim" data-act="mreset">Reset session</button></div></div>
+  <div class="dsec"><h5>Phase ${S.phase+1}: ${esc(p.title)} (target ${p.target} min)</h5><ul>${p.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>
+    <h5 style="margin-top:10px">Answer key</h5><ul>${p.key.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>
+  <div class="dsec"><h5>Evidence for the parent report</h5>
+    <table class="diag"><tr><th>Scan item</th><th>Learner wrote</th><th></th></tr>${diagRows()}</table>
+    <p style="margin:8px 0 0">Confidence: before <b>${S.solved.s2conf ?? '–'}</b> / after <b>${S.solved.c3conf ?? '–'}</b>. Correct checks: <b>${S.hits}</b>, retries: <b>${S.misses}</b>.</p>
+    ${S.d.say ? `<p style="margin:6px 0 0">Learner’s own WHY: “${esc(S.d.say)}”</p>` : ''}</div>
+  <div class="dsec"><h5>Activity trace (all phases)</h5><div class="trace">${trace}</div></div>
+  <p class="small">Shortcuts: W whiteboard, M mentor desk, Alt + arrows change phase, Esc closes panels.</p>`;
+}
+const MACT = {
+  munlockall: () => { S.unlocked = PHASES.length-1; Snd.unlock(); afterChange(); },
+  mrelock: () => { S.unlocked = S.phase; save(); renderBelt(); renderNav(); renderMentor(); },
+  mfinale: () => { S.finaleUnlocked = true; save(); renderBelt(); renderNav(); openFinale(); },
+  mforce: b => { const id = b.dataset.t; S.forced[id] = true; S.announced[id] = true; toast('Marked done by mentor: ' + TASK[id].title); rerenderTask(id); afterChange(); },
+  mtest: () => { Snd.good(); setTimeout(()=>Snd.miss(), 700); },
+  mreset: () => { if(confirm('Reset the whole session? All answers and progress will be cleared.')){ try{ localStorage.removeItem(STORE); }catch(e){} S = fresh(); toggleMentor(false); closeFinale(); renderAll(); toast('Session reset. New case!'); } },
+};
+document.addEventListener('change', e => {
+  const k = e.target.dataset && e.target.dataset.mset; if(!k) return;
+  S[k] = e.target.checked; save();
+  if(k === 'showAns') renderStage();
+  if(k === 'auto') afterChange();
+  renderHeader();
+});
+
+/* =================== WHITEBOARD =================== */
+const WB = {
+  open:false, pages:[[]], pi:0, redo:[], tool:'pen', color:'#1A1A1A', sz:2, bg:'clear', cur:null, c:null, x:null,
+  COLORS:['#1A1A1A','#00A7B2','#FAA71C','#D77F28','#C92426','#2E7D32','#FFFFFF'],
+  TOOLS:[['pen','✏️','Pen'],['hl','🖍️','Highlighter'],['line','／','Line'],['arrow','➜','Arrow'],['rect','▭','Rectangle'],['ellipse','◯','Circle'],['text','T','Text'],['box','📦','Mystery box stamp'],['plus','⊕','Plus badge stamp'],['minus','⊖','Minus badge stamp'],['star','⭐','Star stamp'],['eraser','🧽','Eraser']],
+  init(){
+    this.c = $('#wbc'); this.x = this.c.getContext('2d'); this.bar(); this.size(); addEventListener('resize', ()=>{ if(this.open) this.size(); });
+    this.c.addEventListener('pointerdown', e => this.down(e)); this.c.addEventListener('pointermove', e => this.move(e)); addEventListener('pointerup', e => this.up(e));
+  },
+  bar(){
+    $('#wbbar').innerHTML = this.TOOLS.map(t=>`<button class="wt ${this.tool===t[0]?'on':''}" data-wt="${t[0]}" title="${t[2]}" aria-label="${t[2]}">${t[1]}</button>`).join('')
+      + `<span class="wsep"></span>` + this.COLORS.map(c=>`<button class="wc ${this.color===c?'on':''}" data-wcol="${c}" style="background:${c}" aria-label="Colour ${c}"></button>`).join('')
+      + `<span class="wsep"></span>` + [1,2,3].map(s=>`<button class="wt ${this.sz===s?'on':''}" data-wsz="${s}" title="Size ${s}">${['S','M','L'][s-1]}</button>`).join('')
+      + `<span class="wsep"></span><button class="wt" data-wdo="bg" title="Background">${{clear:'👁️ Over lesson',white:'⬜ Blank',grid:'▦ Grid',lined:'☰ Lined'}[this.bg]}</button>`
+      + `<button class="wt" data-wdo="undo" title="Undo">↶</button><button class="wt" data-wdo="redo" title="Redo">↷</button><button class="wt" data-wdo="clear" title="Clear page">🗑️</button>`
+      + `<button class="wt" data-wdo="prevp" title="Previous page">◀</button><button class="wt" data-wdo="nextp" title="Next / new page">▶</button><button class="wt" data-wdo="close" style="background:#C92426;color:#fff">Close</button>`;
+    $('#wbtag').textContent = `Whiteboard: page ${this.pi+1} of ${this.pages.length}`;
+  },
+  toggle(force){ this.open = force === undefined ? !this.open : force; $('#wb').classList.toggle('open', this.open); if(this.open){ this.size(); this.bar(); } },
+  size(){ const d = devicePixelRatio || 1; this.c.width = innerWidth*d; this.c.height = innerHeight*d; this.x.setTransform(d,0,0,d,0,0); this.draw(); },
+  pos(e){ const r = this.c.getBoundingClientRect(); return {x:e.clientX - r.left, y:e.clientY - r.top}; },
+  down(e){
+    const p = this.pos(e), page = this.pages[this.pi];
+    if(this.tool === 'text'){ this.textAt(p); return; }
+    if(['box','plus','minus','star'].includes(this.tool)){ page.push({t:'stamp', k:this.tool, x:p.x, y:p.y, color:this.color, size:this.sz}); this.redo = []; this.draw(); return; }
+    this.c.setPointerCapture(e.pointerId);
+    this.cur = ['pen','hl','eraser'].includes(this.tool) ? {t:this.tool, color:this.color, size:this.sz, pts:[p]} : {t:this.tool, color:this.color, size:this.sz, a:p, b:p};
+  },
+  move(e){ if(!this.cur) return; const p = this.pos(e); if(this.cur.pts) this.cur.pts.push(p); else this.cur.b = p; this.draw(); },
+  up(){ if(!this.cur) return; this.pages[this.pi].push(this.cur); this.cur = null; this.redo = []; this.draw(); },
+  textAt(p){
+    const inp = document.createElement('input'); inp.className = 'wbtext'; inp.style.left = p.x+'px'; inp.style.top = (p.y-18)+'px'; inp.style.color = this.color; inp.placeholder = 'Type, then Enter';
+    $('#wb').appendChild(inp); setTimeout(()=>inp.focus(), 60);
+    let gone = false; const commit = () => { if(gone) return; gone = true; const v = inp.value.trim(); if(v){ this.pages[this.pi].push({t:'text', x:p.x, y:p.y, text:v, color:this.color, size:this.sz}); this.redo = []; } inp.remove(); this.draw(); };
+    inp.addEventListener('keydown', ev => { if(ev.key === 'Enter'){ ev.preventDefault(); commit(); } if(ev.key === 'Escape'){ ev.stopPropagation(); gone = true; inp.remove(); } });
+    inp.addEventListener('blur', commit, {once:true});
+  },
+  draw(){
+    const x = this.x; x.clearRect(0,0,innerWidth,innerHeight);
+    for(const o of this.pages[this.pi]) this.obj(o);
+    if(this.cur) this.obj(this.cur);
+  },
+  obj(o){
+    const x = this.x, w = [3,6,11][o.size-1]; x.save(); x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = o.color; x.fillStyle = o.color; x.lineWidth = w;
+    if(o.pts){
+      if(o.t === 'hl'){ x.globalAlpha = .35; x.lineWidth = w*4; }
+      if(o.t === 'eraser'){ x.globalCompositeOperation = 'destination-out'; x.lineWidth = w*5; }
+      x.beginPath(); o.pts.forEach((p,i)=> i ? x.lineTo(p.x,p.y) : x.moveTo(p.x,p.y)); if(o.pts.length === 1) x.lineTo(o.pts[0].x+.1, o.pts[0].y); x.stroke();
+    } else if(o.t === 'line' || o.t === 'arrow'){
+      x.beginPath(); x.moveTo(o.a.x,o.a.y); x.lineTo(o.b.x,o.b.y); x.stroke();
+      if(o.t === 'arrow'){ const ang = Math.atan2(o.b.y-o.a.y, o.b.x-o.a.x), L = 12 + w*2; x.beginPath(); x.moveTo(o.b.x,o.b.y); x.lineTo(o.b.x-L*Math.cos(ang-.45), o.b.y-L*Math.sin(ang-.45)); x.lineTo(o.b.x-L*Math.cos(ang+.45), o.b.y-L*Math.sin(ang+.45)); x.closePath(); x.fill(); }
+    } else if(o.t === 'rect'){ x.strokeRect(Math.min(o.a.x,o.b.x), Math.min(o.a.y,o.b.y), Math.abs(o.b.x-o.a.x), Math.abs(o.b.y-o.a.y)); }
+    else if(o.t === 'ellipse'){ x.beginPath(); x.ellipse((o.a.x+o.b.x)/2, (o.a.y+o.b.y)/2, Math.abs(o.b.x-o.a.x)/2 || 1, Math.abs(o.b.y-o.a.y)/2 || 1, 0, 0, Math.PI*2); x.stroke(); }
+    else if(o.t === 'text'){ x.font = `800 ${[22,32,48][o.size-1]}px Nunito, Arial, sans-serif`; x.textBaseline = 'middle'; x.fillText(o.text, o.x, o.y); }
+    else if(o.t === 'stamp'){
+      const s = [36,52,72][o.size-1]; x.lineWidth = 3; x.strokeStyle = '#1A1A1A';
+      if(o.k === 'box'){ x.fillStyle = '#00A7B2'; x.fillRect(o.x-s/2, o.y-s/2, s, s); x.strokeRect(o.x-s/2, o.y-s/2, s, s); x.fillStyle = '#00747C'; x.fillRect(o.x-s/2-3, o.y-s/2-9, s+6, 9); x.strokeRect(o.x-s/2-3, o.y-s/2-9, s+6, 9); x.fillStyle = '#fff'; x.font = `900 ${s*.5}px Nunito, Arial`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('?', o.x, o.y+2); }
+      else if(o.k === 'plus' || o.k === 'minus'){ x.fillStyle = o.k === 'plus' ? '#00A7B2' : '#C92426'; x.beginPath(); x.arc(o.x, o.y, s/2, 0, Math.PI*2); x.fill(); x.stroke(); x.fillStyle = '#fff'; x.font = `900 ${s*.7}px Nunito, Arial`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(o.k === 'plus' ? '+' : '−', o.x, o.y+1); }
+      else { x.fillStyle = '#FAA71C'; x.beginPath(); for(let i=0;i<10;i++){ const r = i%2 ? s*.22 : s/2, a = -Math.PI/2 + i*Math.PI/5; x.lineTo(o.x + r*Math.cos(a), o.y + r*Math.sin(a)); } x.closePath(); x.fill(); x.stroke(); }
+    }
+    x.restore();
+  },
+  undo(){ const pg = this.pages[this.pi]; if(pg.length){ this.redo.push(pg.pop()); this.draw(); } },
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('#wbbar button'); if(!b) return;
+  if(b.dataset.wt) WB.tool = b.dataset.wt;
+  if(b.dataset.wcol) WB.color = b.dataset.wcol;
+  if(b.dataset.wsz) WB.sz = +b.dataset.wsz;
+  const d = b.dataset.wdo;
+  if(d === 'bg'){ const order = ['clear','white','grid','lined']; WB.bg = order[(order.indexOf(WB.bg)+1)%order.length]; $('#wb').className = 'wb open bg-' + WB.bg; }
+  if(d === 'undo') WB.undo();
+  if(d === 'redo' && WB.redo.length){ WB.pages[WB.pi].push(WB.redo.pop()); WB.draw(); }
+  if(d === 'clear' && WB.pages[WB.pi].length && confirm('Clear this whiteboard page?')){ WB.pages[WB.pi] = []; WB.redo = []; WB.draw(); }
+  if(d === 'prevp' && WB.pi > 0){ WB.pi--; WB.redo = []; WB.draw(); }
+  if(d === 'nextp'){ WB.pi++; if(WB.pi >= WB.pages.length) WB.pages.push([]); WB.redo = []; WB.draw(); }
+  if(d === 'close'){ WB.toggle(false); return; }
+  WB.bar();
+});
+
+/* =================== FINALE =================== */
+let fwTimer = null;
+function openFinale(){
+  closeModal(); toggleMentor(false);
+  const R = S.d.race, acc = S.hits + S.misses ? Math.round(S.hits/(S.hits+S.misses)*100) : 100;
+  const signMiss = ['g1ans','g2ans','g3a','g3b','g3c','g3d','g4clue'].reduce((a,k)=>a+(S.miss[k]||0),0);
+  const before = S.solved.s2conf, after = S.solved.c3conf;
+  const awards = [
+    ['🏆','Rule Restorer','Wrote SORT-O’s missing rule back on its chest'],
+    ['📦','Mystery Box Expert','Proved why only like terms can join'],
+    ['➕','Sign Badge Master', signMiss === 0 ? 'Every badge stayed glued to its term, first time' : 'Caught and fixed the sign slips'],
+    ['⚡','Speed Detective', R.won ? `Beat SORT-O in ${fmtT(R.end-R.start)}` : 'Fast AND accurate with Colour, Hide, Check'],
+    ['🔍','Error Catcher','Caught Greta’s mistakes and the mentor’s slip'],
+    ['📈','Confidence Climb', before && after ? `From ${before} to ${after} out of 5` : 'Grew more sure with every clue'],
+  ];
+  $('#finale').innerHTML = `<div class="fwrap">
+    <div class="fhead"><span class="trophy">🏆</span><h1>Case closed!</h1><p>Hollow Oak Toy Factory is sorting again, thanks to ${esc(dn())}</p></div>
+    <div class="cert"><div class="lab">MyMasteryLab · Algebra Crime Scene</div><h2>Rule Detective Award</h2><p style="margin:6px 0">presented to</p><div class="nm">${esc(dn())}</div>
+      <p style="margin:14px auto 0;max-width:60ch;font-weight:700">for unmasking Greta Gearwright, restoring the missing rule, and proving that only like terms can be combined, with every sign glued to its term.</p>
+      <p class="small" style="margin-top:12px">${doneTasks()} activities completed · ${acc}% first-try accuracy · ${fmtT(Date.now()-S.start)} on the case</p></div>
+    <div class="awards">${awards.map((a,i)=>`<div class="aw" style="animation-delay:${.15*i+.3}s"><div class="ai">${a[0]}</div><b>${a[1]}</b><span>${esc(a[2])}</span></div>`).join('')}</div>
+    <div class="msg">${av('ruby')}<p><b>Detective Ruby Hart:</b> “${esc(dn())}, you didn’t just follow a rule today. You proved it, with boxes, badges and fingerprints. That’s exactly how real mathematicians think.”</p></div>
+    <div class="msg">${av('penrose')}<p><b>Mr Oliver Penrose:</b> “SORT-O hasn’t packed a single robeddy since you arrived. Hollow Oak owes you one!”</p></div>
+    <div class="msg">${av('sorto')}<p><b>SORT-O:</b> “NEXT CASE DETECTED: SOMEONE HAS LOCKED THE FACTORY GATES WITH A BALANCE PUZZLE. DETECTIVE REQUIRED.”</p></div>
+    <div class="fbtns"><button class="btn lg" data-act="replay">🎺 Play the fanfare again</button><button class="btn white lg" data-act="closefin">Back to the case file</button></div></div>`;
+  $('#finale').classList.add('open'); $('#finale').scrollTop = 0;
+  Snd.fanfare(); setTimeout(()=>Snd.fanfare(), 4800);
+  clearInterval(fwTimer); let n = 0;
+  fwTimer = setInterval(()=>{ FX.firework(innerWidth*(.15+Math.random()*.7), innerHeight*(.12+Math.random()*.35)); if(n%2===0) FX.rain(6); if(n%3===0) Snd.noise(.3,.08); if(++n > 26) clearInterval(fwTimer); }, 420);
+}
+function closeFinale(){ $('#finale').classList.remove('open'); clearInterval(fwTimer); }
+ACT.replay = () => { Snd.fanfare(); for(let k=0;k<5;k++) setTimeout(()=>FX.firework(innerWidth*(.15+.17*k), innerHeight*.25), k*200); };
+ACT.closefin = () => closeFinale();
+
+/* =================== INIT =================== */
+function renderAll(){ renderHeader(); renderBelt(); renderStage(); renderBoard(); }
+FX.init(); WB.init(); renderAll();
+setTimeout(()=>{ const c = $(`.crate[data-i="${S.phase}"]`); if(c) c.scrollIntoView({inline:'center', block:'nearest'}); }, 50);
+</script>
+</body></html>
