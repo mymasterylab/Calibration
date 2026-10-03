@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proportion Lab – The Perfect Mix | MyMasteryLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --teal:#00A7B2; --teal-d:#00928E; --teal-dd:#007F7B; --teal-l:#E1F7F8; --cyan:#21DED7;
+  --orange:#FAA71C; --orange-l:#FFF1D6; --burnt:#D77F28; --burnt-l:#FBE7D6;
+  --crimson:#C92426; --crimson-l:#FBE3E3; --ink:#16202A; --muted:#55636C; --line:#D3DEE1; --card:#FFFFFF;
+  --head:'Fredoka', 'Nunito', system-ui, sans-serif; --body:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ color-scheme: light; } }
+:root[data-theme="dark"]{ color-scheme: light; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 150px); scroll-behavior:smooth}
+body{margin:0;font-family:var(--body);color:var(--ink);font-size:17px;line-height:1.5;min-height:100%;
+  background:#F4FCFC;
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(0,167,178,.30), transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(250,167,28,.38), transparent 32%),
+    radial-gradient(circle at 85% 70%, rgba(201,36,38,.14), transparent 34%),
+    radial-gradient(circle at 12% 78%, rgba(33,222,215,.30), transparent 36%),
+    radial-gradient(circle at 50% 45%, rgba(215,127,40,.12), transparent 40%),
+    linear-gradient(160deg,#EFFBFB 0%,#FFF6E6 55%,#FDEEEA 100%);
+  background-attachment:fixed; padding-bottom:110px}
+.bubbles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bubbles span{position:absolute;bottom:-40px;border-radius:50%;border:2px solid rgba(0,167,178,.25);background:rgba(255,255,255,.35);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-115vh)}}
+@media (prefers-reduced-motion: reduce){.bubbles{display:none}*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:3px solid var(--teal);
+  padding-top:env(safe-area-inset-top,0px)}
+.top-in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+.brand{font-family:var(--head);font-weight:700;font-size:20px;letter-spacing:.2px;white-space:nowrap}
+.brand b{color:var(--orange);font-weight:700}
+.ttl{font-family:var(--head);font-size:18px;color:var(--teal-dd);font-weight:600}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--teal-l);border:2px solid var(--teal);border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px;white-space:nowrap}
+.chip.o{background:var(--orange-l);border-color:var(--orange)}
+.fslots{display:flex;gap:4px}
+.fslot{width:28px;height:34px;border-radius:6px;border:2px dashed var(--burnt);display:grid;place-items:center;font-family:var(--head);font-weight:700;color:var(--burnt);font-size:14px;background:#fff;cursor:pointer}
+.fslot.on{border-style:solid;background:linear-gradient(160deg,var(--orange),var(--burnt));color:#fff;transform:rotate(-4deg)}
+.tbtn{border:2px solid var(--ink);background:#fff;border-radius:12px;padding:6px 12px;font-weight:800;font-size:14px;display:inline-flex;gap:6px;align-items:center}
+.tbtn:hover{background:var(--teal-l)}
+.tbtn.dark{background:var(--teal-dd);border-color:var(--teal-dd);color:#fff}
+.bunting{height:18px;background:
+  linear-gradient(135deg,var(--teal) 50%,transparent 50%) 0 0/36px 18px repeat-x;
+  -webkit-mask: linear-gradient(#000,#000);opacity:.0}
+.flags{display:flex;overflow:hidden;height:16px}
+.flags i{flex:0 0 26px;height:16px;clip-path:polygon(0 0,100% 0,50% 100%)}
+
+/* ---------- festival route ---------- */
+.route{position:relative;z-index:2;max-width:1200px;margin:14px auto 0;padding:0 16px}
+.lane{display:flex;gap:6px;align-items:flex-end;justify-content:space-between;background:#fff;border-radius:26px 26px 26px 26px;padding:12px 14px 10px;
+  border:3px solid var(--ink);box-shadow:6px 6px 0 var(--teal);overflow-x:auto}
+.stall{flex:1 0 82px;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;border-radius:14px;position:relative}
+.stall:hover{background:var(--teal-l)}
+.stall.cur{background:var(--orange-l)}
+.stall .nm{font-size:12px;font-weight:800;line-height:1.15;text-align:center;color:var(--ink);max-width:96px}
+.stall .tm{font-size:11px;color:var(--muted);font-weight:700}
+.stall.locked{opacity:.55}
+.stall .lk{position:absolute;top:2px;right:8px;font-size:15px}
+.stall svg{width:46px;height:56px}
+
+/* ---------- stage ---------- */
+main{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:16px}
+.hero{position:relative;border-radius:30px;padding:24px 28px 46px;color:#fff;overflow:hidden;border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink)}
+.hero h1{font-family:var(--head);font-size:clamp(28px,4vw,44px);line-height:1.05;margin:4px 0 6px;font-weight:700}
+.hero p{margin:0;max-width:62ch;font-weight:700;font-size:17px;opacity:.97}
+.hero .pn{font-family:var(--head);font-size:16px;font-weight:600;opacity:.95}
+.hero .cast{position:absolute;right:20px;bottom:30px;display:flex;gap:4px}
+.hero .cast svg{width:86px;height:86px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.25))}
+@media (min-width:821px){.hero{padding-right:330px}}
+.hero .wave{position:absolute;left:0;right:0;bottom:-2px;height:40px}
+.hero .meta{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.hero .meta span{background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.7);border-radius:999px;padding:3px 12px;font-weight:800;font-size:14px}
+@media (max-width:820px){.hero .cast{position:static;margin-top:10px}.hero .cast svg{width:64px;height:64px}}
+
+/* story */
+.story{margin:22px 0 8px;display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;background:#fff;border-radius:26px;padding:16px 20px;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--orange);position:relative}
+.story .who{text-align:center}
+.story .who svg{width:130px;height:130px}
+.story .who b{display:block;font-family:var(--head);font-size:17px}
+.story .who small{color:var(--muted);font-weight:700}
+.bub{position:relative;background:var(--teal-l);border-radius:22px;padding:16px 20px;font-size:19px;font-weight:700;min-height:92px}
+.bub::before{content:"";position:absolute;left:-14px;top:36px;border:10px solid transparent;border-right-color:var(--teal-l);border-left:0;width:0}
+.story .nav{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.dots{display:flex;gap:5px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--teal)}
+@media (max-width:640px){.story{grid-template-columns:1fr}.bub::before{display:none}.story .who svg{width:96px;height:96px}}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:22px;margin-top:22px}
+.card{position:relative;background:var(--card);border-radius:24px;border:3px solid var(--ink);padding:18px 20px 20px;box-shadow:6px 6px 0 var(--c,var(--teal));scroll-margin-top:170px}
+.card.wide{grid-column:1/-1}
+.card header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card header .ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:var(--cl,var(--teal-l));flex:0 0 auto}
+.card h3{font-family:var(--head);font-size:21px;margin:0;font-weight:600;line-height:1.15}
+.card .opt{font-size:12px;font-weight:800;background:var(--orange-l);border:2px solid var(--orange);border-radius:999px;padding:1px 8px;margin-left:6px;white-space:nowrap}
+.card .st{margin-left:auto;font-size:12px;font-weight:900;border-radius:999px;padding:3px 10px;background:var(--orange-l);color:var(--burnt);border:2px solid var(--orange);white-space:nowrap}
+.card.done .st{background:var(--teal);border-color:var(--teal);color:#fff}
+.card.done::after{content:"Done ✔";position:absolute;right:16px;bottom:12px;font-family:var(--head);font-weight:700;color:var(--teal);border:3px solid var(--teal);border-radius:10px;padding:0 8px;transform:rotate(-8deg);opacity:.85;font-size:15px;pointer-events:none}
+.card.flash{animation:flash 1.2s ease 2}
+@keyframes flash{50%{box-shadow:0 0 0 8px var(--orange)}}
+.card.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.q{margin:10px 0;font-weight:700}
+.q .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;margin-right:6px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+input.ans,textarea.ans{font:inherit;font-weight:800;font-size:18px;border:3px solid var(--line);border-radius:12px;padding:6px 10px;background:#fff;color:var(--ink);text-align:center;min-width:0}
+textarea.ans{width:100%;min-height:72px;text-align:left;font-size:16px;font-weight:700;resize:vertical}
+input.ans.wide{text-align:left}
+.ans.ok{border-color:var(--teal);background:var(--teal-l)}
+.ans.bad{border-color:var(--crimson);background:var(--crimson-l)}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.choices button{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:8px 14px;font-weight:800;font-size:16px}
+.choices button:hover{background:var(--orange-l)}
+.choices button.sel{background:var(--ink);color:#fff}
+.choices.ok button.sel{background:var(--teal);border-color:var(--teal)}
+.choices.bad button.sel{background:var(--crimson);border-color:var(--crimson)}
+.stars button{font-size:30px;padding:2px 8px;line-height:1;color:var(--line);border-color:var(--line)}
+.stars button.lit{color:var(--orange);border-color:var(--orange);background:#fff}
+.stars button.sel{background:var(--orange-l)!important;color:var(--burnt)!important}
+.btn{border:3px solid var(--ink);background:var(--teal);color:#fff;border-radius:14px;padding:9px 18px;font-weight:900;font-size:16px;box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.o{background:var(--orange);color:var(--ink)}
+.btn.r{background:var(--crimson)}
+.btn.w{background:#fff;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{display:none;margin-top:10px;background:var(--orange-l);border-left:6px solid var(--orange);border-radius:10px;padding:8px 12px;font-weight:700}
+.hint.show{display:block}
+.note{background:var(--teal-l);border-radius:14px;padding:10px 14px;font-weight:700;margin-top:10px}
+.reveal{display:none}.reveal.show{display:block;animation:pop .4s}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.say{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+.say svg{width:56px;height:56px;flex:0 0 auto}
+.say .b{background:var(--crimson-l);border-radius:16px;padding:8px 12px;font-weight:800;position:relative}
+.say.ruby .b{background:var(--teal-l)} .say.jack .b{background:var(--orange-l)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-weight:900;font-size:15px;border:2px solid var(--ink)}
+.pill.m{background:var(--orange)} .pill.s{background:#BFF3F1} .pill.o{background:#FFD27A} .pill.k{background:#fff}
+table.rt{border-collapse:separate;border-spacing:0;width:100%;margin-top:8px;border:3px solid var(--ink);border-radius:14px;overflow:hidden}
+table.rt th,table.rt td{padding:6px 8px;text-align:center;border-bottom:2px solid var(--line);border-right:2px solid var(--line)}
+table.rt th{background:var(--teal-dd);color:#fff;font-family:var(--head);font-weight:600}
+table.rt td:first-child{background:var(--teal-l);font-weight:900;text-align:left}
+table.rt input.ans{width:64px;font-size:16px;padding:4px}
+.scenes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.scene{border:3px solid var(--ink);border-radius:18px;padding:10px;background:linear-gradient(180deg,#fff, var(--teal-l))}
+.scene h4{margin:4px 0;font-family:var(--head);font-weight:600;font-size:18px}
+.scene svg{width:100%;height:120px}
+.scene input.ans{width:100%;text-align:left;font-size:15px}
+.menuboard{background:var(--teal-dd);color:#fff;border-radius:18px;padding:14px;border:3px solid var(--ink)}
+.menuboard .it{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:2px dashed rgba(255,255,255,.4)}
+.menuboard .it:last-child{border:0}
+.menuboard b{font-family:var(--head);font-size:19px;font-weight:600}
+.menuboard .mini{display:flex;gap:2px;margin-top:4px}
+.menuboard .mini i{width:16px;height:16px;border-radius:4px;border:1.5px solid #fff}
+.bar{display:flex;gap:5px;min-height:62px;padding:8px;border:3px dashed var(--ink);border-radius:14px;background:#fff;flex-wrap:wrap;align-items:center}
+.bx{width:52px;height:46px;border-radius:10px;border:3px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:13px;animation:pop .25s}
+.bx.m{background:var(--orange)} .bx.s{background:#BFF3F1} .bx.gap{border:0;width:12px;background:none}
+.ticket{background:#fff;border:3px solid var(--ink);border-radius:16px;position:relative;padding:12px 14px;background-image:radial-gradient(circle at 0 50%, transparent 10px, #fff 11px)}
+.ticket .tno{font-family:var(--head);font-weight:700;color:var(--burnt);font-size:15px}
+.dnl{display:grid;grid-template-columns:110px repeat(6,1fr);align-items:center;gap:4px;margin-top:8px;font-weight:900;text-align:center}
+.dnl .lb{text-align:left}
+.dnl .ln{grid-column:2/-1;height:6px;border-radius:4px}
+.dnl input.ans{width:100%;padding:3px;font-size:16px}
+.dnl .c{background:#fff;border:2px solid var(--ink);border-radius:10px;padding:3px}
+.meter{position:relative;height:56px;margin:26px 6px 8px;border-radius:18px;border:3px solid var(--ink);background:linear-gradient(90deg,#E8FBFB,#BFF3F1 22%,#FFE2A8 45%,var(--orange) 70%,var(--burnt))}
+.meter .tick{position:absolute;top:100%;transform:translateX(-50%);font-size:12px;font-weight:900;margin-top:2px}
+.meter .mk{position:absolute;top:-24px;transform:translateX(-50%);transition:left 1.2s cubic-bezier(.3,1.4,.5,1);display:flex;flex-direction:column;align-items:center;font-weight:900;font-size:13px}
+.meter .mk i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);background:#fff;font-style:normal}
+.meter .mk.b i{background:var(--crimson);color:#fff}
+.jugs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.jug{text-align:center;border:3px solid var(--ink);border-radius:16px;padding:8px;background:#fff}
+.jug svg{width:70px;height:86px}
+.jug b{display:block;font-family:var(--head);font-weight:600}
+.strawrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:30px;min-height:46px}
+.strawrow span{transition:all .6s}
+.strawrow span.gone{opacity:0;transform:translateY(-30px) rotate(40deg) scale(.4)}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.vs .g{border:3px solid var(--ink);border-radius:16px;padding:8px;background:#fff}
+.vs svg{width:70px;height:86px}
+.disc{display:grid;grid-template-columns:1fr 1fr;gap:0;border:3px solid var(--ink);border-radius:16px;overflow:hidden;margin-top:8px}
+.disc div{padding:12px}
+.disc .a{background:var(--crimson-l)} .disc .m{background:var(--teal-l)}
+.disc h4{margin:0 0 4px;font-family:var(--head);font-weight:600}
+.race{border:3px solid var(--ink);border-radius:16px;padding:10px;background:#fff;margin:8px 0}
+.lanex{display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;margin:6px 0;font-weight:800;font-size:14px}
+.track{height:30px;background:repeating-linear-gradient(90deg,#F1F5F6 0 18px,#fff 18px 36px);border:2px solid var(--ink);border-radius:999px;position:relative;overflow:hidden}
+.track .fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;transition:width .5s}
+.track .run{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:20px;transition:left .5s}
+.bigcard{font-family:var(--head);font-weight:700;font-size:54px;text-align:center;padding:12px;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(160deg,#fff,var(--orange-l));margin:8px 0}
+.timer{font-family:var(--head);font-size:26px;font-weight:700}
+.shakebox{display:grid;place-items:center;text-align:center;border:3px solid var(--ink);border-radius:20px;padding:14px;background:linear-gradient(160deg,#fff,var(--teal-l));min-height:150px}
+.shakebox .cmd{font-family:var(--head);font-size:32px;font-weight:700}
+.shakebox .moves{font-size:30px;letter-spacing:4px;margin:6px 0}
+.growth{width:100%;border-collapse:collapse;margin-top:8px}
+.growth td,.growth th{border:2px solid var(--ink);padding:8px;text-align:center;font-weight:800}
+.growth th{background:var(--teal-dd);color:#fff;font-family:var(--head);font-weight:600}
+.grandbtn{font-size:22px;padding:14px 28px;background:linear-gradient(120deg,var(--orange),var(--crimson));color:#fff;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.discover{background:linear-gradient(120deg,var(--teal),var(--teal-dd));color:#fff}
+.discover h3{color:#fff}
+
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fff;border-top:3px solid var(--ink);box-shadow:0 -6px 0 rgba(0,167,178,.25);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.dock-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.prog{flex:0 0 auto;display:flex;align-items:center;gap:8px;font-weight:900}
+.pbar{width:110px;height:14px;border-radius:999px;border:2px solid var(--ink);overflow:hidden;background:#fff}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--cyan));width:0;transition:width .5s}
+.todo{flex:1;display:flex;gap:6px;overflow-x:auto;padding:2px;align-items:center}
+.todo .lbl{font-weight:900;font-size:13px;white-space:nowrap;color:var(--burnt)}
+.tchip{white-space:nowrap;border:2px solid var(--orange);background:var(--orange-l);border-radius:999px;padding:3px 10px;font-weight:800;font-size:13px}
+.tchip.ok{border-color:var(--teal);background:var(--teal-l);color:var(--teal-dd)}
+.tchip.op{border-style:dashed}
+.next{flex:0 0 auto}
+.next.ready{animation:pulse 1.2s infinite;background:var(--orange);color:var(--ink)}
+
+/* drawers & modals */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,94vw);background:#fff;z-index:60;border-left:4px solid var(--ink);transform:translateX(105%);transition:transform .3s;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.drawer.open{transform:none}
+.drawer .dh{background:var(--teal-dd);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:8px}
+.drawer .dh h2{margin:0;font-family:var(--head);font-weight:600;font-size:21px;flex:1}
+.drawer .db{overflow:auto;padding:14px 16px 40px;flex:1}
+.drawer h4{font-family:var(--head);font-weight:600;margin:16px 0 6px;color:var(--teal-dd);font-size:17px}
+.drawer .ctl{display:flex;flex-wrap:wrap;gap:6px}
+.drawer .ctl button{border:2px solid var(--ink);background:#fff;border-radius:10px;padding:5px 10px;font-weight:800;font-size:13px}
+.drawer .ctl button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.drawer .ans-list{background:var(--orange-l);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700}
+.drawer .ans-list div{margin:3px 0}
+.trow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
+.trow .s{width:22px;text-align:center}
+.trow button{margin-left:auto;border:2px solid var(--ink);background:#fff;border-radius:8px;font-size:12px;font-weight:800;padding:2px 8px}
+.mtime{font-family:var(--head);font-size:30px;font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(22,32,42,.55);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.mbox{background:#fff;border:4px solid var(--ink);border-radius:28px;max-width:720px;width:100%;max-height:88vh;overflow:auto;padding:22px 24px;box-shadow:10px 10px 0 var(--orange);position:relative}
+.mbox h2{font-family:var(--head);font-weight:700;margin:0 0 8px;font-size:28px;color:var(--teal-dd)}
+.x{position:absolute;top:12px;right:14px;border:2px solid var(--ink);background:#fff;border-radius:50%;width:36px;height:36px;font-weight:900}
+.fcard{border:4px solid var(--ink);border-radius:22px;padding:22px;text-align:center;background:linear-gradient(150deg,var(--orange),var(--burnt));color:#fff;animation:flip .8s}
+@keyframes flip{from{transform:perspective(800px) rotateY(90deg)}}
+.fcard .no{font-family:var(--head);font-weight:700;font-size:18px;opacity:.95}
+.fcard .tx{font-family:var(--head);font-weight:600;font-size:26px;line-height:1.2;margin-top:6px}
+.rule{display:flex;gap:10px;align-items:center;border:3px solid var(--ink);border-radius:16px;padding:10px 12px;margin:8px 0;background:#fff}
+.rule b{flex:0 0 auto;width:34px;height:40px;border-radius:8px;display:grid;place-items:center;background:var(--orange);font-family:var(--head)}
+.rule.off{opacity:.4}
+.toast{position:fixed;top:90px;left:50%;transform:translate(-50%,-30px);z-index:90;background:var(--ink);color:#fff;border-radius:16px;padding:12px 20px;font-weight:800;opacity:0;transition:all .35s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.trk-ph{border:3px solid var(--ink);border-radius:16px;padding:10px 12px;margin:8px 0}
+.trk-ph h4{margin:0 0 4px;font-family:var(--head);font-weight:600;display:flex;gap:8px;align-items:center}
+.trk-ph .tk{display:flex;gap:6px;flex-wrap:wrap}
+
+/* splash */
+.splash{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(circle at 15% 20%, rgba(0,167,178,.45), transparent 40%),radial-gradient(circle at 85% 15%, rgba(250,167,28,.55), transparent 40%),radial-gradient(circle at 70% 90%, rgba(201,36,38,.25), transparent 40%),linear-gradient(160deg,#E9FAFA,#FFF4DF)}
+.splash .sbox{background:#fff;border:4px solid var(--ink);border-radius:32px;padding:26px 28px;max-width:760px;width:100%;box-shadow:12px 12px 0 var(--teal);text-align:center}
+.splash h1{font-family:var(--head);font-size:clamp(36px,6vw,62px);margin:4px 0 0;line-height:1;color:var(--teal-dd);font-weight:700}
+.splash h2{font-family:var(--head);font-size:clamp(22px,3vw,30px);margin:4px 0 12px;color:var(--burnt);font-weight:600}
+.splash .castrow{display:flex;justify-content:center;gap:8px;margin:10px 0}
+.splash .castrow div{text-align:center;font-weight:800;font-size:13px}
+.splash .castrow svg{width:96px;height:96px}
+.splash label{display:block;text-align:left;font-weight:800;margin:8px 0 4px}
+.splash input{width:100%;font:inherit;font-size:18px;font-weight:800;border:3px solid var(--ink);border-radius:14px;padding:8px 12px}
+.splash .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.splash .two{grid-template-columns:1fr}}
+
+/* whiteboard */
+#wbCanvas{position:fixed;inset:0;z-index:40;pointer-events:none;touch-action:none}
+#wbCanvas.live{pointer-events:auto;cursor:crosshair}
+#board{position:fixed;inset:0;z-index:55;display:none;background:#fff;background-image:linear-gradient(rgba(0,167,178,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(0,167,178,.12) 1px,transparent 1px);background-size:32px 32px}
+#board.open{display:block}
+#boardCanvas{position:absolute;inset:0;touch-action:none;cursor:crosshair}
+.wbbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:66;background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:5px 5px 0 var(--teal);padding:8px 10px;display:none;gap:6px;align-items:center;flex-wrap:wrap;max-width:96vw;justify-content:center}
+.wbbar.open{display:flex}
+.wbbar button{border:2px solid var(--line);background:#fff;border-radius:10px;min-width:38px;height:38px;font-weight:900;font-size:15px;padding:0 8px}
+.wbbar button.on{border-color:var(--ink);background:var(--orange-l)}
+.wbbar .sw{width:28px;height:28px;min-width:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line)}
+.wbbar .sw.on{box-shadow:0 0 0 3px var(--ink)}
+.wbbar .sep{width:2px;height:28px;background:var(--line)}
+.wbbar .lab{font-weight:900;font-size:12px;color:var(--muted)}
+.wbtext{position:fixed;z-index:67;font:800 22px var(--body);border:2px dashed var(--ink);background:rgba(255,255,255,.9);padding:2px 6px;border-radius:6px}
+#fx{position:fixed;inset:0;z-index:96;pointer-events:none}
+
+/* finale */
+.finale{position:fixed;inset:0;z-index:92;display:none;overflow:auto;padding:24px 16px;
+  background:radial-gradient(circle at 20% 15%, rgba(250,167,28,.55), transparent 40%),radial-gradient(circle at 80% 10%, rgba(0,167,178,.5), transparent 40%),radial-gradient(circle at 50% 100%, rgba(201,36,38,.30), transparent 45%),linear-gradient(170deg,#F0FCFC,#FFF3DA)}
+.finale.open{display:block}
+.fin{max-width:1000px;margin:0 auto;text-align:center}
+.fin h1{font-family:var(--head);font-weight:700;font-size:clamp(34px,6vw,64px);margin:6px 0;color:var(--teal-dd);line-height:1.02}
+.fin .sub{font-weight:800;font-size:19px}
+.cert{margin:20px auto;max-width:760px;background:#fff;border:5px solid var(--ink);border-radius:28px;padding:22px;box-shadow:10px 10px 0 var(--orange);position:relative}
+.cert::before{content:"";position:absolute;inset:10px;border:3px dashed var(--teal);border-radius:20px;pointer-events:none}
+.cert .nm{font-family:var(--head);font-size:clamp(30px,5vw,48px);font-weight:700;color:var(--burnt);margin:4px 0}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:18px 0}
+.award{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px 10px;box-shadow:5px 5px 0 var(--teal);animation:pop .6s backwards}
+.award .em{font-size:44px}
+.award b{display:block;font-family:var(--head);font-weight:600;font-size:18px}
+.award small{font-weight:700;color:var(--muted)}
+.msgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left;margin:16px 0}
+@media (max-width:700px){.msgs{grid-template-columns:1fr}}
+.stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:12px 0}
+.stats div{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 16px;font-weight:900}
+.stats b{display:block;font-family:var(--head);font-size:28px;color:var(--teal-dd)}
+@media print{body *{visibility:hidden}.cert,.cert *{visibility:visible}.cert{position:absolute;left:0;top:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+
+<!-- splash -->
+<div class="splash" id="splash">
+  <div class="sbox">
+    <div class="brand" style="font-size:22px">MyMastery<b>Lab</b></div>
+    <h1>Proportion Lab</h1>
+    <h2>The Perfect Mix</h2>
+    <div class="castrow" id="castrow"></div>
+    <p style="font-weight:800;margin:6px 0 10px">The Summer Sky Festival opens tomorrow. Blendo 3000 has been mixing… and the taste-testers are pulling faces.</p>
+    <div class="two">
+      <div><label for="inLearner">Chief Flavour Scientist's name</label><input id="inLearner" placeholder="e.g. Emma" maxlength="24"></div>
+      <div><label for="inMentor">Mentor's name</label><input id="inMentor" placeholder="e.g. Mr. Carter" maxlength="24"></div>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:16px">
+      <button class="btn o" id="btnStart" style="font-size:20px">Start the festival 🧃</button>
+      <button class="btn w" id="btnContinue" style="display:none">Continue saved session</button>
+    </div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">MyMastery<b>Lab</b></div>
+    <div class="ttl">Proportion Lab – The Perfect Mix</div>
+    <div class="spacer"></div>
+    <span class="chip" id="chipName">🧪 Scientist</span>
+    <span class="chip o" id="chipStars">⭐ 0</span>
+    <div class="fslots" id="fslots" title="Formula Cards"></div>
+    <button class="tbtn" id="tWb" title="Whiteboard over lesson (W)">✏️ Draw</button>
+    <button class="tbtn" id="tBoard" title="Blank board (B)">⬜ Board</button>
+    <button class="tbtn" id="tTrack" title="Activity tracker (T)">📋 Tracker</button>
+    <button class="tbtn" id="tSound" title="Sound on/off">🔊</button>
+    <button class="tbtn dark" id="tMentor" title="Mentor panel (M)">🎓 Mentor</button>
+  </div>
+  <div class="flags" id="flags"></div>
+</header>
+
+<nav class="route" aria-label="Festival route"><div class="lane" id="lane"></div></nav>
+
+<main id="stage"></main>
+
+<div class="dock">
+  <div class="dock-in">
+    <div class="prog"><span id="progTxt">0/0</span><div class="pbar"><i id="progBar"></i></div></div>
+    <div class="todo" id="todo"></div>
+    <button class="btn next" id="btnNext">Next stall ▶</button>
+  </div>
+</div>
+
+<!-- whiteboard -->
+<canvas id="wbCanvas"></canvas>
+<div id="board"><canvas id="boardCanvas"></canvas></div>
+<div class="wbbar" id="wbbar"></div>
+
+<!-- mentor drawer -->
+<aside class="drawer" id="mentor" aria-label="Mentor panel">
+  <div class="dh"><h2>🎓 Mentor control room</h2><button class="tbtn" id="mClose">✕</button></div>
+  <div class="db" id="mBody"></div>
+</aside>
+
+<div class="modal" id="modal"><div class="mbox"><button class="x" id="mx">✕</button><div id="mcontent"></div></div></div>
+<div class="toast" id="toast"></div>
+<div class="finale" id="finale"></div>
+<canvas id="fx"></canvas>
+
+<script>
+/* =========================================================
+   Proportion Lab – The Perfect Mix  |  MyMasteryLab
+   Teacher-controlled storyline (Lesson plan phases 1–9)
+   ========================================================= */
+const KEY = 'mml-proportion-lab-v1';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------------- state ---------------- */
+const fresh = () => ({
+  learner: '', mentor: '', lab: '', drink: '', phase: 0, unlocked: 0,
+  done: {}, inputs: {}, complete: {}, cards: [], stars: 0, correct: 0, miss: 0,
+  first: {}, diag: {}, autoUnlock: true, sound: true, path: 'Core', storyPos: {},
+  bar: [], lightning: null, shake: 0, strawRun: false, method: '', started: Date.now(), phaseStart: Date.now(), finaleSeen: false
+});
+let S = fresh();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load() { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return null; }
+
+/* ---------------- characters (SVG) ---------------- */
+const CH = {
+  ruby: (s = '') => `<svg viewBox="0 0 120 120" ${s} aria-label="Ruby Hayes"><circle cx="60" cy="60" r="58" fill="#E1F7F8" stroke="#16202A" stroke-width="3"/>
+    <circle cx="60" cy="24" r="13" fill="#D77F28" stroke="#16202A" stroke-width="2.5"/>
+    <path d="M22 116c4-26 18-36 38-36s34 10 38 36z" fill="#00A7B2" stroke="#16202A" stroke-width="3"/>
+    <path d="M44 84h32v32H44z" fill="#fff" stroke="#16202A" stroke-width="2.5"/><circle cx="60" cy="98" r="6" fill="#FAA71C" stroke="#16202A" stroke-width="2"/>
+    <path d="M32 58c0-20 12-30 28-30s28 10 28 30c0 6-2 14-6 18H38c-4-4-6-12-6-18z" fill="#D77F28" stroke="#16202A" stroke-width="3"/>
+    <ellipse cx="60" cy="60" rx="21" ry="23" fill="#F7D7BF" stroke="#16202A" stroke-width="3"/>
+    <path d="M39 50c8-10 26-12 42 0-6-12-36-14-42 0z" fill="#D77F28"/>
+    <circle cx="52" cy="58" r="3" fill="#16202A"/><circle cx="68" cy="58" r="3" fill="#16202A"/>
+    <circle cx="47" cy="66" r="4" fill="#FAA71C" opacity=".5"/><circle cx="73" cy="66" r="4" fill="#FAA71C" opacity=".5"/>
+    <path d="M52 69c4 5 12 5 16 0" fill="none" stroke="#16202A" stroke-width="3" stroke-linecap="round"/></svg>`,
+  blendo: (s = '') => `<svg viewBox="0 0 120 120" ${s} aria-label="Blendo 3000"><circle cx="60" cy="60" r="58" fill="#FBE3E3" stroke="#16202A" stroke-width="3"/>
+    <path d="M36 18h48l-6 52H42z" fill="#E1F7F8" stroke="#16202A" stroke-width="3"/>
+    <path d="M39 40h42l-3.5 30h-35z" fill="#FAA71C"/><circle cx="52" cy="50" r="3" fill="#fff"/><circle cx="66" cy="58" r="2.5" fill="#fff"/><circle cx="58" cy="44" r="2" fill="#fff"/>
+    <rect x="32" y="11" width="56" height="10" rx="4" fill="#C92426" stroke="#16202A" stroke-width="3"/>
+    <rect x="30" y="70" width="60" height="38" rx="10" fill="#00928E" stroke="#16202A" stroke-width="3"/>
+    <rect x="38" y="76" width="44" height="20" rx="6" fill="#16202A"/>
+    <path d="M45 88l5-5 5 5M65 88l5-5 5 5" fill="none" stroke="#21DED7" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="44" cy="102" r="3" fill="#FAA71C"/><circle cx="54" cy="102" r="3" fill="#21DED7"/>
+    <path d="M30 84h-12l-4-10M90 84h12l4-10" fill="none" stroke="#16202A" stroke-width="4" stroke-linecap="round"/></svg>`,
+  jack: (s = '') => `<svg viewBox="0 0 120 120" ${s} aria-label="Jack Monroe"><circle cx="60" cy="60" r="58" fill="#FFF1D6" stroke="#16202A" stroke-width="3"/>
+    <path d="M22 116c4-26 18-36 38-36s34 10 38 36z" fill="#00A7B2" stroke="#16202A" stroke-width="3"/>
+    <path d="M52 82l8 16 8-16" fill="none" stroke="#C92426" stroke-width="4"/><rect x="54" y="96" width="12" height="14" rx="2" fill="#fff" stroke="#16202A" stroke-width="2"/>
+    <ellipse cx="60" cy="60" rx="21" ry="23" fill="#EFC6A6" stroke="#16202A" stroke-width="3"/>
+    <path d="M37 50c2-18 44-18 46 0z" fill="#FAA71C" stroke="#16202A" stroke-width="3"/><path d="M80 48h16" stroke="#16202A" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="52" cy="60" r="3" fill="#16202A"/><circle cx="68" cy="60" r="3" fill="#16202A"/>
+    <path d="M50 70c5 6 15 6 20 0" fill="none" stroke="#16202A" stroke-width="3" stroke-linecap="round"/>
+    <rect x="80" y="84" width="22" height="28" rx="3" fill="#fff" stroke="#16202A" stroke-width="2.5" transform="rotate(10 91 98)"/>
+    <path d="M85 92h12M85 98h12M85 104h8" stroke="#00A7B2" stroke-width="2" transform="rotate(10 91 98)"/></svg>`,
+  sci: (s = '') => `<svg viewBox="0 0 120 120" ${s} aria-label="Chief Flavour Scientist"><circle cx="60" cy="60" r="58" fill="#E1F7F8" stroke="#16202A" stroke-width="3"/>
+    <path d="M22 116c4-26 18-36 38-36s34 10 38 36z" fill="#fff" stroke="#16202A" stroke-width="3"/>
+    <path d="M60 82l-12 34M60 82l12 34" stroke="#00A7B2" stroke-width="4"/><rect x="72" y="96" width="10" height="14" rx="2" fill="#FAA71C" stroke="#16202A" stroke-width="2"/>
+    <ellipse cx="60" cy="60" rx="21" ry="23" fill="#F3CDB2" stroke="#16202A" stroke-width="3"/>
+    <path d="M38 54c0-18 10-26 22-26s22 8 22 26c-6-8-14-12-22-12s-16 4-22 12z" fill="#6B3E1E" stroke="#16202A" stroke-width="3"/>
+    <rect x="40" y="38" width="17" height="11" rx="5" fill="#BFF3F1" stroke="#16202A" stroke-width="2.5"/><rect x="63" y="38" width="17" height="11" rx="5" fill="#BFF3F1" stroke="#16202A" stroke-width="2.5"/>
+    <path d="M57 43h6" stroke="#16202A" stroke-width="2.5"/>
+    <circle cx="52" cy="62" r="3" fill="#16202A"/><circle cx="68" cy="62" r="3" fill="#16202A"/>
+    <path d="M51 71c5 6 13 6 18 0" fill="none" stroke="#16202A" stroke-width="3" stroke-linecap="round"/></svg>`
+};
+const NAMES = { ruby: ['Ruby Hayes', 'Owner, The Perfect Mix'], blendo: ['Blendo 3000', 'Over-eager robot blender'], jack: ['Jack Monroe', 'Festival organiser'], sci: ['You', 'Chief Flavour Scientist'] };
+
+/* ---------------- tiny UI builders ---------------- */
+const nm = () => S.learner || 'Scientist';
+function inp(id, g, a, w = 76, ph = '?') { return `<input class="ans" data-id="${id}" data-g="${g}" data-a="${a}" ${w ? `style="width:${w}px"` : ''} placeholder="${ph}" autocomplete="off" inputmode="${/^(text|any|rec:text)/.test(a) ? 'text' : 'decimal'}" aria-label="answer">`; }
+function txt(id, g, a, ph) { return `<textarea class="ans" data-id="${id}" data-g="${g}" data-a="${a}" placeholder="${ph}"></textarea>`; }
+function chs(id, g, a, opts, cls = '') { return `<div class="choices ${cls}" data-id="${id}" data-g="${g}" data-a="${a}">${opts.map(o => `<button type="button" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>`; }
+function stars(id, g) { return chs(id, g, 'any', [1, 2, 3, 4, 5].map(n => [String(n), '★']), 'stars'); }
+function chk(g, label = 'Check my answer ✓', hint = '') { return `<div class="row" style="margin-top:12px"><button class="btn" data-check="${g}">${label}</button></div>${hint ? `<div class="hint" id="hint-${g}">💡 ${hint}</div>` : ''}`; }
+function say(who, text) { return `<div class="say ${who}">${CH[who]()}<div class="b"><small style="display:block;color:var(--muted)">${NAMES[who][0]}</small>${text}</div></div>`; }
+const pm = (n) => `<span class="pill m">${n} mango</span>`, ps = (n, w = 'sparkling') => `<span class="pill s">${n} ${w}</span>`;
+function card(key, icon, body, o = {}) {
+  const t = TASKS[key];
+  return `<section class="card ${o.wide ? 'wide' : ''}" id="card-${key}" data-task="${key}" style="--c:${o.c || 'var(--teal)'};--cl:${o.cl || 'var(--teal-l)'}">
+    <header><span class="ic">${icon}</span><h3>${t ? t.label : key}${t && t.opt ? '<span class="opt">Bonus</span>' : ''}</h3><span class="st">${t && t.opt ? 'Optional' : 'To do'}</span></header>${body}</section>`;
+}
+function infoCard(id, icon, title, body, o = {}) {
+  return `<section class="card ${o.wide ? 'wide' : ''} ${o.cls || ''}" id="${id}" style="--c:${o.c || 'var(--orange)'};--cl:${o.cl || 'var(--orange-l)'}"><header><span class="ic">${icon}</span><h3>${title}</h3></header>${body}</section>`;
+}
+function jugSVG(m, t, label) {
+  const h = 60 * (m / t);
+  return `<svg viewBox="0 0 70 86"><path d="M12 10h46l-4 70H16z" fill="#E8FBFB" stroke="#16202A" stroke-width="3"/>
+  <clipPath id="cj${label}"><path d="M12 10h46l-4 70H16z"/></clipPath>
+  <rect x="0" y="${80 - 66}" width="70" height="66" fill="#BFF3F1" clip-path="url(#cj${label})"/>
+  <rect x="0" y="${80 - h}" width="70" height="${h}" fill="#FAA71C" clip-path="url(#cj${label})"/>
+  <path d="M58 22c10 0 10 26 0 26" fill="none" stroke="#16202A" stroke-width="3"/></svg>`;
+}
+
+/* ---------------- PHASES ---------------- */
+const PHASES = [
+ { id: 'p1', name: 'Welcome to the Festival', short: 'Festival', icon: '🎪', time: '0–5 min', mins: 5, color: '#00A7B2', color2: '#21DED7',
+   goal: 'Spot real-life mix-ups, meet the crew and set up your lab.',
+   cast: ['ruby', 'blendo', 'jack'],
+   story: [
+     ['jack', 'Welcome to the Summer Sky Festival! The gates open tomorrow and 500 thirsty visitors are on their way. 🎉'],
+     ['ruby', 'I\'m Ruby Hayes, and this is my juice truck, The Perfect Mix. Our star drink is Sunset Squeeze: 2 cups of mango juice to 3 cups of sparkling water.'],
+     ['blendo', 'BEEP BOOP! I am BLENDO 3000, the fastest blender in town. My one rule: NEED MORE? ADD MORE!'],
+     ['ruby', 'Last night Blendo made the festival batch… and the taste-testers pulled faces. 😬'],
+     ['ruby', 'I need a Chief Flavour Scientist to find the secret of a perfect mix. {name}, that\'s you!']
+   ],
+   tasks: [['p1_story', 'Read the festival story'], ['p1_mix', 'Mix-Up Moments'], ['p1_lab', 'Open your lab'], ['p1_predict', 'Lock your prediction']],
+   notes: ['Keep it light and fast: this is a trailer, not a lecture.', 'Mix-Up Moments: accept every guess. Say: "Hold that thought — all three broke the SAME secret rule."', 'Any prediction is fine. A "Genius" vote makes a bigger turnaround later.'],
+   answers: ['Mix-ups: each part grew by the same amount instead of the same number of times.', 'Prediction: any answer (revisited in Phase 9).'],
+   body: () => `
+   ${card('p1_mix', '🤔', `<p class="q">Three things went wrong at the festival this week. What do you think happened in each one? Any guess counts.</p>
+    <div class="scenes">
+     <div class="scene"><h4>The stretched selfie</h4>
+      <svg viewBox="0 0 340 160"><rect x="16" y="38" width="120" height="90" rx="6" fill="#fff" stroke="#16202A" stroke-width="3"/><circle cx="76" cy="83" r="30" fill="#F7D7BF" stroke="#16202A" stroke-width="3"/><circle cx="66" cy="78" r="3"/><circle cx="86" cy="78" r="3"/><path d="M64 92c6 6 18 6 24 0" stroke="#16202A" stroke-width="3" fill="none"/>
+      <text x="76" y="150" text-anchor="middle" font-weight="900" font-size="16">4 cm × 3 cm</text>
+      <path d="M146 83h22" stroke="#D77F28" stroke-width="4" marker-end="url(#ah)"/><text x="157" y="62" text-anchor="middle" font-weight="900" font-size="12" fill="#C92426">+2</text><text x="157" y="110" text-anchor="middle" font-weight="900" font-size="11" fill="#C92426">each</text>
+      <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0l8 4-8 4z" fill="#D77F28"/></marker></defs>
+      <rect x="182" y="12" width="150" height="125" rx="6" fill="#fff" stroke="#16202A" stroke-width="3"/><ellipse cx="257" cy="74" rx="38" ry="52" fill="#F7D7BF" stroke="#16202A" stroke-width="3"/><circle cx="244" cy="62" r="3"/><circle cx="270" cy="62" r="3"/><path d="M244 92c7 8 19 8 26 0" stroke="#16202A" stroke-width="3" fill="none"/>
+      <text x="257" y="155" text-anchor="middle" font-weight="900" font-size="16">6 cm × 5 cm</text></svg>
+      <p style="margin:4px 0;font-weight:700">Both sides got 2 cm bigger… so why does the face look squashed?</p>${inp('p1_g1', 'p1_mix', 'text:2', 0, 'My guess…')}</div>
+     <div class="scene"><h4>The wrong teal</h4>
+      <svg viewBox="0 0 340 160"><g font-weight="900" font-size="14">
+      ${[0, 1].map(i => `<rect x="${14 + i * 34}" y="30" width="28" height="36" rx="4" fill="#00928E" stroke="#16202A" stroke-width="2.5"/>`).join('')}<rect x="82" y="30" width="28" height="36" rx="4" fill="#FAA71C" stroke="#16202A" stroke-width="2.5"/>
+      <rect x="20" y="82" width="84" height="44" rx="10" fill="#00A7B2" stroke="#16202A" stroke-width="3"/><text x="62" y="148" text-anchor="middle">2 blue : 1 yellow ✔</text>
+      ${[0, 1, 2, 3, 4].map(i => `<rect x="${170 + i * 32}" y="14" width="26" height="30" rx="4" fill="#00928E" stroke="#16202A" stroke-width="2.5"/>`).join('')}
+      ${[0, 1, 2, 3].map(i => `<rect x="${186 + i * 32}" y="48" width="26" height="30" rx="4" fill="#FAA71C" stroke="#16202A" stroke-width="2.5"/>`).join('')}
+      <pattern id="mud" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#00928E"/><rect width="5" height="10" fill="#D77F28"/></pattern>
+      <rect x="196" y="88" width="104" height="40" rx="10" fill="url(#mud)" stroke="#16202A" stroke-width="3"/><text x="248" y="148" text-anchor="middle" fill="#C92426">5 blue : 4 yellow 🤢</text></g></svg>
+      <p style="margin:4px 0;font-weight:700">The painter added 3 more tins of each colour. Why is the truck swampy now?</p>${inp('p1_g2', 'p1_mix', 'text:2', 0, 'My guess…')}</div>
+     <div class="scene"><h4>The sad hot chocolate</h4>
+      <svg viewBox="0 0 340 160"><g font-weight="900" font-size="14"><path d="M30 50h60v60a14 14 0 0 1-14 14H44a14 14 0 0 1-14-14z" fill="#D77F28" stroke="#16202A" stroke-width="3"/><path d="M90 66c16 0 16 30 0 30" fill="none" stroke="#16202A" stroke-width="3"/>
+      <text x="60" y="146" text-anchor="middle">1 scoop : 1 mug 😋</text>
+      <path d="M180 30h110l-8 100H188z" fill="#FBE7D6" stroke="#16202A" stroke-width="3"/><text x="235" y="86" text-anchor="middle" font-size="13">4 mugs milk</text><text x="235" y="104" text-anchor="middle" font-size="13">2 scoops</text>
+      <text x="235" y="150" text-anchor="middle" fill="#C92426">Pale and watery 😕</text></g></svg>
+      <p style="margin:4px 0;font-weight:700">"It's only a bit bigger, so 2 scoops is fine." Would you drink it? Why not?</p>${inp('p1_g3', 'p1_mix', 'text:2', 0, 'My guess…')}</div>
+    </div>
+    ${chk('p1_mix', 'Lock my guesses 🔒', 'Write a quick guess for every scene — any idea counts!')}
+    <div class="reveal note" id="rv-p1_mix">🧠 Hold that thought… all three broke the <b>same secret rule</b>. By the end of today you'll know exactly what it is — and you'll be able to prove it.</div>`, { wide: true })}
+   ${card('p1_lab', '🧪', `<p class="q">Every great scientist needs a lab and a signature drink. Name yours!</p>
+     <div class="row"><b>The</b> ${inp('p1_labname', 'p1_lab', 'text:2', 200, 'Mango Rocket')} <b>Lab</b></div>
+     <div class="row"><b>My signature drink:</b> ${inp('p1_drinkname', 'p1_lab', 'text:2', 220, 'Thunder Fizz')}</div>
+     ${chk('p1_lab', 'Open my lab 🧪', 'Give your lab and your drink a name.')}
+     <div class="reveal note" id="rv-p1_lab">Lab open! Your signature drink comes back in the Boss Challenge. 🏆</div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p1_predict', '🔮', `${say('blendo', 'My rule is "NEED MORE? ADD MORE!" It is genius. GENIUS!')}
+     <p class="q">Is Blendo's rule genius or a disaster?</p>
+     ${chs('p1_pred', 'p1_predict', 'any', [['genius', 'Genius 🤩'], ['disaster', 'Disaster 💥']])}
+     <div class="row" style="margin-top:8px"><b>Because…</b> ${inp('p1_predwhy', 'p1_predict', 'text:2', 300, 'one quick reason').replace('style="width:300px"', 'style="flex:1;min-width:180px"')}</div>
+     ${chk('p1_predict', 'Lock my prediction 🔒', 'Pick Genius or Disaster and give one reason.')}
+     <div class="reveal note" id="rv-p1_predict">Prediction locked. We'll open it again at the end of the session. 🔐</div>`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}`
+ },
+ { id: 'p2', name: 'Blendo\'s Batch Check', short: 'Batch Check', icon: '🔍', time: '5–9 min', mins: 4, color: '#FAA71C', color2: '#D77F28',
+   goal: 'Show Ruby how YOU think. No wrong answers yet!',
+   cast: ['ruby', 'blendo'],
+   story: [
+     ['ruby', 'Before I trust you with 500 cups, I want to see how YOU think. There are no wrong answers yet — just show me your way.'],
+     ['blendo', 'Pfft. Easy. You just ADD. Everybody knows that. 🤖']
+   ],
+   tasks: [['p2_d1', 'Ruby\'s 10-cup order'], ['p2_d2', 'Blendo\'s claim'], ['p2_d3', 'Confidence check']],
+   notes: ['Do NOT correct anything here. Record the method in the panel: A = adds the same amount, B = builds up batches, M = multiplies.', 'Most learners agree with Blendo in D2 — perfect, the session overturns it.'],
+   answers: ['D1: 4 mango : 6 sparkling', 'D2: Disagree (2/5 = 40% vs 5/11 ≈ 45%)', 'D3: record the stars'],
+   body: () => `
+   ${card('p2_d1', '🥭', `<p class="q"><span class="n">1</span>Sunset Squeeze is ${pm(2)} : ${ps(3)} and makes 5 cups. Ruby needs <b>10 cups</b>. How much of each?</p>
+     <div class="row">${inp('p2_d1m', 'p2_d1', 'rec:num:4')} cups mango &nbsp; ${inp('p2_d1s', 'p2_d1', 'rec:num:6')} cups sparkling</div>
+     ${chk('p2_d1', 'Submit my answer', 'Fill both boxes — any answer is fine for now!')}
+     <div class="reveal note" id="rv-p2_d1">Answer saved. We'll come back to it at the end. 📌</div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p2_d2', '🤖', `${say('blendo', 'I made 5 cups mango : 6 cups sparkling. I just ADDED 3 to each, so it tastes exactly the same!')}
+     <p class="q"><span class="n">2</span>Do you agree with Blendo?</p>
+     ${chs('p2_d2c', 'p2_d2', 'rec:sel:disagree', [['agree', 'I agree 👍'], ['disagree', 'I disagree 👎']])}
+     <div style="margin-top:8px">${txt('p2_d2w', 'p2_d2', 'rec:text:2', 'Why do you think so?')}</div>
+     ${chk('p2_d2', 'Submit my answer', 'Choose agree or disagree and write a reason.')}
+     <div class="reveal note" id="rv-p2_d2">Saved! Hmm… Blendo looks very confident. 🤔</div>`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p2_d3', '⭐', `<p class="q"><span class="n">3</span>How sure do you feel about making a recipe bigger or smaller?</p>
+     ${stars('p2_conf', 'p2_d3')}
+     ${chk('p2_d3', 'Save my rating', 'Tap 1 to 5 stars.')}`, { wide: true })}`
+ },
+ { id: 'p3', name: 'Mission 1: Recipe Reader', short: 'Recipe Reader', icon: '📜', time: '9–17 min', mins: 8, color: '#00928E', color2: '#00A7B2',
+   goal: 'See a ratio as a recipe — and discover that bigger drinks need whole batches.',
+   cast: ['ruby', 'blendo'],
+   story: [
+     ['ruby', 'A ratio is a recipe. Let\'s read my menu board like a real scientist.'],
+     ['blendo', 'Mango… sparkling… mango… I LOVE numbers! Especially adding them. 😍'],
+     ['ruby', 'Every drink is made of batches. Let\'s see what one batch really looks like.']
+   ],
+   tasks: [['p3_menu', 'Ruby\'s menu board'], ['p3_order', 'The Mango Bomb'], ['p3_bar', 'Draw one batch'], ['p3_table', 'Build the batch table'], ['p3_disc', 'Spot Ruby\'s secret']],
+   notes: ['Say each recipe aloud: "For every 2 cups of mango, there are 3 cups of sparkling."', 'Watch for 2:3 read as "2/3 is mango" — count all boxes in the bar.', 'Key discovery: going 1 → 2 batches adds +2 mango but +3 sparkling. Ruby adds a whole batch; Blendo adds the same number.'],
+   answers: ['Menu: Sunset 2/5 · Berry 1/5 · Lemon 3/10', 'Mango Bomb: No — order matters', 'Bar: 2 mango + 3 sparkling boxes', 'Table: mango 4, 6, 8 · sparkling 6, 9, 12 · total 10, 15, 20', 'Secret: +2 and +3; not the same amount'],
+   card: [1],
+   body: () => `
+   ${card('p3_menu', '📜', `<div class="menuboard">
+      ${[['Sunset Squeeze', 2, 3, 'mango', 'sparkling', 'p3_f1', 'frac:0.4'], ['Berry Blast', 1, 4, 'blueberry', 'apple', 'p3_f2', 'frac:0.2'], ['Lemon Zinger', 3, 7, 'lemon', 'water', 'p3_f3', 'frac:0.3']].map(d => `
+      <div class="it"><div><b>${d[0]}</b><div style="font-weight:700">For every ${d[1]} cup${d[1] > 1 ? 's' : ''} of ${d[3]}, there are ${d[2]} cups of ${d[4]}</div>
+      <div class="mini">${'<i style="background:#FAA71C"></i>'.repeat(d[1])}${'<i style="background:#BFF3F1"></i>'.repeat(d[2])}</div></div>
+      <div style="text-align:right"><div style="font-size:13px;font-weight:800">Fraction that is ${d[3]}</div>${inp(d[5], 'p3_menu', d[6], 80, 'a/b')}</div></div>`).join('')}
+     </div>${chk('p3_menu', 'Check my fractions ✓', 'Fraction of the whole = that ingredient ÷ ALL the cups in one batch. Sunset Squeeze has 2 + 3 = 5 cups.')}`, { wide: true })}
+   ${card('p3_order', '💣', `${say('blendo', 'I flipped Sunset Squeeze to 3 mango : 2 sparkling. Same drink, right? Numbers are numbers!')}
+     <p class="q">Is 3 : 2 the same drink as 2 : 3?</p>
+     ${chs('p3_oc', 'p3_order', 'sel:no', [['yes', 'Yes, same drink'], ['no', 'No, it\'s different']])}
+     ${chk('p3_order', 'Check ✓', 'Which ingredient is there MORE of in each recipe?')}
+     <div class="reveal note" id="rv-p3_order">💣 That's a <b>Mango Bomb!</b> Order matters in a ratio: the first number goes with the first ingredient.</div>`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p3_bar', '🧱', `<p class="q">Build ONE batch of Sunset Squeeze with boxes. Each box is 1 cup.</p>
+     <div class="row"><button class="btn o" data-bar="m">+ Mango cup</button><button class="btn" style="background:#BFF3F1;color:var(--ink)" data-bar="s">+ Sparkling cup</button><button class="btn w" data-bar="u">↶ Undo</button><button class="btn w" data-bar="c">Clear</button></div>
+     <div class="bar" id="barBox"></div>
+     <div class="row"><button class="btn" id="barCheck">Check my batch ✓</button></div>
+     <div class="hint" id="hint-p3_bar">💡 Sunset Squeeze is 2 mango : 3 sparkling. You need exactly 2 orange boxes and 3 blue boxes.</div>
+     <div class="reveal" id="rv-p3_bar"><p class="q">One batch = 5 cups. Here are 2 batches and 3 batches:</p><div id="barMulti"></div></div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p3_table', '📊', `<p class="q">Fill Ruby's batch table.</p>
+     <table class="rt"><tr><th>Batches</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+      <tr><td>🥭 Mango</td><td>2</td><td>${inp('t_m2', 'p3_table', 'num:4', 60)}</td><td>${inp('t_m3', 'p3_table', 'num:6', 60)}</td><td>${inp('t_m4', 'p3_table', 'num:8', 60)}</td></tr>
+      <tr><td>🫧 Sparkling</td><td>3</td><td>${inp('t_s2', 'p3_table', 'num:6', 60)}</td><td>${inp('t_s3', 'p3_table', 'num:9', 60)}</td><td>${inp('t_s4', 'p3_table', 'num:12', 60)}</td></tr>
+      <tr><td>🥤 Total</td><td>5</td><td>${inp('t_t2', 'p3_table', 'num:10', 60)}</td><td>${inp('t_t3', 'p3_table', 'num:15', 60)}</td><td>${inp('t_t4', 'p3_table', 'num:20', 60)}</td></tr></table>
+     ${chk('p3_table', 'Check my table ✓', 'Each new batch adds another 2 mango and another 3 sparkling. Total = mango + sparkling.')}`, { wide: false })}
+   ${card('p3_disc', '🕵️', `<p class="q">Look at your table. Going from 1 batch to 2 batches…</p>
+     <div class="row">Mango went up by ${inp('p3_d1', 'p3_disc', 'num:2', 60)} &nbsp; Sparkling went up by ${inp('p3_d2', 'p3_disc', 'num:3', 60)}</div>
+     <p class="q">Did Ruby add the <b>same amount</b> to both?</p>
+     ${chs('p3_d3', 'p3_disc', 'sel:no', [['yes', 'Yes'], ['no', 'No']])}
+     <p class="q">So making 3 batches is the same as…</p>
+     ${chs('p3_d4', 'p3_disc', 'sel:x3', [['p3', 'adding 3 to each'], ['x3', 'multiplying each by 3'], ['p1', 'adding 1 to each']])}
+     ${chk('p3_disc', 'Check ✓', 'Compare the 2 → 4 and 3 → 6 jumps. Then: 3 batches of 2 is 6, and 3 batches of 3 is 9.')}
+     <div class="reveal note" id="rv-p3_disc">✨ <b>Ruby's secret:</b> you can add — but only a WHOLE batch. Blendo adds the same number to everything. More batches = <b>multiply</b> every ingredient.</div>`, { c: 'var(--burnt)', cl: 'var(--burnt-l)' })}`,
+   after: initBar
+ },
+ { id: 'p4', name: 'Mission 2: The Taste Test Lab', short: 'Taste Test', icon: '👅', time: '17–25 min', mins: 8, color: '#C92426', color2: '#D77F28',
+   goal: 'Discover WHY adding ruins the taste — and multiplying keeps it perfect.',
+   cast: ['jack', 'ruby', 'blendo'],
+   story: [
+     ['jack', 'I ordered 20 cups for the test tent. Three jugs have arrived… but only one tastes right!'],
+     ['ruby', 'Let\'s find out what our tongues REALLY notice. Get the Sip Meter ready.'],
+     ['blendo', 'My jug is the best. Obviously. It has MORE of everything! 🤖']
+   ],
+   tasks: [['p4_sip', 'The Sip Meter'], ['p4_lucky', 'Blendo\'s Lucky Day'], ['p4_straw', 'The Vanishing Strawberry'], ['p4_big', 'The Big Why'], ['p4_explain', 'Tell Blendo why']],
+   notes: ['No calculator needed: 8/17 is "just under a half", 2/5 is "well under a half". Accept 46–48%.', 'Lucky Day twist: adding only "works" when both parts are equal — a coincidence, not a rule.', 'Big Why: same difference (1 cup), totally different taste → taste follows the times-relationship.'],
+   answers: ['Sip: A 40% · B 17 cups, ≈47% · C 40%', 'Lucky: 1:1 → 5:5 yes · Mint 5:6, no · equal parts only', 'Straw: 0 strawberries, 6 yogurt · fix 1 : 3', 'Big Why: yes · no · times-relationship', 'Explain: any sensible reason'],
+   card: [2, 3],
+   body: () => `
+   ${card('p4_sip', '🥤', `<div class="jugs">
+      <div class="jug">${jugSVG(2, 5, 'a')}<b>Jug A · Ruby's original</b>${pm(2)} ${ps(3)}<div class="row" style="justify-content:center">Mango ${inp('p4_a', 'p4_sip', 'pct:40:1', 64, '%')}%</div></div>
+      <div class="jug" style="background:var(--crimson-l)">${jugSVG(8, 17, 'b')}<b>Jug B · Blendo (+6 each)</b>${pm(8)} ${ps(9)}<div class="row" style="justify-content:center">Total ${inp('p4_bt', 'p4_sip', 'num:17', 54)} cups</div><div class="row" style="justify-content:center">Mango ${inp('p4_b', 'p4_sip', 'pct:47.06:1.8', 64, '%')}%</div></div>
+      <div class="jug">${jugSVG(8, 20, 'c')}<b>Jug C · Ruby's way (×4)</b>${pm(8)} ${ps(12)}<div class="row" style="justify-content:center">Mango ${inp('p4_c', 'p4_sip', 'pct:40:1', 64, '%')}%</div></div>
+     </div>
+     ${chk('p4_sip', 'Pour onto the Sip Meter 🫗', 'Mango % = mango ÷ total cups × 100. Jug A: 2 ÷ 5. Jug B: 8 ÷ 17 is just under a half — about 47%.')}
+     <div class="meter" id="meter">
+      ${[0, 25, 50, 75, 100].map(v => `<span class="tick" style="left:${v}%">${v}%</span>`).join('')}
+      <div class="mk" id="mkA" style="left:3%"><i>A</i></div><div class="mk b" id="mkB" style="left:6%"><i>B</i></div><div class="mk" id="mkC" style="left:9%"><i>C</i></div>
+     </div>
+     <div style="display:flex;justify-content:space-between;font-weight:900;font-size:13px;margin-top:18px"><span>💧 watery</span><span>full-on mango 🥭</span></div>
+     <div class="reveal note" id="rv-p4_sip">👀 A and C land on <b>exactly the same spot</b> — same taste! Blendo's jug jumps toward full-on mango… and Jack asked for 20 cups, but Blendo only made 17. <b>Wrong taste AND wrong amount.</b></div>`, { wide: true, c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p4_lucky', '🍀', `${say('blendo', 'Lemon Splash is 1 lemon : 1 water. I ADDED 4 to each → 5 : 5. Taste it!')}
+     <p class="q">Does 5 : 5 taste the same as 1 : 1?</p>
+     ${chs('p4_l1', 'p4_lucky', 'sel:yes', [['yes', 'Yes, same taste'], ['no', 'No']])}
+     ${say('ruby', 'Hmm. Let\'s test Blendo on Mint Fizz: 1 mint : 2 soda. Blendo, add 4 to each.')}
+     <div class="row">Blendo's Mint Fizz: ${inp('p4_l2', 'p4_lucky', 'num:5', 56)} mint : ${inp('p4_l3', 'p4_lucky', 'num:6', 56)} soda</div>
+     <p class="q">Same taste as 1 : 2?</p>
+     ${chs('p4_l4', 'p4_lucky', 'sel:no', [['yes', 'Yes'], ['no', 'No']])}
+     <p class="q">So adding the same amount only "works" when…</p>
+     ${chs('p4_l5', 'p4_lucky', 'sel:eq', [['always', 'always'], ['eq', 'both parts are equal'], ['big', 'the numbers are big']])}
+     ${chk('p4_lucky', 'Check ✓', 'Mint was 1 out of 3 cups. Now it\'s 5 out of 11 — almost half!')}
+     <div class="reveal note" id="rv-p4_lucky">🍀 Blendo got <b>lucky</b>. Equal parts stay equal when you add the same amount — but that's a coincidence, not a rule.</div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p4_straw', '🍓', `<p class="q">Strawberry Smoothie for 3 people: <span class="pill m" style="background:#F6A6A7">3 strawberries</span> : <span class="pill k">9 spoons yogurt</span>. Ruby needs ONE tasting cup.</p>
+     ${say('blendo', 'Need LESS? TAKE AWAY less! I\'ll subtract 3 from each!')}
+     <div class="strawrow" id="strawRow"></div>
+     <div class="row"><button class="btn r" id="strawRun">Run Blendo's plan (−3 each) ▶</button></div>
+     <div class="row">Strawberries left: ${inp('p4_s1', 'p4_straw', 'num:0', 56)} &nbsp; Yogurt spoons: ${inp('p4_s2', 'p4_straw', 'num:6', 56)}</div>
+     <p class="q">Fix it the scientist way (÷3 for 1 person):</p>
+     <div class="row">${inp('p4_s3', 'p4_straw', 'num:1', 56)} strawberry : ${inp('p4_s4', 'p4_straw', 'num:3', 56)} spoons yogurt</div>
+     ${chk('p4_straw', 'Check ✓', '3 − 3 = 0 strawberries! For the fix, divide BOTH numbers by 3.')}
+     <div class="reveal note" id="rv-p4_straw">😂 Blendo invented a strawberry smoothie with <b>zero strawberries</b>. Scaling down also needs the same divide on every ingredient.</div>`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p4_big', '💡', `<div class="vs">
+      <div class="g">${jugSVG(2, 5, 'd')}<b>Sunset Squeeze</b><br>${pm(2)} : ${ps(3)}</div><div style="font-family:var(--head);font-size:30px">vs</div>
+      <div class="g">${jugSVG(100, 201, 'e')}<b>Giant Jug</b><br>${pm(100)} : ${ps(101)}</div></div>
+     <p class="q">In both, sparkling is exactly 1 cup more than mango. Is the <b>difference</b> the same?</p>
+     ${chs('p4_b1', 'p4_big', 'sel:yes', [['yes', 'Yes'], ['no', 'No']])}
+     <p class="q">Do they <b>taste</b> the same?</p>
+     ${chs('p4_b2', 'p4_big', 'sel:no', [['yes', 'Yes'], ['no', 'No']])}
+     <p class="q">So taste depends on…</p>
+     ${chs('p4_b3', 'p4_big', 'sel:times', [['diff', 'the difference'], ['times', 'the times-relationship (fraction of the whole)'], ['size', 'the size of the cup']])}
+     ${chk('p4_big', 'Check ✓', '2 out of 5 is 40% mango. 100 out of 201 is almost 50% mango. Same difference — very different taste!')}`, { wide: false, c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   <section class="card wide discover reveal" id="discoverBox" style="--c:var(--orange)"><header><span class="ic" style="background:#fff">🔬</span><h3>Lab discovery</h3></header>
+     <div class="disc"><div class="a" style="color:var(--ink)"><h4>When you ADD the same amount…</h4>The difference stays the same.<br>The fraction of the whole changes.<br><b>The taste changes ✗</b></div>
+     <div class="m" style="color:var(--ink)"><h4>When you MULTIPLY by the same number…</h4>The times-relationship stays the same.<br>The fraction of the whole stays the same.<br><b>The taste stays perfect ✔</b></div></div></section>
+   ${card('p4_explain', '📨', `${say('blendo', 'I still think adding is GREAT. Convince me, scientist!')}
+     <p class="q">Finish the message: "Blendo, your rule fails because…"</p>
+     ${txt('p4_ex', 'p4_explain', 'text:15', 'Blendo, your rule fails because…')}
+     ${chk('p4_explain', 'Send to Blendo 📨', 'Use one of today\'s ideas: fraction of the whole, the Sip Meter, or the zero-strawberry smoothie. (At least a full sentence!)')}
+     <div class="reveal" id="rv-p4_explain">${say('blendo', 'ERROR… ERROR… processing… Fine. Maybe adding is NOT always genius. 🫤')}</div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}`,
+   after: initStraw
+ },
+ { id: 'p5', name: 'Mission 3: Festival Order Board', short: 'Order Board', icon: '🎟️', time: '25–31 min', mins: 6, color: '#D77F28', color2: '#FAA71C',
+   goal: 'Scale Sunset Squeeze up and down by finding the multiplier.',
+   cast: ['jack', 'ruby'],
+   story: [
+     ['jack', 'Order tickets incoming! The festival needs drinks — huge jugs AND tiny tasting cups. 🎟️'],
+     ['ruby', 'Find the multiplier — how many batches — then use it on EVERY ingredient. Up or down.']
+   ],
+   tasks: [['p5_t1', 'Ticket 1 · Main Stage'], ['p5_t2', 'Ticket 2 · Kids\' Tasting Tent'], ['p5_t3', 'Ticket 3 · Mango Shortage'], ['p5_t4', 'Ticket 4 · VIP Tent'], ['p5_dnl', 'Double number line'], ['p5_bonus', 'Exactly 8 cups', true]],
+   notes: ['Model the ratio table with the SAME ×arrow on both rows: "same stretch on both sides".', 'Total given → divide by 5 first. One ingredient given → divide by its recipe amount.', 'Ticket 4 is meant to feel awkward (3.5 batches) — it leads into the Smart Trick.'],
+   answers: ['T1: 6 batches → 12 : 18', 'T2: 1 : 1.5 (2.5 cups)', 'T3: 5 batches → 15 sparkling, 25 cups', 'T4: 3.5 batches → not whole', 'Number line: 6, 12, 15', 'Bonus: 3.2 : 4.8'],
+   card: [4],
+   body: () => `
+   <section class="card wide" style="--c:var(--burnt)"><header><span class="ic" style="background:var(--burnt-l)">🥭</span><h3>Recipe on the board: Sunset Squeeze</h3></header>
+     <div class="row">${pm(2)} : ${ps(3)} &nbsp;→&nbsp; <span class="pill k">5 cups per batch</span></div></section>
+   ${card('p5_t1', '🎤', `<div class="ticket"><div class="tno">Ticket 1 · Main Stage</div><p class="q">We need <b>30 cups</b> of Sunset Squeeze!</p>
+     <div class="row">Batches: ${inp('p5_1a', 'p5_t1', 'num:6', 56)} &nbsp; Mango: ${inp('p5_1b', 'p5_t1', 'num:12', 56)} &nbsp; Sparkling: ${inp('p5_1c', 'p5_t1', 'num:18', 56)}</div></div>
+     ${chk('p5_t1', 'Fill the order ✓', '30 cups ÷ 5 cups per batch = number of batches. Then multiply 2 and 3 by it.')}`, { c: 'var(--burnt)', cl: 'var(--burnt-l)' })}
+   ${card('p5_t2', '🧒', `<div class="ticket"><div class="tno">Ticket 2 · Kids' Tasting Tent</div><p class="q">Just <b>half a batch</b>, please!</p>
+     <div class="row">Mango: ${inp('p5_2a', 'p5_t2', 'num:1', 56)} &nbsp; Sparkling: ${inp('p5_2b', 'p5_t2', 'num:1.5', 56)} &nbsp; Total: ${inp('p5_2c', 'p5_t2', 'num:2.5', 56)}</div></div>
+     ${chk('p5_t2', 'Fill the order ✓', 'Half a batch = ÷2 on every ingredient. Half of 3 is 1.5.')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p5_t3', '⚠️', `<div class="ticket"><div class="tno">Ticket 3 · Mango Shortage</div><p class="q">Only <b>10 cups of mango</b> left!</p>
+     <div class="row">Batches: ${inp('p5_3a', 'p5_t3', 'num:5', 56)} &nbsp; Sparkling: ${inp('p5_3b', 'p5_t3', 'num:15', 56)} &nbsp; Total cups: ${inp('p5_3c', 'p5_t3', 'num:25', 56)}</div></div>
+     ${chk('p5_t3', 'Fill the order ✓', 'Each batch uses 2 mango. 10 ÷ 2 = how many batches?')}`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p5_t4', '⭐', `<div class="ticket"><div class="tno">Ticket 4 · VIP Tent</div><p class="q">Only <b>7 cups of mango</b> left. How many batches is that?</p>
+     <div class="row">Batches: ${inp('p5_4a', 'p5_t4', 'num:3.5', 64)}</div>
+     <p class="q">Is that a whole number of batches?</p>${chs('p5_4b', 'p5_t4', 'sel:no', [['yes', 'Yes'], ['no', 'No — awkward!']])}</div>
+     ${chk('p5_t4', 'Check ✓', '7 ÷ 2 = 3.5. Half a batch is still a batch… but it gets messy. Ruby has a trick for this!')}
+     <div class="reveal note" id="rv-p5_t4">😬 3.5 batches is awkward. Real chefs don't panic — the next stall teaches the move.</div>`, { c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${card('p5_dnl', '📏', `<p class="q">On a double number line, the two lines stretch <b>together</b>. Fill the gaps.</p>
+     <div class="dnl"><span class="lb">🥭 Mango</span>${[0, 2, 4, 6, 8, 10].map(v => `<span class="c">${v}</span>`).join('')}
+      <span></span><div class="ln" style="background:var(--orange)"></div>
+      <span></span><div class="ln" style="background:#21DED7"></div>
+      <span class="lb">🫧 Sparkling</span><span class="c">0</span><span class="c">3</span>${inp('p5_n1', 'p5_dnl', 'num:6', 0)}<span class="c">9</span>${inp('p5_n2', 'p5_dnl', 'num:12', 0)}${inp('p5_n3', 'p5_dnl', 'num:15', 0)}</div>
+     ${chk('p5_dnl', 'Check ✓', 'Every jump of 2 on the mango line is a jump of 3 on the sparkling line.')}`, { wide: true, c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${S.path === 'Stretch' ? card('p5_bonus', '🚀', `<p class="q">★ Stretch: Jack wants <b>exactly 8 cups</b>. How much mango and sparkling?</p>
+     <div class="row">Mango: ${inp('p5_b1', 'p5_bonus', 'num:3.2', 64)} &nbsp; Sparkling: ${inp('p5_b2', 'p5_bonus', 'num:4.8', 64)}</div>
+     ${chk('p5_bonus', 'Check ✓', '8 ÷ 5 = 1.6 batches. Multiply 2 and 3 by 1.6.')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' }) : ''}`
+ },
+ { id: 'p6', name: 'Smart Trick: Shrink to One, Grow to Any', short: 'Smart Trick', icon: '🪄', time: '31–35 min', mins: 4, color: '#00A7B2', color2: '#00928E',
+   goal: 'Learn the move that works for ANY number — even 7 cups or 4.5 cups.',
+   cast: ['ruby', 'blendo'],
+   story: [
+     ['ruby', 'Ticket 4 had 7 cups of mango — not a whole number of batches. Real chefs don\'t panic. They use one move.'],
+     ['blendo', 'Is the move… ADDING? 🤖'],
+     ['ruby', 'No, Blendo. The move is: SHRINK TO ONE, then GROW TO ANY.']
+   ],
+   tasks: [['p6_shrink', 'Shrink to ONE'], ['p6_grow', 'Grow to ANY'], ['p6_finger', 'Flavour Fingerprint'], ['p6_rule', 'The magic rule'], ['p6_race', 'Mentor vs Scientist race'], ['p6_bonus', 'Half a cup of mango', true]],
+   notes: ['Shrink to one = the unit rate (unitary method in India; constant of proportionality in Grade 7).', 'Race: the mentor bar "spills" at 90% so the learner always wins.', 'Fingerprint: mango ÷ total must stay 2/5 = 40%.'],
+   answers: ['Shrink: 1 : 1.5', 'Grow: 7 : 10.5', 'Fingerprint: 40% · Blendo 8:17 — no', 'Rule: sparkling = mango × 1.5', 'Race: 13.5 · 19.5 · 6.75', 'Bonus: 0.75'],
+   card: [5],
+   body: () => `
+   ${card('p6_shrink', '🔽', `<p class="q"><b>Step 1 · SHRINK to ONE.</b> Divide both by 2:</p>
+     <div class="row" style="font-size:22px;font-weight:900">${pm(2)} : ${ps(3)} &nbsp;<span style="color:var(--crimson)">÷2 →</span>&nbsp; ${pm(1)} : ${inp('p6_s', 'p6_shrink', 'num:1.5', 70)} sparkling</div>
+     ${chk('p6_shrink', 'Check ✓', 'Half of 3 is…?')}
+     <div class="reveal note" id="rv-p6_shrink">✨ That's the <b>magic number</b>: every 1 cup of mango needs 1.5 cups of sparkling.</div>`, { c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${card('p6_grow', '🔼', `<p class="q"><b>Step 2 · GROW to ANY.</b> The VIP tent has 7 cups of mango:</p>
+     <div class="row" style="font-size:22px;font-weight:900">${pm(1)} : ${ps(1.5)} &nbsp;<span style="color:var(--crimson)">×7 →</span>&nbsp; ${pm(7)} : ${inp('p6_g', 'p6_grow', 'num:10.5', 76)} sparkling</div>
+     ${chk('p6_grow', 'Check ✓', '7 × 1.5 = 7 + 3.5')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p6_finger', '🫆', `<p class="q"><b>Step 3 · Fingerprint check.</b> Every perfect Sunset Squeeze is 40% mango. Check the VIP batch: 7 ÷ 17.5 =</p>
+     <div class="row">${inp('p6_f1', 'p6_finger', 'pct:40:1', 70, '%')} %</div>
+     <p class="q">Does Blendo's 8 : 9 (8 ÷ 17) have the same fingerprint?</p>
+     ${chs('p6_f2', 'p6_finger', 'sel:no', [['yes', 'Yes'], ['no', 'No']])}
+     ${chk('p6_finger', 'Check ✓', '7 + 10.5 = 17.5 cups in total. 7 is 0.4 of 17.5. Blendo\'s was about 47%.')}`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p6_rule', '📐', `<p class="q">Which rule ALWAYS gives the perfect Sunset Squeeze?</p>
+     ${chs('p6_r', 'p6_rule', 'sel:x15', [['p1', 'sparkling = mango + 1'], ['x15', 'sparkling = mango × 1.5'], ['x3', 'sparkling = mango × 3']])}
+     ${chk('p6_rule', 'Check ✓', 'Test each rule with 2 mango — you should get 3 sparkling. Then test with 4 mango — you should get 6.')}
+     <div class="reveal note" id="rv-p6_rule">🎓 You just wrote a proportional rule! Later in maths it's called <b>y = kx</b>. Here k = 1.5.</div>`, { c: 'var(--burnt)', cl: 'var(--burnt-l)' })}
+   ${card('p6_race', '🏁', `<p class="q">Your mentor uses a long ratio table. You use Shrink to One. Who fills Ruby's VIP orders first?</p>
+     <div class="race">
+      <div class="lanex"><span>🎓 Mentor (long way)</span><div class="track"><div class="fill" id="rMent" style="background:#FFD27A"></div><span class="run" id="rMentR" style="left:4%">🐢</span></div></div>
+      <div class="lanex"><span>🧪 ${nm()} (trick)</span><div class="track"><div class="fill" id="rSci" style="background:#BFF3F1"></div><span class="run" id="rSciR" style="left:4%">🚀</span></div></div>
+     </div>
+     <div class="row"><button class="btn o" id="raceGo">Start the race 🏁</button><span id="raceMsg" style="font-weight:900"></span></div>
+     <div class="row">9 mango → ${inp('p6_r1', 'p6_race', 'num:13.5', 70)} sparkling</div>
+     <div class="row">13 mango → ${inp('p6_r2', 'p6_race', 'num:19.5', 70)} sparkling</div>
+     <div class="row">4.5 mango → ${inp('p6_r3', 'p6_race', 'num:6.75', 70)} sparkling</div>
+     ${chk('p6_race', 'Finish line ✓', 'Multiply each mango amount by the magic number 1.5. (Half of it, then add it on.)')}`, { wide: true, c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${S.path === 'Stretch' ? card('p6_bonus', '🚀', `<p class="q">★ Stretch: only <b>0.5 cup</b> of mango. How much sparkling?</p><div class="row">${inp('p6_b1', 'p6_bonus', 'num:0.75', 70)} cups</div>${chk('p6_bonus', 'Check ✓', '0.5 × 1.5')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' }) : ''}`,
+   after: initRace
+ },
+ { id: 'p7', name: 'Shake-It Scaling + Mix or Miss?', short: 'Brain Break', icon: '💃', time: '35–38 min', mins: 3, color: '#FAA71C', color2: '#C92426',
+   goal: 'Move your body, then spot perfect mixes at lightning speed.',
+   cast: ['blendo', 'jack'],
+   story: [
+     ['blendo', 'WARNING: Scientist brain overheating. Initiating SHAKE-IT mode! 🕺'],
+     ['jack', 'Then a lightning round — spot the perfect mixes, fast! Every card is a version of Sunset Squeeze, 2 : 3.']
+   ],
+   tasks: [['p7_shake', 'Shake-It Scaling'], ['p7_light', 'Mix or Miss? lightning round']],
+   notes: ['Learner stands up. Mentor reads each command with energy.', 'Lightning: 8 cards, 60 seconds. Ask the learner to justify one card at the end.'],
+   answers: ['Shake: ×3 → 3 jumps 6 claps · ×2 → 2 jumps 4 claps · Blendo +2 → OFF-FLAVOUR', 'Lightning: 4:6 MIX · 5:6 MISS · 10:15 MIX · 3:4 MISS · 1:1.5 MIX · 20:21 MISS · 14:21 MIX · 6:10 MISS'],
+   body: () => `
+   ${card('p7_shake', '🕺', `<p class="q">Stand up! Movement recipe: <b>1 jump : 2 claps.</b></p>
+     <div class="shakebox" id="shakeBox"></div>
+     <div class="row" id="shakeBtns" style="justify-content:center"></div>`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p7_light', '⚡', `<p class="q">Same taste as 2 : 3? Call <b>MIX</b> or <b>MISS</b> — 60 seconds!</p>
+     <div class="row"><span class="timer" id="lTimer">60</span><span style="font-weight:900">seconds</span><span class="spacer"></span><span class="chip o" id="lScore">Score 0/8</span></div>
+     <div class="bigcard" id="lCard">Ready?</div>
+     <div class="row" style="justify-content:center"><button class="btn" id="lStart">Start ⚡</button><button class="btn" id="lMix" style="display:none;font-size:22px">MIX ✔</button><button class="btn r" id="lMiss" style="display:none;font-size:22px">MISS ✗</button></div>
+     <div id="lLog" class="row"></div>`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}`,
+   after: () => { initShake(); initLightning(); }
+ },
+ { id: 'p8', name: 'Boss Challenge: Golden Sunrise Punch', short: 'Boss', icon: '👑', time: '38–42 min', mins: 4, color: '#C92426', color2: '#FAA71C',
+   goal: 'Three ingredients, one festival finale — and one stubborn robot to fix.',
+   cast: ['ruby', 'blendo'],
+   story: [
+     ['ruby', 'The festival finale: my secret Golden Sunrise Punch. 2 mango : 3 orange : 5 sparkling. One batch makes 10 cups.'],
+     ['blendo', 'I already made 50 cups! I ADDED 13 to everything! 🎉'],
+     ['ruby', 'Oh no… Chief Flavour Scientist, over to you.']
+   ],
+   tasks: [['p8_b1', 'Boss 1 · The finale toast'], ['p8_b2', 'Boss 2 · Catch Blendo'], ['p8_b3', 'Boss 3 · Orange shortage'], ['p8_teach', 'Fix Blendo for good'], ['p8_stump', 'Stump the Mentor', true]],
+   notes: ['Award the Boss for a REASON, not just a number.', 'Teach-back: play a stubborn Blendo — "But adding is EASIER!" Let the learner win the argument.', 'Stump the Mentor (optional): answer the learner\'s question with Blendo\'s mistake once so they catch it.'],
+   answers: ['Boss 1: ×5 → 10 : 15 : 25', 'Boss 2: 49 cups · mango ≈ 31% (should be 20%) · Blendo is wrong', 'Boss 3: ×3 → 6 : 9 : 15, 30 cups', 'Teach-back: any reasoned explanation'],
+   body: () => `
+   <section class="card wide" style="--c:var(--crimson);background:linear-gradient(120deg,#fff,var(--orange-l))"><header><span class="ic" style="background:var(--orange)">🌅</span><h3>Golden Sunrise Punch</h3></header>
+     <div class="row" style="font-size:20px">${pm(2)} : <span class="pill o">3 orange</span> : ${ps(5)} &nbsp;→&nbsp; <span class="pill k">10 cups per batch</span></div></section>
+   ${card('p8_b1', '🥂', `<p class="q">The finale toast needs <b>50 cups</b>.</p>
+     <div class="row">Mango ${inp('p8_1a', 'p8_b1', 'num:10', 56)} : Orange ${inp('p8_1b', 'p8_b1', 'num:15', 56)} : Sparkling ${inp('p8_1c', 'p8_b1', 'num:25', 56)}</div>
+     ${chk('p8_b1', 'Mix it ✓', '50 ÷ 10 = 5 batches. Multiply EVERY ingredient by 5.')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p8_b2', '🕵️', `${say('blendo', 'My 50 cups: 15 mango : 16 orange : 18 sparkling. I added 13 to everything!')}
+     <div class="row">Total cups Blendo made: ${inp('p8_2a', 'p8_b2', 'num:49', 56)}</div>
+     <div class="row">Blendo's mango % (15 ÷ 49): ${inp('p8_2b', 'p8_b2', 'pct:30.6:1.6', 64, '%')}% &nbsp; <small style="font-weight:800">(Ruby's is 2 ÷ 10 = 20%)</small></div>
+     ${chs('p8_2c', 'p8_b2', 'sel:wrong', [['right', 'Blendo is right'], ['wrong', 'Blendo is wrong — two ways!']])}
+     ${chk('p8_b2', 'Catch him ✓', '15 + 16 + 18 = ? And 15 ÷ 49 is a bit less than a third (about 31%).')}`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p8_b3', '🍊', `<p class="q">★ Only <b>9 cups of orange</b> left. How much of everything?</p>
+     <div class="row">Multiplier ×${inp('p8_3a', 'p8_b3', 'num:3', 50)} → Mango ${inp('p8_3b', 'p8_b3', 'num:6', 50)} : Orange 9 : Sparkling ${inp('p8_3c', 'p8_b3', 'num:15', 50)}</div>
+     <div class="row">Total cups: ${inp('p8_3d', 'p8_b3', 'num:30', 56)}</div>
+     ${chk('p8_b3', 'Mix it ✓', 'The recipe has 3 orange. 9 ÷ 3 = the multiplier.')}`, { c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${card('p8_teach', '🗣️', `${say('blendo', 'But adding is EASIER! Why should I multiply?! 😤')}
+     <p class="q">Convince Blendo for good. Use a reason.</p>
+     ${txt('p8_t', 'p8_teach', 'text:15', 'Blendo, you have to multiply because…')}
+     ${chk('p8_teach', 'Convince Blendo 💬', 'Try: the fraction of the whole, the Sip Meter, or the zero-strawberry smoothie.')}
+     <div class="reveal" id="rv-p8_teach">${say('blendo', 'REBOOTING… 🔄 NEW RULE INSTALLED: "NEED MORE? MULTIPLY MORE!" Thank you, Chief Flavour Scientist. 🤖💛')}</div>`, { wide: true, c: 'var(--burnt)', cl: 'var(--burnt-l)' })}
+   ${card('p8_stump', '😈', `<p class="q">Write the recipe for <b>${S.drink || 'your signature drink'}</b> and set your mentor a scale-up question.</p>
+     <div class="row">${inp('p8_s1', 'p8_stump', 'num:', 60, 'a')} cups of ${inp('p8_s2', 'p8_stump', 'any', 120, 'ingredient')} : ${inp('p8_s3', 'p8_stump', 'any', 60, 'b')} cups of ${inp('p8_s4', 'p8_stump', 'any', 120, 'ingredient')}</div>
+     ${txt('p8_s5', 'p8_stump', 'text:6', 'My question for the mentor…')}
+     ${chk('p8_stump', 'Challenge the mentor 😈', 'Fill in the recipe and your question.')}`, { wide: true, c: 'var(--orange)', cl: 'var(--orange-l)' })}`
+ },
+ { id: 'p9', name: 'Mastery Check & Golden Ladle', short: 'Golden Ladle', icon: '🏆', time: '42–45 min', mins: 3, color: '#D77F28', color2: '#C92426',
+   goal: 'One last taste test — then the grand celebration!',
+   cast: ['ruby', 'jack', 'blendo'],
+   story: [
+     ['ruby', 'Final taste test before the gates open. Let\'s see how far you\'ve come today!'],
+     ['jack', 'The crowd is lining up… 500 people! 🎪']
+   ],
+   tasks: [['p9_e1', 'Mint Cooler order'], ['p9_e2', 'Blendo\'s last claim'], ['p9_e3', 'Confidence now'], ['p9_pred', 'Open your prediction']],
+   notes: ['E1–E3 mirror D1–D3. The growth table appears once they are done — talk it through.', 'Prediction revisit: let the learner correct their own earlier thinking.', 'When everything is done the grand celebration opens automatically.'],
+   answers: ['E1: 9 lime : 15 soda', 'E2: Disagree (3/8 = 37.5% vs 6/14 ≈ 43%)', 'E3: stars', 'Prediction: Disaster'],
+   body: () => `
+   ${card('p9_e1', '🌿', `<p class="q"><span class="n">1</span>Mint Cooler is <span class="pill s" style="background:#BFF3B0">3 lime</span> : ${ps(5, 'soda')} and makes 8 cups. Ruby needs <b>24 cups</b>.</p>
+     <div class="row">${inp('p9_1a', 'p9_e1', 'num:9', 56)} lime : ${inp('p9_1b', 'p9_e1', 'num:15', 56)} soda</div>
+     ${chk('p9_e1', 'Check ✓', '24 ÷ 8 = 3 batches.')}`, { c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   ${card('p9_e2', '🤖', `${say('blendo', 'Old habits… I made 6 lime : 8 soda. I added 3 to each — same taste!')}
+     ${chs('p9_2a', 'p9_e2', 'sel:disagree', [['agree', 'I agree 👍'], ['disagree', 'I disagree 👎']])}
+     <div style="margin-top:8px">${txt('p9_2b', 'p9_e2', 'text:5', 'Because…')}</div>
+     ${chk('p9_e2', 'Check ✓', 'Lime was 3 out of 8 cups (37.5%). Now it\'s 6 out of 14 — about 43%.')}`, { c: 'var(--crimson)', cl: 'var(--crimson-l)' })}
+   ${card('p9_e3', '⭐', `<p class="q"><span class="n">3</span>How sure do you feel NOW about making recipes bigger or smaller?</p>${stars('p9_conf', 'p9_e3')}${chk('p9_e3', 'Save my rating', 'Tap 1 to 5 stars.')}`, { c: 'var(--orange)', cl: 'var(--orange-l)' })}
+   ${card('p9_pred', '🔓', `<p class="q">At the start you said Blendo's rule was <b id="oldPred">…</b></p>
+     <p class="q">Now that you're a Chief Flavour Scientist, is "Need more? Add more!" genius or a disaster?</p>
+     ${chs('p9_p1', 'p9_pred', 'sel:disaster', [['genius', 'Genius 🤩'], ['disaster', 'Disaster 💥']])}
+     <div style="margin-top:8px">${txt('p9_p2', 'p9_pred', 'text:5', 'Because…')}</div>
+     ${chk('p9_pred', 'Unlock my answer 🔓', 'Remember the zero-strawberry smoothie!')}`, { c: 'var(--burnt)', cl: 'var(--burnt-l)' })}
+   ${infoCard('growthCard', '📈', 'Your growth today', `<div id="growthBody" style="font-weight:700">Finish the three questions above to see your growth.</div>`, { wide: true, c: 'var(--teal)', cl: 'var(--teal-l)' })}
+   <section class="card wide" style="--c:var(--orange);text-align:center"><h3 style="font-family:var(--head)">The gates are opening…</h3>
+     <button class="btn grandbtn" id="grandBtn" disabled>🎉 Start the grand celebration</button><p style="font-weight:700;margin:8px 0 0" id="grandMsg">Finish every activity on this stall to unlock the celebration.</p></section>`,
+   after: () => {
+     const p = S.inputs.p1_pred; $('#oldPred').textContent = p ? (p === 'genius' ? 'GENIUS 🤩' : 'a DISASTER 💥') : 'not recorded';
+     renderGrowth(); refreshGrand();
+   }
+ }
+];
+const FORMULA = [
+  'A ratio is a recipe. Every batch has the same mix. More drink = more BATCHES.',
+  'Taste = the fraction of the whole. Same fraction → same taste.',
+  'To keep the taste, multiply or divide EVERY ingredient by the SAME number.',
+  'Find the multiplier (how many batches), then apply it to EVERY ingredient — up or down.',
+  'Shrink to ONE, then grow to ANY. Check the Flavour Fingerprint.'
+];
+
+/* task registry */
+const TASKS = {};
+PHASES.forEach((p, i) => p.tasks.forEach(t => TASKS[t[0]] = { phase: i, label: t[1], opt: !!t[2] }));
+const reqTasks = i => PHASES[i].tasks.filter(t => !t[2]).map(t => t[0]);
+const phaseDone = i => reqTasks(i).every(k => S.done[k]);
+
+/* ---------------- sound (Web Audio) ---------------- */
+let AC = null;
+function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } } if (AC.state === 'suspended') AC.resume(); return AC; }
+function tone(f, t0, d, type = 'sine', v = .18, f2) {
+  const c = ac(); if (!c || !S.sound) return; const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, c.currentTime + t0); if (f2) o.frequency.exponentialRampToValueAtTime(f2, c.currentTime + t0 + d);
+  g.gain.setValueAtTime(0.0001, c.currentTime + t0); g.gain.exponentialRampToValueAtTime(v, c.currentTime + t0 + .02); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + t0 + d);
+  o.connect(g).connect(c.destination); o.start(c.currentTime + t0); o.stop(c.currentTime + t0 + d + .05);
+}
+function noise(t0, d, v = .15, fc = 1200) {
+  const c = ac(); if (!c || !S.sound) return; const b = c.createBuffer(1, c.sampleRate * d, c.sampleRate), da = b.getChannelData(0);
+  for (let i = 0; i < da.length; i++) da[i] = (Math.random() * 2 - 1) * (1 - i / da.length);
+  const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); f.type = 'bandpass'; f.frequency.value = fc; g.gain.value = v;
+  s.buffer = b; s.connect(f).connect(g).connect(c.destination); s.start(c.currentTime + t0);
+}
+const SND = {
+  ok() { tone(660, 0, .12, 'triangle', .2); tone(880, .1, .12, 'triangle', .2); tone(1320, .2, .25, 'triangle', .18); noise(.0, .25, .05, 3000); },
+  miss() { tone(330, 0, .18, 'sawtooth', .12, 220); tone(220, .18, .35, 'sawtooth', .12, 130); },
+  rec() { tone(740, 0, .15, 'sine', .15); tone(988, .12, .2, 'sine', .12); },
+  click() { tone(1200, 0, .04, 'square', .05); },
+  unlock() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .09, .25, 'triangle', .18)); },
+  card() { [392, 523, 659, 784].forEach((f, i) => tone(f, i * .12, .3, 'square', .1)); [523, 659, 784].forEach(f => tone(f, .55, .7, 'triangle', .12)); },
+  pour() { noise(0, .9, .12, 700); tone(500, 0, .8, 'sine', .04, 900); },
+  tick() { tone(1500, 0, .05, 'square', .05); },
+  finale() {
+    const m = [523, 659, 784, 1047, 784, 1047, 1319, 1568]; m.forEach((f, i) => tone(f, i * .16, .3, 'triangle', .18));
+    [[523, 659, 784], [587, 740, 880], [659, 831, 988], [784, 988, 1175]].forEach((ch, i) => ch.forEach(f => tone(f, 1.4 + i * .45, .6, 'square', .06)));
+    [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, 3.3 + i * .08, 1.2, 'triangle', .14));
+    for (let i = 0; i < 8; i++) noise(1.4 + i * .3, .3, .06, 2500);
+  }
+};
+
+/* ---------------- confetti / fireworks ---------------- */
+const fx = $('#fx'), fctx = fx.getContext('2d'); let parts = [], fxOn = false, fwTimer = null;
+function sizeFx() { const d = devicePixelRatio || 1; fx.width = innerWidth * d; fx.height = innerHeight * d; fctx.setTransform(d, 0, 0, d, 0, 0); }
+const FXC = ['#00A7B2', '#FAA71C', '#D77F28', '#C92426', '#21DED7', '#FFFFFF'];
+function burst(x, y, n = 40, spd = 7) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, s = Math.random() * spd + 2; parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 3, g: .18, l: 70 + Math.random() * 40, c: FXC[i % FXC.length], r: Math.random() * 6 + 3, rot: Math.random() * 6, sh: Math.random() < .5 }); }
+  if (!fxOn) { fxOn = true; requestAnimationFrame(fxLoop); }
+}
+function fxLoop() {
+  fctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += p.g; p.vx *= .99; p.l--; p.rot += .15; fctx.save(); fctx.globalAlpha = Math.max(0, Math.min(1, p.l / 40)); fctx.fillStyle = p.c; fctx.translate(p.x, p.y); fctx.rotate(p.rot);
+    if (p.sh) fctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); else { fctx.beginPath(); fctx.arc(0, 0, p.r / 2, 0, 7); fctx.fill(); } fctx.restore(); });
+  parts = parts.filter(p => p.l > 0 && p.y < innerHeight + 40);
+  if (parts.length) requestAnimationFrame(fxLoop); else { fxOn = false; fctx.clearRect(0, 0, innerWidth, innerHeight); }
+}
+function rain(n = 160) { for (let i = 0; i < n; i++) { parts.push({ x: Math.random() * innerWidth, y: -20 - Math.random() * 300, vx: Math.random() * 2 - 1, vy: Math.random() * 3 + 2, g: .05, l: 260, c: FXC[i % 5], r: Math.random() * 8 + 4, rot: 0, sh: true }); } if (!fxOn) { fxOn = true; requestAnimationFrame(fxLoop); } }
+function fireworks(sec = 7) { clearInterval(fwTimer); const end = Date.now() + sec * 1000; fwTimer = setInterval(() => { if (Date.now() > end) return clearInterval(fwTimer); burst(Math.random() * innerWidth * .8 + innerWidth * .1, Math.random() * innerHeight * .45 + 60, 60, 9); }, 380); }
+
+/* ---------------- toast / modal ---------------- */
+let tT; function toast(m, ms = 2600) { const t = $('#toast'); t.innerHTML = m; t.classList.add('show'); clearTimeout(tT); tT = setTimeout(() => t.classList.remove('show'), ms); }
+function modal(html) { $('#mcontent').innerHTML = html; $('#modal').classList.add('open'); }
+function closeModal() { $('#modal').classList.remove('open'); }
+$('#mx').onclick = closeModal; $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+/* ---------------- answer checking ---------------- */
+function parseNum(s) {
+  s = String(s).trim().replace(/,/g, '').replace(/\s+/g, ' '); let pct = false;
+  if (s.endsWith('%')) { pct = true; s = s.slice(0, -1).trim(); }
+  if (!s) return { v: NaN, pct };
+  let m = s.match(/^(-?\d+) (\d+)\/(\d+)$/); if (m) return { v: +m[1] + (+m[2] / +m[3]), pct };
+  m = s.match(/^(-?\d*\.?\d+)\s*\/\s*(\d*\.?\d+)$/); if (m) return { v: +m[1] / +m[2], pct };
+  return { v: Number(s), pct };
+}
+function judge(spec, val) {
+  val = val == null ? '' : String(val); const [kind, a, b] = spec.split(':');
+  if (kind === 'any') return val.trim().length > 0;
+  if (kind === 'text') return val.trim().length >= (+a || 1);
+  if (kind === 'sel') return val === a;
+  if (kind === 'num' && a === '') return val.trim().length > 0;
+  const p = parseNum(val); if (isNaN(p.v)) return false; const t = +a;
+  if (kind === 'num') return Math.abs(p.v - t) <= (b ? +b : 0.001);
+  if (kind === 'frac') { const tol = b ? +b : 0.006; const c = [p.pct ? p.v / 100 : p.v]; if (!p.pct && p.v > 1) c.push(p.v / 100); return c.some(x => Math.abs(x - t) <= tol); }
+  if (kind === 'pct') { const tol = b ? +b : 0.6; const c = [p.v]; if (!p.pct && p.v <= 1) c.push(p.v * 100); return c.some(x => Math.abs(x - t) <= tol); }
+  return false;
+}
+const getVal = el => el.classList.contains('choices') ? (el.dataset.value || '') : el.value;
+function setVal(el, v) {
+  if (el.classList.contains('choices')) {
+    el.dataset.value = v; $$('button', el).forEach(b => b.classList.toggle('sel', b.dataset.v === v));
+    if (el.classList.contains('stars')) $$('button', el).forEach(b => b.classList.toggle('lit', +b.dataset.v <= +v));
+  } else el.value = v;
+}
+function checkGroup(g, btn) {
+  const els = $$(`[data-g="${g}"]`); if (!els.length) return;
+  const record = els.some(e => e.dataset.a.startsWith('rec:'));
+  const cardEl = $('#card-' + g);
+  if (record) {
+    const filled = els.every(e => getVal(e).trim().length > 0);
+    if (!filled) { SND.miss(); cardEl && shake(cardEl); showHint(g); return; }
+    S.diag[g] = els.every(e => judge(e.dataset.a.slice(4), getVal(e)));
+    SND.rec(); complete(g); return;
+  }
+  let all = true;
+  els.forEach(e => { const ok = judge(e.dataset.a, getVal(e)); all = all && ok; e.classList.toggle('ok', ok); e.classList.toggle('bad', !ok); });
+  if (!(g in S.first)) S.first[g] = all;
+  if (all) {
+    SND.ok(); S.correct++; S.stars++; const r = (btn || cardEl || document.body).getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 45);
+    complete(g);
+  } else {
+    SND.miss(); S.miss++; cardEl && shake(cardEl); showHint(g);
+    toast(['🤖 Blendo: "Not quite! Even I would check that again."', '🧃 Ruby: "Close! Look at the hint and try again."', '🤖 Blendo: "Recalculating… try once more!"'][Math.floor(Math.random() * 3)]);
+  }
+  save(); updateTop();
+}
+function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function showHint(g) { const h = $('#hint-' + g); if (h) h.classList.add('show'); }
+
+/* ---------------- completion & unlocking ---------------- */
+const HOOKS = {
+  p1_lab() { S.lab = (S.inputs.p1_labname || '').trim(); S.drink = (S.inputs.p1_drinkname || '').trim(); toast(`🧪 Welcome to The ${S.lab} Lab!`); },
+  p4_sip() { placeMeter(true); SND.pour(); },
+  p4_big() { $('#discoverBox')?.classList.add('show'); },
+  p6_race() { raceWin(); },
+  p9_e1: renderGrowth, p9_e2: renderGrowth, p9_e3: renderGrowth
+};
+function complete(k, silent) {
+  if (!TASKS[k]) return;
+  const first = !S.done[k]; S.done[k] = true; save();
+  markCard(k); if (first && HOOKS[k]) HOOKS[k]();
+  updateDock(); updateLane();
+  const pi = TASKS[k].phase;
+  if (phaseDone(pi) && !S.complete[pi]) phaseComplete(pi, silent);
+}
+function markCard(k) {
+  const c = $('#card-' + k); if (c) { c.classList.add('done'); const st = $('.st', c); if (st) st.textContent = 'Done'; }
+  const rv = $('#rv-' + k); if (rv) rv.classList.add('show');
+  const h = $('#hint-' + k); if (h) h.classList.remove('show');
+  if (k === 'p1_story') $('#story')?.classList.add('done');
+}
+function phaseComplete(pi, silent) {
+  S.complete[pi] = true; save();
+  const newCards = (PHASES[pi].card || []).filter(n => !S.cards.includes(n));
+  newCards.forEach(n => S.cards.push(n)); save(); updateTop();
+  if (S.autoUnlock && pi < PHASES.length - 1) unlockTo(pi + 1, true);
+  if (!silent) {
+    if (newCards.length) setTimeout(() => showCards(newCards), 700);
+    else if (pi < PHASES.length - 1) { SND.unlock(); toast(S.autoUnlock ? `🔓 ${PHASES[pi + 1].short} is unlocked!` : '✅ Stall complete — waiting for the mentor to unlock the next stall.'); }
+  }
+  if (pi === PHASES.length - 1) { refreshGrand(); if (!silent && !S.finaleSeen) setTimeout(openFinale, 1600); }
+  updateDock();
+}
+function unlockTo(i, quiet) { if (i > S.unlocked) { S.unlocked = Math.min(i, PHASES.length - 1); save(); updateLane(); updateDock(); if (!quiet) { SND.unlock(); toast(`🔓 ${PHASES[S.unlocked].short} unlocked by the mentor`); } } }
+function showCards(nums) {
+  SND.card(); rain(90);
+  modal(`<h2>Formula Card${nums.length > 1 ? 's' : ''} earned!</h2>${nums.map(n => `<div class="fcard" style="margin:12px 0"><div class="no">Formula Card ${n} of 5</div><div class="tx">${FORMULA[n - 1]}</div></div>`).join('')}
+    <p style="font-weight:800">${S.autoUnlock && TASKS ? '🔓 The next stall on the festival route is now open.' : ''}</p><div class="row"><button class="btn o" onclick="closeModal()">Add to my rulebook 📒</button></div>`);
+}
+
+/* ---------------- rendering ---------------- */
+function renderLane() {
+  $('#lane').innerHTML = PHASES.map((p, i) => `<button class="stall" data-ph="${i}" aria-label="${p.name}">
+    <svg viewBox="0 0 46 56"><clipPath id="cup${i}"><path d="M6 10h34l-4 42H10z"/></clipPath>
+      <path d="M6 10h34l-4 42H10z" fill="#fff"/><rect class="lv" x="0" y="52" width="46" height="0" fill="${p.color}" clip-path="url(#cup${i})"/>
+      <path d="M6 10h34l-4 42H10z" fill="none" stroke="#16202A" stroke-width="2.6"/><path d="M28 10l6-9" stroke="#C92426" stroke-width="3" stroke-linecap="round"/>
+      <text x="23" y="38" text-anchor="middle" font-size="15">${p.icon}</text></svg>
+    <span class="nm">${p.short}</span><span class="tm">${p.time}</span><span class="lk"></span></button>`).join('');
+  updateLane();
+}
+function updateLane() {
+  $$('.stall').forEach((b, i) => {
+    const t = reqTasks(i), d = t.filter(k => S.done[k]).length, f = t.length ? d / t.length : 0;
+    const r = $('.lv', b); r.setAttribute('y', 52 - 42 * f); r.setAttribute('height', 42 * f);
+    b.classList.toggle('locked', i > S.unlocked); b.classList.toggle('cur', i === S.phase);
+    $('.lk', b).textContent = i > S.unlocked ? '🔒' : (S.complete[i] ? '✅' : '');
+  });
+}
+function renderPhase(i) {
+  clearInterval(lInt); clearInterval(raceInt);
+  S.phase = i; S.phaseStart = Date.now(); save();
+  const p = PHASES[i];
+  const st = $('#stage');
+  st.innerHTML = `
+   <section class="hero" style="background:linear-gradient(120deg,${p.color},${p.color2})">
+     <div class="pn">Stall ${i + 1} of ${PHASES.length} · ${p.time}</div>
+     <h1>${p.icon} ${p.name}</h1><p>${p.goal}</p>
+     <div class="meta"><span>🧪 ${S.lab ? 'The ' + S.lab + ' Lab' : 'Lab not named yet'}</span><span>📒 ${S.cards.length}/5 Formula Cards</span><span>🛤️ ${S.path} path</span></div>
+     <div class="cast">${p.cast.map(c => CH[c]()).join('')}</div>
+     <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0z" fill="rgba(255,255,255,.35)"/><path d="M0 28 Q150 12 300 28 T600 28 T900 28 T1200 28 V40 H0z" fill="rgba(255,255,255,.6)"/></svg>
+   </section>
+   <section class="story" id="story"><div class="who" id="sWho"></div><div><div class="bub" id="sText"></div>
+     <div class="nav"><button class="btn w" id="sPrev">◀ Back</button><button class="btn o" id="sNext">Next ▶</button><div class="dots" id="sDots"></div></div></div></section>
+   <div class="grid">${p.body()}</div>`;
+  // restore inputs
+  $$('[data-id]', st).forEach(el => { const v = S.inputs[el.dataset.id]; if (v != null) setVal(el, v); });
+  // restore done states
+  p.tasks.forEach(t => { if (S.done[t[0]]) { markCard(t[0]); if (!$$(`[data-g="${t[0]}"]`).some(e => e.dataset.a.startsWith('rec:'))) $$(`[data-g="${t[0]}"]`).forEach(e => e.classList.add('ok')); } });
+  if (S.done.p4_big) $('#discoverBox')?.classList.add('show');
+  renderStory();
+  p.after && p.after();
+  if (i === 3) placeMeter(false);
+  updateLane(); updateDock(); renderMentor(); redrawWB();
+  window.scrollTo(0, 0);
+}
+function renderStory() {
+  const p = PHASES[S.phase], pos = Math.min(S.storyPos[p.id] || 0, p.story.length - 1), [who, t] = p.story[pos];
+  $('#sWho').innerHTML = CH[who]() + `<b>${who === 'sci' ? nm() : NAMES[who][0]}</b><small>${NAMES[who][1]}</small>`;
+  $('#sText').textContent = t.replace('{name}', nm());
+  $('#sDots').innerHTML = p.story.map((_, j) => `<i class="${j <= pos ? 'on' : ''}"></i>`).join('');
+  $('#sPrev').disabled = pos === 0;
+  $('#sNext').textContent = pos === p.story.length - 1 ? 'Let\'s go! ✔' : 'Next ▶';
+  $('#sPrev').onclick = () => { S.storyPos[p.id] = Math.max(0, pos - 1); save(); renderStory(); SND.click(); };
+  $('#sNext').onclick = () => {
+    SND.click();
+    if (pos < p.story.length - 1) { S.storyPos[p.id] = pos + 1; save(); renderStory(); if (pos + 1 === p.story.length - 1 && p.id === 'p1') complete('p1_story'); }
+    else { if (p.id === 'p1') complete('p1_story'); const c = $('.grid .card'); c && c.scrollIntoView({ block: 'start' }); }
+  };
+}
+
+/* ---------------- dock & tracker ---------------- */
+function updateDock() {
+  const i = S.phase, p = PHASES[i], req = reqTasks(i), d = req.filter(k => S.done[k]).length;
+  $('#progTxt').textContent = `${d}/${req.length}`; $('#progBar').style.width = (req.length ? d / req.length * 100 : 0) + '%';
+  const todo = p.tasks.filter(t => !S.done[t[0]]), done = p.tasks.filter(t => S.done[t[0]]);
+  $('#todo').innerHTML = (todo.filter(t => !t[2]).length ? '<span class="lbl">Still to do:</span>' : '<span class="lbl" style="color:var(--teal-dd)">All done on this stall! 🎉</span>') +
+    todo.map(t => `<button class="tchip ${t[2] ? 'op' : ''}" data-go="${t[0]}">${t[2] ? '☆ ' : '○ '}${t[1]}</button>`).join('') +
+    done.map(t => `<button class="tchip ok" data-go="${t[0]}">✔ ${t[1]}</button>`).join('');
+  const nb = $('#btnNext'), last = i === PHASES.length - 1;
+  nb.textContent = last ? '🏆 Celebrate' : 'Next stall ▶';
+  nb.classList.toggle('ready', last ? phaseDone(i) : S.unlocked > i);
+}
+function goTask(k) {
+  const el = k === 'p1_story' ? $('#story') : $('#card-' + k); if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+function tryGo(i) {
+  if (i === S.phase) return;
+  if (i > S.unlocked) {
+    const prev = S.unlocked, miss = PHASES[prev].tasks.filter(t => !t[2] && !S.done[t[0]]).map(t => t[1]);
+    SND.miss(); toast(miss.length ? `🔒 Finish "${PHASES[prev].short}" first: ${miss.join(', ')}` : '🔒 Waiting for the mentor to unlock this stall.', 3600);
+    if (S.phase !== prev) renderPhase(prev); else miss.length && goTask(PHASES[prev].tasks.find(t => !t[2] && !S.done[t[0]])[0]);
+    return;
+  }
+  SND.click(); renderPhase(i);
+}
+$('#btnNext').onclick = () => {
+  const i = S.phase;
+  if (i === PHASES.length - 1) { if (phaseDone(i)) openFinale(); else { const m = reqTasks(i).filter(k => !S.done[k]); toast('Still to do: ' + m.map(k => TASKS[k].label).join(', ')); goTask(m[0]); SND.miss(); } return; }
+  if (S.unlocked > i) { renderPhase(i + 1); SND.unlock(); return; }
+  const m = reqTasks(i).filter(k => !S.done[k]);
+  SND.miss();
+  if (m.length) { toast(`Finish these first: ${m.map(k => TASKS[k].label).join(', ')}`, 3400); goTask(m[0]); }
+  else toast('✅ All done! Waiting for the mentor to unlock the next stall.');
+};
+function openTracker() {
+  const tot = PHASES.reduce((a, _, i) => a + reqTasks(i).length, 0), dn = PHASES.reduce((a, _, i) => a + reqTasks(i).filter(k => S.done[k]).length, 0);
+  modal(`<h2>📋 Activity tracker</h2><p style="font-weight:800">${dn} of ${tot} activities finished · ${tot - dn} still to do</p>
+   ${PHASES.map((p, i) => `<div class="trk-ph" style="border-color:${i > S.unlocked ? 'var(--line)' : 'var(--ink)'}"><h4>${p.icon} ${p.name} ${i > S.unlocked ? '🔒' : S.complete[i] ? '✅' : ''}</h4>
+     <div class="tk">${p.tasks.map(t => `<button class="tchip ${S.done[t[0]] ? 'ok' : ''} ${t[2] ? 'op' : ''}" data-trk="${i}|${t[0]}">${S.done[t[0]] ? '✔' : t[2] ? '☆' : '○'} ${t[1]}</button>`).join('')}</div></div>`).join('')}`);
+}
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) { goTask(g.dataset.go); return; }
+  const t = e.target.closest('[data-trk]');
+  if (t) { const [i, k] = t.dataset.trk.split('|'); if (+i > S.unlocked) { toast('🔒 That stall is still locked.'); return; } closeModal(); if (+i !== S.phase) renderPhase(+i); setTimeout(() => goTask(k), 150); }
+});
+
+/* ---------------- stage events (delegation) ---------------- */
+$('#stage').addEventListener('click', e => {
+  const cb = e.target.closest('.choices button');
+  if (cb) { const box = cb.parentElement; setVal(box, cb.dataset.v); box.classList.remove('ok', 'bad'); S.inputs[box.dataset.id] = cb.dataset.v; save(); SND.click(); return; }
+  const ck = e.target.closest('[data-check]'); if (ck) { ac(); checkGroup(ck.dataset.check, ck); }
+});
+$('#stage').addEventListener('input', e => {
+  const el = e.target.closest('[data-id]'); if (!el) return; S.inputs[el.dataset.id] = el.value; el.classList.remove('ok', 'bad'); save();
+});
+$('#stage').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('input.ans')) { const g = e.target.dataset.g; const b = $(`[data-check="${g}"]`); b && b.click(); }
+});
+
+/* ---------------- widgets ---------------- */
+function initBar() {
+  const box = $('#barBox'); if (!box) return;
+  const draw = () => { box.innerHTML = S.bar.length ? S.bar.map(t => `<div class="bx ${t}">${t === 'm' ? '🥭' : '🫧'}</div>`).join('') : '<span style="color:var(--muted);font-weight:800">Tap the buttons to add cups…</span>'; };
+  draw();
+  $$('[data-bar]').forEach(b => b.onclick = () => { const a = b.dataset.bar; if (a === 'u') S.bar.pop(); else if (a === 'c') S.bar = []; else if (S.bar.length < 10) S.bar.push(a); SND.click(); save(); draw(); });
+  const multi = () => { $('#barMulti').innerHTML = [2, 3].map(n => `<p style="margin:6px 0;font-weight:900">${n} batches = ${n * 2} mango : ${n * 3} sparkling (${n * 5} cups)</p><div class="bar">${Array.from({ length: n }, () => '<div class="bx m">🥭</div>'.repeat(2) + '<div class="bx s">🫧</div>'.repeat(3)).join('<div class="bx gap"></div>')}</div>`).join(''); };
+  if (S.done.p3_bar) multi();
+  $('#barCheck').onclick = () => {
+    const m = S.bar.filter(x => x === 'm').length, s = S.bar.filter(x => x === 's').length;
+    if (m === 2 && s === 3) { SND.ok(); S.correct++; S.stars++; const r = $('#barCheck').getBoundingClientRect(); burst(r.left + 60, r.top, 45); multi(); complete('p3_bar'); updateTop(); }
+    else { SND.miss(); S.miss++; shake($('#card-p3_bar')); showHint('p3_bar'); }
+    save();
+  };
+}
+function initStraw() {
+  const row = $('#strawRow'); if (!row) return;
+  const draw = gone => { row.innerHTML = Array.from({ length: 3 }, () => `<span class="${gone ? 'gone' : ''}">🍓</span>`).join('') + '<span style="font-size:18px;font-weight:900;margin:0 6px">:</span>' + Array.from({ length: 9 }, (_, j) => `<span class="${gone && j < 3 ? 'gone' : ''}">🥄</span>`).join(''); };
+  draw(S.strawRun);
+  $('#strawRun').onclick = () => { draw(false); setTimeout(() => { draw(true); SND.miss(); toast('🤖 Blendo: "Ta-da! A strawberry smoothie with… zero strawberries?!"', 3200); S.strawRun = true; save(); }, 80); };
+}
+function placeMeter(anim) {
+  if (!$('#meter')) return;
+  const on = S.done.p4_sip;
+  $('#mkA').style.left = on ? '40%' : '3%'; $('#mkB').style.left = on ? '47%' : '6%'; $('#mkC').style.left = on ? '40%' : '9%';
+  $('#mkC').style.top = on ? '22px' : '-24px';
+  if (on && anim) setTimeout(() => { const r = $('#mkB').getBoundingClientRect(); burst(r.left, r.top, 30); }, 1200);
+}
+let raceInt = null, raceM = 0;
+function initRace() {
+  if (!$('#raceGo')) return;
+  if (S.done.p6_race) { raceWin(true); return; }
+  raceM = 0; clearInterval(raceInt);
+  $('#raceGo').onclick = () => {
+    clearInterval(raceInt); raceM = 0; $('#raceMsg').textContent = '🏁 Go!'; SND.unlock();
+    raceInt = setInterval(() => {
+      raceM = Math.min(90, raceM + 1.6);
+      $('#rMent').style.width = raceM + '%'; $('#rMentR').style.left = Math.max(4, raceM) + '%';
+      const ok = ['p6_r1', 'p6_r2', 'p6_r3'].filter(id => judge($(`[data-id="${id}"]`).dataset.a, $(`[data-id="${id}"]`).value)).length;
+      $('#rSci').style.width = (ok / 3 * 96) + '%'; $('#rSciR').style.left = Math.max(4, ok / 3 * 96) + '%';
+      if (raceM >= 90) { $('#raceMsg').textContent = '🫗 Oops — your mentor spilled the juice!'; }
+    }, 700);
+  };
+}
+function raceWin(quiet) {
+  clearInterval(raceInt);
+  if (!$('#rSci')) return;
+  $('#rSci').style.width = '100%'; $('#rSciR').style.left = '96%'; $('#rMent').style.width = (raceM || 70) + '%'; $('#rMentR').style.left = (raceM || 70) + '%';
+  $('#raceMsg').textContent = `🏆 ${nm()} wins! Shrink to One beats the long way.`;
+  if (!quiet) { SND.finale && tone(1568, .3, .5, 'triangle', .15); rain(60); }
+}
+const SHAKE = [
+  { cmd: 'Recipe: 1 jump : 2 claps', mv: '🦘 👏👏', btn: [['Did it ✔', 1]] },
+  { cmd: '×3!', mv: '🦘🦘🦘 👏👏👏👏👏👏', btn: [['Did it ✔', 1]] },
+  { cmd: '×2!', mv: '🦘🦘 👏👏👏👏', btn: [['Did it ✔', 1]] },
+  { cmd: 'Blendo version: ADD 2!', mv: '🦘🦘🦘 👏👏👏👏', btn: [['Do it 🦘', 0], ['OFF-FLAVOUR! 🚫', 1]] }
+];
+function initShake() {
+  const box = $('#shakeBox'); if (!box) return;
+  const draw = () => {
+    if (S.done.p7_shake || S.shake >= SHAKE.length) { box.innerHTML = '<div class="cmd">🎉 Shake-It complete!</div><div class="moves">Same × on both = same mix</div>'; $('#shakeBtns').innerHTML = ''; return; }
+    const s = SHAKE[S.shake];
+    box.innerHTML = `<div style="font-weight:900;color:var(--muted)">Command ${S.shake + 1} of ${SHAKE.length}</div><div class="cmd">${s.cmd}</div><div class="moves">${s.mv}</div>${S.shake === 3 ? '<div style="font-weight:800">3 jumps : 4 claps… is that the same mix?</div>' : ''}`;
+    $('#shakeBtns').innerHTML = s.btn.map(b => `<button class="btn ${b[1] ? (S.shake === 3 ? 'r' : '') : 'w'}" data-sh="${b[1]}">${b[0]}</button>`).join('');
+    $$('[data-sh]').forEach(b => b.onclick = () => {
+      if (b.dataset.sh === '1') { S.shake++; save(); if (S.shake === 4) { SND.ok(); S.stars++; updateTop(); const r = b.getBoundingClientRect(); burst(r.left + 50, r.top, 50); complete('p7_shake'); } else SND.click(); draw(); }
+      else { SND.miss(); toast('🤖 Blendo tricked you! Adding 2 claps breaks the 1 : 2 mix.'); shake($('#card-p7_shake')); }
+    });
+  };
+  draw();
+}
+const LCARDS = [['4 : 6', 1], ['5 : 6', 0], ['10 : 15', 1], ['3 : 4', 0], ['1 : 1.5', 1], ['20 : 21', 0], ['14 : 21', 1], ['6 : 10', 0]];
+let lInt = null;
+function initLightning() {
+  if (!$('#lStart')) return;
+  if (S.lightning && !S.lightning.over) S.lightning = null;
+  const L = S.lightning;
+  if (L && L.over) { $('#lCard').textContent = `Score ${L.score}/8 🏁`; $('#lScore').textContent = `Score ${L.score}/8`; $('#lTimer').textContent = L.t; $('#lStart').textContent = 'Play again ⚡'; logL(); }
+  $('#lStart').onclick = () => {
+    clearInterval(lInt); S.lightning = { i: 0, score: 0, t: 60, over: false, log: [] }; save();
+    $('#lStart').style.display = 'none'; $('#lMix').style.display = ''; $('#lMiss').style.display = ''; showL(); logL();
+    lInt = setInterval(() => { const L = S.lightning; L.t--; $('#lTimer').textContent = L.t; if (L.t <= 5 && L.t > 0) SND.tick(); if (L.t <= 0) endL(); }, 1000);
+  };
+  const ans = v => { const L = S.lightning; if (!L || L.over) return; const c = LCARDS[L.i]; const ok = c[1] === v; L.log.push([c[0], ok]); if (ok) { L.score++; SND.ok(); const r = $('#lCard').getBoundingClientRect(); burst(r.left + r.width / 2, r.top + 20, 20); } else SND.miss(); L.i++; $('#lScore').textContent = `Score ${L.score}/8`; logL(); save(); if (L.i >= LCARDS.length) endL(); else showL(); };
+  $('#lMix').onclick = () => ans(1); $('#lMiss').onclick = () => ans(0);
+}
+function showL() { $('#lCard').textContent = LCARDS[S.lightning.i][0]; }
+function logL() { const L = S.lightning; if (!L) return; $('#lLog').innerHTML = L.log.map(x => `<span class="tchip ${x[1] ? 'ok' : ''}" style="${x[1] ? '' : 'border-color:var(--crimson);background:var(--crimson-l)'}">${x[1] ? '✔' : '✗'} ${x[0]}</span>`).join(''); }
+function endL() {
+  clearInterval(lInt); const L = S.lightning; L.over = true; save();
+  $('#lMix').style.display = 'none'; $('#lMiss').style.display = 'none'; $('#lStart').style.display = ''; $('#lStart').textContent = 'Play again ⚡';
+  $('#lCard').textContent = `Score ${L.score}/8 🏁`; S.stars += L.score; updateTop(); rain(50); SND.unlock();
+  toast(`⚡ Lightning score: ${L.score}/8. Pick one card and explain it!`); complete('p7_light');
+}
+function renderGrowth() {
+  const b = $('#growthBody'); if (!b) return;
+  if (!(S.done.p9_e1 && S.done.p9_e2 && S.done.p9_e3)) return;
+  const c1 = +S.inputs.p2_conf || 0, c2 = +S.inputs.p9_conf || 0, yn = v => v ? '✔' : '✗';
+  b.innerHTML = `<table class="growth"><tr><th>Skill</th><th>Start of session</th><th>Now</th></tr>
+   <tr><td>Scale up a recipe</td><td>${S.diag.p2_d1 ? '✔' : '✗'}</td><td>${yn(S.first.p9_e1)}${S.first.p9_e1 ? '' : ' → ✔ after a retry'}</td></tr>
+   <tr><td>Spot Blendo's adding trap</td><td>${S.diag.p2_d2 ? '✔' : '✗'}</td><td>${yn(S.first.p9_e2)}${S.first.p9_e2 ? '' : ' → ✔ after a retry'}</td></tr>
+   <tr><td>Confidence</td><td>${'★'.repeat(c1)}${'☆'.repeat(5 - c1)}</td><td>${'★'.repeat(c2)}${'☆'.repeat(5 - c2)}</td></tr></table>
+   <p style="font-weight:900;margin:8px 0 0">${c2 > c1 ? `📈 Confidence grew by ${c2 - c1} star${c2 - c1 > 1 ? 's' : ''}!` : c2 === c1 ? '📊 Confidence held steady — and now it\'s backed by proof.' : '💬 Talk it through: what still feels tricky?'}</p>`;
+}
+function refreshGrand() { const b = $('#grandBtn'); if (!b) return; const ok = phaseDone(PHASES.length - 1); b.disabled = !ok; $('#grandMsg').textContent = ok ? 'Everything is finished. Let the festival begin!' : 'Finish every activity on this stall to unlock the celebration.'; b.onclick = openFinale; }
+
+/* ---------------- top bar ---------------- */
+function updateTop() {
+  $('#chipName').textContent = `🧪 ${nm()}${S.lab ? ' · The ' + S.lab + ' Lab' : ''}`;
+  $('#chipStars').textContent = `⭐ ${S.stars}`;
+  $('#fslots').innerHTML = [1, 2, 3, 4, 5].map(n => `<span class="fslot ${S.cards.includes(n) ? 'on' : ''}" title="Formula Card ${n}">${n}</span>`).join('');
+  $('#tSound').textContent = S.sound ? '🔊' : '🔇';
+}
+function openRulebook() {
+  modal(`<h2>📒 ${nm()}'s Lab Rulebook</h2>${FORMULA.map((f, i) => `<div class="rule ${S.cards.includes(i + 1) ? '' : 'off'}"><b>${i + 1}</b><span style="font-weight:800">${S.cards.includes(i + 1) ? f : 'Locked — keep mixing to earn this card.'}</span></div>`).join('')}`);
+}
+$('#fslots').onclick = openRulebook;
+$('#lane').addEventListener('click', e => { const b = e.target.closest('.stall'); if (b) tryGo(+b.dataset.ph); });
+$('#tSound').onclick = () => { S.sound = !S.sound; save(); updateTop(); if (S.sound) SND.click(); };
+$('#tTrack').onclick = openTracker;
+
+/* ---------------- mentor panel ---------------- */
+function renderMentor() {
+  const p = PHASES[S.phase], i = S.phase;
+  $('#mBody').innerHTML = `
+   <h4>⏱️ Stall timer</h4><div class="row"><span class="mtime" id="mTime">0:00</span><span style="font-weight:800">/ ${p.mins} min planned</span></div>
+   <h4>📍 Now: ${p.icon} ${p.name}</h4>
+   <div class="ctl"><button id="mUnlock">🔓 Unlock next stall</button><button id="mAll">Unlock every stall</button><button id="mDoneAll">✔ Mark this stall done</button></div>
+   <h4>🔁 Unlocking mode</h4>
+   <div class="ctl"><button data-auto="1" class="${S.autoUnlock ? 'on' : ''}">Auto-unlock when finished</button><button data-auto="0" class="${!S.autoUnlock ? 'on' : ''}">Mentor approves each stall</button></div>
+   <h4>🛤️ Learner path</h4>
+   <div class="ctl">${['Support', 'Core', 'Stretch'].map(x => `<button data-path="${x}" class="${S.path === x ? 'on' : ''}">${x}</button>`).join('')}</div>
+   <p style="font-size:13px;font-weight:700;margin:4px 0">Stretch adds bonus cards on stalls 5 and 6.</p>
+   ${i === 1 ? `<h4>📝 Diagnostic method seen</h4><div class="ctl">${[['A', 'A · adds'], ['B', 'B · builds up'], ['M', 'M · multiplies']].map(x => `<button data-meth="${x[0]}" class="${S.method === x[0] ? 'on' : ''}">${x[1]}</button>`).join('')}</div>` : ''}
+   <h4>🗒️ Mentor notes</h4><div class="ans-list" style="background:var(--teal-l)">${p.notes.map(n => `<div>• ${n}</div>`).join('')}</div>
+   <h4>🔑 Answers</h4><div class="ans-list">${p.answers.map(n => `<div>${n}</div>`).join('')}</div>
+   <h4>✅ Activities on this stall</h4>${p.tasks.map(t => `<div class="trow"><span class="s">${S.done[t[0]] ? '✅' : t[2] ? '☆' : '⬜'}</span>${t[1]}<button data-force="${t[0]}">${S.done[t[0]] ? 'Done' : 'Mark done'}</button></div>`).join('')}
+   <h4>🧭 Jump to a stall</h4><div class="ctl">${PHASES.map((q, j) => `<button data-jump="${j}" class="${j === i ? 'on' : ''}">${j + 1}. ${q.short}${j > S.unlocked ? ' 🔒' : ''}</button>`).join('')}</div>
+   <h4>📊 Session so far</h4><div class="ans-list" style="background:#fff;border:2px solid var(--line)">Correct first time: ${Object.values(S.first).filter(Boolean).length} · Retries: ${S.miss} · Stars: ${S.stars}<br>Diagnostic: D1 ${S.diag.p2_d1 == null ? '—' : S.diag.p2_d1 ? '✔' : '✗'} · D2 ${S.diag.p2_d2 == null ? '—' : S.diag.p2_d2 ? '✔' : '✗'} · confidence ${S.inputs.p2_conf || '—'}/5 · method ${S.method || '—'}</div>
+   <h4>⌨️ Shortcuts</h4><div style="font-size:13px;font-weight:700">W draw over lesson · B blank board · T tracker · M this panel · Esc close</div>
+   <h4>⚠️ Session</h4><div class="ctl"><button id="mFinale">🎉 Preview celebration</button><button id="mReset" style="border-color:var(--crimson);color:var(--crimson)">Reset whole session</button></div>`;
+  $('#mUnlock').onclick = () => { if (i < PHASES.length - 1) { unlockTo(i + 1); renderMentor(); } };
+  $('#mAll').onclick = () => { S.unlocked = PHASES.length - 1; save(); updateLane(); updateDock(); renderMentor(); SND.unlock(); toast('🔓 All stalls unlocked'); };
+  $('#mDoneAll').onclick = () => { p.tasks.filter(t => !t[2]).forEach(t => complete(t[0])); renderMentor(); };
+  $$('[data-auto]').forEach(b => b.onclick = () => { S.autoUnlock = b.dataset.auto === '1'; save(); if (S.autoUnlock) PHASES.forEach((_, j) => { if (S.complete[j] && j < PHASES.length - 1) unlockTo(j + 1, true); }); renderMentor(); updateLane(); updateDock(); });
+  $$('[data-path]').forEach(b => b.onclick = () => { S.path = b.dataset.path; save(); renderPhase(S.phase); });
+  $$('[data-meth]').forEach(b => b.onclick = () => { S.method = b.dataset.meth; save(); renderMentor(); });
+  $$('[data-force]').forEach(b => b.onclick = () => { if (!S.done[b.dataset.force]) { complete(b.dataset.force); SND.ok(); } renderMentor(); });
+  $$('[data-jump]').forEach(b => b.onclick = () => { const j = +b.dataset.jump; if (j > S.unlocked) unlockTo(j); renderPhase(j); });
+  $('#mFinale').onclick = openFinale;
+  $('#mReset').onclick = () => { if (confirm('Reset the whole session? All answers will be cleared.')) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); } };
+}
+setInterval(() => { const t = $('#mTime'); if (!t) return; const s = Math.floor((Date.now() - S.phaseStart) / 1000); t.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; t.style.color = s > PHASES[S.phase].mins * 60 ? 'var(--crimson)' : 'var(--teal-dd)'; }, 1000);
+const toggleMentor = () => { $('#mentor').classList.toggle('open'); if ($('#mentor').classList.contains('open')) renderMentor(); };
+$('#tMentor').onclick = toggleMentor; $('#mClose').onclick = toggleMentor;
+
+/* ---------------- whiteboard ---------------- */
+const WB = { open: false, mode: 'overlay', tool: 'pen', color: '#00A7B2', size: 4, over: {}, board: [], cur: null, pass: false };
+const wc = $('#wbCanvas'), wx = wc.getContext('2d'), bc = $('#boardCanvas'), bx = bc.getContext('2d');
+function sizeWB() { const d = devicePixelRatio || 1; [wc, bc].forEach(c => { c.width = innerWidth * d; c.height = innerHeight * d; c.style.width = innerWidth + 'px'; c.style.height = innerHeight + 'px'; c.getContext('2d').setTransform(d, 0, 0, d, 0, 0); }); redrawWB(); }
+const strokes = () => WB.mode === 'board' ? WB.board : (WB.over[S.phase] = WB.over[S.phase] || []);
+function redrawWB() {
+  wx.clearRect(0, 0, innerWidth, innerHeight);
+  wx.save(); wx.translate(-scrollX, -scrollY); (WB.over[S.phase] || []).forEach(s => drawS(wx, s)); if (WB.cur && WB.mode === 'overlay') drawS(wx, WB.cur); wx.restore();
+  bx.clearRect(0, 0, innerWidth, innerHeight); WB.board.forEach(s => drawS(bx, s)); if (WB.cur && WB.mode === 'board') drawS(bx, WB.cur);
+}
+function drawS(c, s) {
+  c.save(); c.strokeStyle = s.color; c.fillStyle = s.color; c.lineWidth = s.size; c.lineCap = 'round'; c.lineJoin = 'round';
+  if (s.t === 'hl') { c.globalAlpha = .32; c.lineWidth = s.size * 5; }
+  if (s.t === 'pen' || s.t === 'hl') { c.beginPath(); s.p.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); if (s.p.length === 1) c.lineTo(s.p[0][0] + .1, s.p[0][1]); c.stroke(); }
+  else if (s.t === 'line' || s.t === 'arrow') { c.beginPath(); c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2); c.stroke(); if (s.t === 'arrow') { const a = Math.atan2(s.y2 - s.y1, s.x2 - s.x1), h = 10 + s.size * 2; c.beginPath(); c.moveTo(s.x2, s.y2); c.lineTo(s.x2 - h * Math.cos(a - .45), s.y2 - h * Math.sin(a - .45)); c.lineTo(s.x2 - h * Math.cos(a + .45), s.y2 - h * Math.sin(a + .45)); c.closePath(); c.fill(); } }
+  else if (s.t === 'rect') c.strokeRect(Math.min(s.x1, s.x2), Math.min(s.y1, s.y2), Math.abs(s.x2 - s.x1), Math.abs(s.y2 - s.y1));
+  else if (s.t === 'ell') { c.beginPath(); c.ellipse((s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2, Math.abs(s.x2 - s.x1) / 2 || 1, Math.abs(s.y2 - s.y1) / 2 || 1, 0, 0, 7); c.stroke(); }
+  else if (s.t === 'text') { c.font = `800 ${14 + s.size * 3}px Nunito, sans-serif`; c.fillText(s.text, s.x, s.y); }
+  else if (s.t === 'stamp') stamp(c, s);
+  c.restore();
+}
+function stamp(c, s) {
+  const { x, y, name } = s; c.lineWidth = 3; c.strokeStyle = '#16202A'; c.font = '800 14px Nunito, sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'center';
+  const box = (bx_, by, w, h, f, t) => { c.fillStyle = f; c.fillRect(bx_, by, w, h); c.strokeRect(bx_, by, w, h); if (t) { c.fillStyle = '#16202A'; c.fillText(t, bx_ + w / 2, by + h / 2); } };
+  if (name === 'bar') { for (let i = 0; i < 5; i++) box(x + i * 44, y, 40, 40, i < 2 ? '#FAA71C' : '#BFF3F1', i < 2 ? 'M' : 'S'); c.fillStyle = '#16202A'; c.fillText('1 batch = 2 mango : 3 sparkling', x + 108, y + 56); s.w = 220; s.h = 66; }
+  else if (name === 'table') { const r = ['Batches', 'Mango', 'Sparkling']; for (let i = 0; i < 3; i++) for (let j = 0; j < 5; j++) box(x + j * 64, y + i * 34, 64, 34, j === 0 ? '#E1F7F8' : '#fff', j === 0 ? r[i] : (i === 0 ? String(j) : '')); s.w = 320; s.h = 102; }
+  else if (name === 'dnl') { c.textAlign = 'left'; c.fillStyle = '#16202A'; c.fillText('Mango', x - 84, y + 18); c.fillText('Sparkling', x - 84, y + 32); c.lineWidth = 4; [['#FAA71C', y + 18], ['#21DED7', y + 32]].forEach(([col, yy]) => { c.strokeStyle = col; c.beginPath(); c.moveTo(x, yy); c.lineTo(x + 320, yy); c.stroke(); }); c.strokeStyle = '#16202A'; c.lineWidth = 2; c.textAlign = 'center'; for (let i = 0; i <= 5; i++) { const xx = x + i * 64; c.beginPath(); c.moveTo(xx, y + 12); c.lineTo(xx, y + 38); c.stroke(); c.fillText(String(i * 2), xx, y + 2); c.fillText(String(i * 3), xx, y + 50); } s.w = 330; s.h = 60; }
+  else if (name === 'meter') { const g = c.createLinearGradient(x, 0, x + 320, 0); g.addColorStop(0, '#E8FBFB'); g.addColorStop(.45, '#FFE2A8'); g.addColorStop(.7, '#FAA71C'); g.addColorStop(1, '#D77F28'); c.fillStyle = g; c.fillRect(x, y, 320, 34); c.strokeRect(x, y, 320, 34); c.fillStyle = '#16202A'; [0, 25, 50, 75, 100].forEach(v => c.fillText(v + '%', x + v * 3.2, y + 48)); c.fillText('Sip Meter', x + 160, y - 12); s.w = 320; s.h = 60; }
+  else if (name === 'times') { box(x, y, 70, 34, '#FAA71C', '2'); box(x, y + 50, 70, 34, '#BFF3F1', '3'); box(x + 170, y, 70, 34, '#FAA71C', ''); box(x + 170, y + 50, 70, 34, '#BFF3F1', ''); c.strokeStyle = '#C92426'; c.fillStyle = '#C92426'; c.lineWidth = 3; [y + 17, y + 67].forEach(yy => { c.beginPath(); c.moveTo(x + 78, yy); c.lineTo(x + 160, yy); c.stroke(); c.beginPath(); c.moveTo(x + 162, yy); c.lineTo(x + 150, yy - 7); c.lineTo(x + 150, yy + 7); c.fill(); c.fillText('× ?', x + 120, yy - 12); }); s.w = 240; s.h = 84; }
+  else if (name === 'cups') { for (let k = 0; k < 2; k++) { const cx = x + k * 110; c.fillStyle = '#E8FBFB'; c.beginPath(); c.moveTo(cx, y); c.lineTo(cx + 70, y); c.lineTo(cx + 62, y + 80); c.lineTo(cx + 8, y + 80); c.closePath(); c.fill(); c.stroke(); c.fillStyle = '#16202A'; c.fillText(k ? 'Jug B' : 'Jug A', cx + 35, y + 96); } s.w = 180; s.h = 100; }
+}
+function hit(s, x, y) {
+  const r = 14;
+  if (s.p) return s.p.some(q => Math.hypot(q[0] - x, q[1] - y) < r + s.size);
+  if (s.t === 'line' || s.t === 'arrow') { const dx = s.x2 - s.x1, dy = s.y2 - s.y1, l = dx * dx + dy * dy || 1; let t = ((x - s.x1) * dx + (y - s.y1) * dy) / l; t = Math.max(0, Math.min(1, t)); return Math.hypot(s.x1 + t * dx - x, s.y1 + t * dy - y) < r; }
+  if (s.t === 'rect' || s.t === 'ell') return x > Math.min(s.x1, s.x2) - r && x < Math.max(s.x1, s.x2) + r && y > Math.min(s.y1, s.y2) - r && y < Math.max(s.y1, s.y2) + r;
+  if (s.t === 'text') return x > s.x - 4 && x < s.x + s.text.length * (8 + s.size * 2) && y > s.y - 30 && y < s.y + 8;
+  if (s.t === 'stamp') return x > s.x - 10 && x < s.x + (s.w || 200) && y > s.y - 20 && y < s.y + (s.h || 80);
+  return false;
+}
+function pos(e) { return WB.mode === 'board' ? [e.clientX, e.clientY] : [e.clientX + scrollX, e.clientY + scrollY]; }
+function wbDown(e) {
+  if (WB.pass && WB.mode === 'overlay') return;
+  e.preventDefault(); const [x, y] = pos(e); const t = WB.tool;
+  if (t === 'text') { textAt(e.clientX, e.clientY, x, y); return; }
+  if (t.startsWith('st:')) { strokes().push({ t: 'stamp', name: t.slice(3), x, y, color: WB.color }); redrawWB(); SND.click(); return; }
+  if (t === 'eraser') { WB.cur = { t: 'eraser' }; erase(x, y); return; }
+  WB.cur = (t === 'pen' || t === 'hl') ? { t, p: [[x, y]], color: WB.color, size: WB.size } : { t, x1: x, y1: y, x2: x, y2: y, color: WB.color, size: WB.size };
+  e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId);
+}
+function wbMove(e) { if (!WB.cur) return; const [x, y] = pos(e); if (WB.cur.t === 'eraser') return erase(x, y); if (WB.cur.p) WB.cur.p.push([x, y]); else { WB.cur.x2 = x; WB.cur.y2 = y; } redrawWB(); }
+function wbUp() { if (!WB.cur) return; if (WB.cur.t !== 'eraser') strokes().push(WB.cur); WB.cur = null; redrawWB(); }
+function erase(x, y) { const a = strokes(); for (let i = a.length - 1; i >= 0; i--) if (hit(a[i], x, y)) a.splice(i, 1); redrawWB(); }
+function textAt(cx, cy, x, y) {
+  const inp_ = document.createElement('input'); inp_.className = 'wbtext'; inp_.style.left = cx + 'px'; inp_.style.top = (cy - 18) + 'px'; inp_.style.color = WB.color; document.body.appendChild(inp_); setTimeout(() => inp_.focus(), 0);
+  const commit = () => { const v = inp_.value.trim(); if (v) { strokes().push({ t: 'text', text: v, x, y: y + 8, color: WB.color, size: WB.size }); redrawWB(); } inp_.remove(); };
+  inp_.addEventListener('keydown', ev => { if (ev.key === 'Enter') commit(); if (ev.key === 'Escape') inp_.remove(); ev.stopPropagation(); }); inp_.addEventListener('blur', commit);
+}
+[wc, bc].forEach(c => { c.addEventListener('pointerdown', wbDown); c.addEventListener('pointermove', wbMove); c.addEventListener('pointerup', wbUp); c.addEventListener('pointerleave', wbUp); });
+wc.addEventListener('wheel', e => { window.scrollBy(0, e.deltaY); }, { passive: true });
+addEventListener('scroll', () => { if ((WB.over[S.phase] || []).length) redrawWB(); }, { passive: true });
+const WBCOL = ['#16202A', '#00A7B2', '#00928E', '#21DED7', '#FAA71C', '#D77F28', '#C92426'];
+const TOOLS = [['pen', '✏️', 'Pen'], ['hl', '🖍️', 'Highlighter'], ['line', '╱', 'Line'], ['arrow', '➜', 'Arrow'], ['rect', '▭', 'Box'], ['ell', '◯', 'Circle'], ['text', 'T', 'Text'], ['eraser', '🧽', 'Eraser']];
+const STAMPS = [['st:bar', '🧱', 'Bar model'], ['st:table', '▦', 'Ratio table'], ['st:dnl', '📏', 'Double number line'], ['st:meter', '🌡️', 'Sip Meter'], ['st:times', '×?', 'Multiplier arrows'], ['st:cups', '🥤', 'Two jugs']];
+function renderWBBar() {
+  $('#wbbar').innerHTML = `<span class="lab">${WB.mode === 'board' ? 'Board' : 'Over lesson'}</span>
+   ${WB.mode === 'overlay' ? `<button data-pass class="${WB.pass ? 'on' : ''}" title="Hand: click the lesson underneath">✋</button>` : ''}
+   ${TOOLS.map(t => `<button data-tool="${t[0]}" class="${WB.tool === t[0] ? 'on' : ''}" title="${t[2]}">${t[1]}</button>`).join('')}<span class="sep"></span>
+   ${STAMPS.map(t => `<button data-tool="${t[0]}" class="${WB.tool === t[0] ? 'on' : ''}" title="Stamp: ${t[2]}">${t[1]}</button>`).join('')}<span class="sep"></span>
+   ${WBCOL.map(c => `<button class="sw ${WB.color === c ? 'on' : ''}" data-col="${c}" style="background:${c}" title="Colour"></button>`).join('')}<span class="sep"></span>
+   ${[2, 4, 8].map(z => `<button data-size="${z}" class="${WB.size === z ? 'on' : ''}" title="Size"><span style="display:inline-block;width:${z + 4}px;height:${z + 4}px;border-radius:50%;background:var(--ink)"></span></button>`).join('')}<span class="sep"></span>
+   <button data-act="undo" title="Undo">↶</button><button data-act="clear" title="Clear">🗑️</button><button data-act="swap" title="Switch board">${WB.mode === 'board' ? '📄 Lesson' : '⬜ Board'}</button><button data-act="close" title="Close (Esc)">✕</button>`;
+  $$('#wbbar [data-tool]').forEach(b => b.onclick = () => { WB.tool = b.dataset.tool; WB.pass = false; applyWB(); });
+  $$('#wbbar [data-col]').forEach(b => b.onclick = () => { WB.color = b.dataset.col; renderWBBar(); });
+  $$('#wbbar [data-size]').forEach(b => b.onclick = () => { WB.size = +b.dataset.size; renderWBBar(); });
+  const pb = $('#wbbar [data-pass]'); if (pb) pb.onclick = () => { WB.pass = !WB.pass; applyWB(); };
+  $$('#wbbar [data-act]').forEach(b => b.onclick = () => { const a = b.dataset.act; if (a === 'undo') { strokes().pop(); redrawWB(); } if (a === 'clear') { strokes().length = 0; redrawWB(); } if (a === 'swap') openWB(WB.mode === 'board' ? 'overlay' : 'board'); if (a === 'close') closeWB(); });
+}
+function applyWB() { wc.classList.toggle('live', WB.open && WB.mode === 'overlay' && !WB.pass); renderWBBar(); }
+function openWB(mode) { WB.open = true; WB.mode = mode; $('#board').classList.toggle('open', mode === 'board'); $('#wbbar').classList.add('open'); applyWB(); redrawWB(); }
+function closeWB() { WB.open = false; WB.cur = null; $('#board').classList.remove('open'); $('#wbbar').classList.remove('open'); applyWB(); }
+$('#tWb').onclick = () => WB.open && WB.mode === 'overlay' ? closeWB() : openWB('overlay');
+$('#tBoard').onclick = () => WB.open && WB.mode === 'board' ? closeWB() : openWB('board');
+
+/* ---------------- keyboard ---------------- */
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input' || tag === 'textarea') return;
+  if ($('#splash').style.display !== 'none') return;
+  const k = e.key.toLowerCase();
+  if (k === 'escape') { closeModal(); closeWB(); $('#mentor').classList.remove('open'); }
+  else if (k === 'w') $('#tWb').click(); else if (k === 'b') $('#tBoard').click(); else if (k === 'm') toggleMentor(); else if (k === 't') openTracker();
+});
+
+/* ---------------- finale ---------------- */
+function openFinale() {
+  S.finaleSeen = true; save(); closeModal();
+  const mins = Math.max(1, Math.round((Date.now() - S.started) / 60000));
+  const firstOk = Object.values(S.first).filter(Boolean).length, attempts = Object.keys(S.first).length;
+  const c1 = +S.inputs.p2_conf || 0, c2 = +S.inputs.p9_conf || 0, L = S.lightning ? S.lightning.score : 0;
+  const lab = S.lab ? `The ${S.lab} Lab` : 'The Perfect Mix Lab';
+  const awards = [
+    ['🥄', 'The Golden Ladle', 'Saved the Summer Sky Festival'],
+    ['🧪', 'Chief Flavour Scientist', lab],
+    ['🤖', 'Blendo Fixer', 'Taught a robot to multiply'],
+    ['🫆', 'Fingerprint Finder', 'Proved taste = fraction of the whole'],
+    ['⚡', 'Lightning Mixer', `Mix or Miss: ${L}/8`],
+    ['📈', 'Growth Star', c2 > c1 ? `Confidence +${c2 - c1} ★` : `Confidence ${c2}/5 ★`]
+  ];
+  $('#finale').innerHTML = `<div class="fin">
+   <div class="brand" style="font-size:22px">MyMastery<b>Lab</b></div>
+   <h1>🎉 The gates are open!</h1>
+   <p class="sub">500 visitors are sipping the Perfect Mix — and every cup tastes exactly right.</p>
+   <div style="display:flex;justify-content:center;gap:6px;margin:10px 0">${CH.ruby('style="width:92px;height:92px"')}${CH.sci('style="width:120px;height:120px"')}${CH.blendo('style="width:92px;height:92px"')}${CH.jack('style="width:92px;height:92px"')}</div>
+   <div class="cert">
+     <svg viewBox="0 0 120 120" style="width:96px;height:96px"><circle cx="60" cy="60" r="56" fill="#FFF1D6" stroke="#16202A" stroke-width="3"/><path d="M74 18c-8 0-14 6-14 14v34" fill="none" stroke="#16202A" stroke-width="10" stroke-linecap="round"/><path d="M74 18c-8 0-14 6-14 14v34" fill="none" stroke="#FAA71C" stroke-width="5" stroke-linecap="round"/><path d="M36 66h48c0 30-48 30-48 0z" fill="#FAA71C" stroke="#16202A" stroke-width="3"/><path d="M42 72c4 10 30 10 36 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M24 70l-8 4M96 70l8 4M30 92l-8 6M90 92l8 6" stroke="#C92426" stroke-width="3" stroke-linecap="round"/></svg>
+     <div style="font-weight:800;color:var(--muted)">This certifies that</div>
+     <div class="nm">${nm()}</div>
+     <div style="font-family:var(--head);font-size:22px;font-weight:600">is now a Chief Flavour Scientist</div>
+     <p style="font-weight:700;max-width:52ch;margin:8px auto">for proving that perfect mixtures need <b>multiplication</b>, not addition — and for scaling recipes up and down without changing a single sip of flavour.</p>
+     <div class="row" style="justify-content:space-around;font-weight:800;margin-top:10px"><span>🧪 ${lab}</span><span>🥤 Signature drink: ${S.drink || '—'}</span><span>🎓 Mentor: ${S.mentor || '—'}</span></div>
+     <div style="font-family:var(--head);margin-top:8px;color:var(--teal-dd)">Proportion Lab – The Perfect Mix · ${new Date().toLocaleDateString()}</div>
+   </div>
+   <div class="awards">${awards.map((a, i) => `<div class="award" style="animation-delay:${.15 * i}s"><div class="em">${a[0]}</div><b>${a[1]}</b><small>${a[2]}</small></div>`).join('')}</div>
+   <div class="stats"><div><b>${S.stars}</b>Flavour stars</div><div><b>${firstOk}/${attempts || 0}</b>Right first time</div><div><b>${S.cards.length}/5</b>Formula Cards</div><div><b>${mins}</b>Minutes</div></div>
+   <div class="msgs">${say('ruby', `${nm()}, thanks to you, 500 people tasted the Perfect Mix — and Blendo finally learned to multiply. That's not luck. That's thinking like a scientist. 💛`)}
+     ${say('blendo', 'NEW RULE INSTALLED: "NEED MORE? MULTIPLY MORE!" Thank you, Chief. You are my favourite human. 🤖🧡')}</div>
+   <div class="card" style="text-align:left;--c:var(--orange)"><header><span class="ic" style="background:var(--orange-l)">📒</span><h3>${nm()}'s Lab Rulebook</h3></header>${FORMULA.map((f, i) => `<div class="rule"><b>${i + 1}</b><span style="font-weight:800">${f}</span></div>`).join('')}</div>
+   <div class="row" style="justify-content:center;margin:20px 0 40px"><button class="btn o" id="fAgain">🎆 Celebrate again</button><button class="btn" id="fPrint">🖨️ Print certificate</button><button class="btn w" id="fClose">Back to the lesson</button></div>
+  </div>`;
+  $('#finale').classList.add('open'); $('#finale').scrollTop = 0;
+  const party = () => { SND.finale(); rain(220); fireworks(8); };
+  party();
+  $('#fAgain').onclick = party; $('#fPrint').onclick = () => window.print(); $('#fClose').onclick = () => { $('#finale').classList.remove('open'); clearInterval(fwTimer); };
+}
+
+/* ---------------- boot ---------------- */
+function decor() {
+  $('#bubbles').innerHTML = Array.from({ length: 16 }, (_, i) => { const s = 10 + Math.random() * 34; return `<span style="left:${Math.random() * 100}%;width:${s}px;height:${s}px;animation-duration:${14 + Math.random() * 18}s;animation-delay:${-Math.random() * 30}s"></span>`; }).join('');
+  const fc = ['#00A7B2', '#FAA71C', '#D77F28', '#C92426', '#21DED7'];
+  $('#flags').innerHTML = Array.from({ length: 80 }, (_, i) => `<i style="background:${fc[i % fc.length]}"></i>`).join('');
+  $('#castrow').innerHTML = ['ruby', 'blendo', 'jack', 'sci'].map(c => `<div>${CH[c]()}${c === 'sci' ? 'You!' : NAMES[c][0]}</div>`).join('');
+}
+function start() {
+  $('#splash').style.display = 'none'; ac(); SND.unlock();
+  updateTop(); renderLane(); renderPhase(Math.min(S.phase, S.unlocked)); sizeWB();
+}
+decor(); sizeFx();
+addEventListener('resize', () => { sizeFx(); sizeWB(); });
+const saved = load();
+if (saved && saved.learner) { $('#btnContinue').style.display = ''; $('#btnContinue').textContent = `Continue ${saved.learner}'s session`; $('#inLearner').value = saved.learner; $('#inMentor').value = saved.mentor || ''; }
+$('#btnContinue').onclick = () => { S = Object.assign(fresh(), saved); start(); };
+$('#btnStart').onclick = () => {
+  const l = $('#inLearner').value.trim(); if (!l) { $('#inLearner').focus(); toast('Type the scientist\'s name first 🧪'); return; }
+  S = fresh(); S.learner = l; S.mentor = $('#inMentor').value.trim(); save(); start();
+};
+$('#inLearner').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnStart').click(); });
+</script>
+</body>
+</html>
