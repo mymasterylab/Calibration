@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Launch Day – Will Your Business Make Money?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#FFFFFF; --ink:#1A1A1A; --muted:#5B6668; --line:#E2E8E9; --soft:#F6F9F9;
+  --teal:#00A7B2; --teal-d:#00928E; --teal-l:#E5F6F7;
+  --orange:#FAA71C; --orange-l:#FFF5E2; --burnt:#D77F28; --burnt-l:#FBEEE2;
+  --crim:#C92426; --crim-l:#FCEBEB; --emer:#047857; --emer-l:#E5F3EC; --leaf:#66A34E;
+  --display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body:'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="dark"]{ color-scheme: light; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:6px}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;line-height:1.1}
+.brand b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.01em}
+.brand span{font-size:12.5px;color:var(--muted)}
+.rail{flex:1;display:flex;gap:6px;align-items:center;min-width:260px;overflow-x:auto}
+.rail i{flex:1;min-width:18px;height:8px;border-radius:8px;background:var(--line);position:relative}
+.rail i.done{background:var(--teal)}
+.rail i.now{background:linear-gradient(90deg,var(--teal) 50%,var(--orange) 50%)}
+.railtxt{font-size:13px;color:var(--muted);white-space:nowrap}
+
+/* Layout */
+.layout{max-width:1180px;margin:0 auto;padding:24px 20px 80px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:1fr}.hq{order:-1}}
+.stage{min-width:0}
+.screen{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;margin:0}
+h1{font-size:clamp(34px,6vw,58px);font-weight:800;line-height:1}
+h2{font-size:clamp(26px,3.6vw,36px);font-weight:800;line-height:1.1}
+h3{font-size:19px;font-weight:700}
+.kicker{font-size:14px;font-weight:700;color:var(--teal-d);margin:0 0 8px}
+.lead{font-size:18px;color:var(--muted);max-width:62ch;margin:10px 0 0}
+p{max-width:70ch}
+
+/* HQ panel */
+.hq{position:sticky;top:84px;border:1.5px solid var(--teal);border-radius:20px;overflow:hidden;background:var(--bg)}
+@media (max-width:920px){.hq{position:static}}
+.hq-head{background:var(--teal);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.hq-head svg{width:34px;height:34px;flex:none}
+.hq-head b{font-family:var(--display);font-size:18px;display:block;line-height:1.15}
+.hq-head span{font-size:12.5px;opacity:.9}
+.hq-body{padding:14px 16px 16px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{border-radius:12px;padding:8px 9px;background:var(--soft)}
+.chip small{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
+.chip b{font-family:var(--display);font-size:22px;font-weight:800}
+.chip.f{background:var(--orange-l)}.chip.v{background:var(--burnt-l)}.chip.p{background:var(--teal-l)}
+.gauge{margin-top:14px;text-align:center}
+.gauge svg{width:100%;max-width:250px;height:auto;display:block;margin:0 auto}
+.gauge .val{font-family:var(--display);font-weight:800;font-size:28px;margin-top:-6px}
+.gauge .cap{font-size:13px;color:var(--muted)}
+.pred{margin-top:12px;font-size:13.5px;border-top:1px dashed var(--line);padding-top:10px;color:var(--muted)}
+.pred b{color:var(--ink)}
+.hq-empty{padding:20px 16px;color:var(--muted);font-size:14px}
+
+/* Cards and questions */
+.panel{border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:20px;background:var(--bg)}
+.panel.tint{background:var(--teal-l);border-color:transparent}
+.q{border-left:4px solid var(--line);padding:4px 0 4px 16px;margin:22px 0}
+.q.ok{border-color:var(--emer)}.q.bad{border-color:var(--crim)}.q.rev{border-color:var(--orange)}
+.q .prompt{margin:0 0 10px;font-weight:500}
+.q .tag{font-size:12.5px;color:var(--muted);font-weight:400}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input.in{border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:150px;font-size:17px;background:#fff}
+input.in.wide{width:min(320px,100%)}
+input.in:focus{border-color:var(--teal);outline:none}
+input.in.okc{border-color:var(--emer);background:var(--emer-l)}
+input.in.badc{border-color:var(--crim);background:var(--crim-l)}
+.pre{font-family:var(--display);font-weight:700;font-size:18px}
+.btn{border:0;border-radius:999px;padding:11px 20px;font-weight:700;background:var(--teal);color:#fff;transition:transform .12s, background .2s}
+.btn:hover{background:var(--teal-d)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--teal-d);border:2px solid var(--teal-l)}
+.btn.ghost:hover{background:var(--teal-l)}
+.btn.warm{background:var(--orange);color:var(--ink)}
+.btn.warm:hover{background:#f0990a}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.small{font-size:13.5px;padding:7px 14px}
+.fb{margin:8px 0 0;font-size:15px;min-height:1px}
+.fb.good{color:var(--emer);font-weight:600}.fb.bad{color:var(--crim);font-weight:600}.fb.note{color:var(--burnt)}
+.hint{background:var(--orange-l);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:15px}
+.choices{display:flex;flex-wrap:wrap;gap:10px}
+.choice{border:2px solid var(--line);border-radius:14px;padding:12px 16px;background:#fff;text-align:left;font-weight:500;max-width:100%}
+.choice:hover{border-color:var(--teal)}
+.choice.sel{border-color:var(--teal);background:var(--teal-l)}
+.choice.okc{border-color:var(--emer);background:var(--emer-l)}
+.choice.badc{border-color:var(--crim);background:var(--crim-l)}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:30px;flex-wrap:wrap}
+.nav .need{font-size:14px;color:var(--muted)}
+
+/* Launch */
+.hero{border-radius:26px;background:var(--teal);color:#fff;padding:34px 30px 30px;position:relative;overflow:hidden}
+.hero .kicker{color:#fff;opacity:.9}
+.hero .lead{color:#fff;opacity:.95}
+.hero .sun{position:absolute;right:-60px;top:-70px;width:240px;height:240px;border-radius:50%;background:var(--orange)}
+.hero .sun2{position:absolute;right:120px;bottom:-60px;width:110px;height:110px;border-radius:50%;background:var(--burnt)}
+.hero > *{position:relative}
+.bizgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media (max-width:640px){.bizgrid{grid-template-columns:repeat(2,1fr)}}
+.biz{border:2px solid var(--line);border-radius:18px;padding:16px 12px;background:#fff;text-align:center;transition:transform .15s,border-color .15s}
+.biz:hover{transform:translateY(-3px);border-color:var(--teal)}
+.biz.sel{border-color:var(--teal);background:var(--teal-l);transform:translateY(-3px)}
+.biz svg{width:52px;height:52px;display:block;margin:0 auto 8px}
+.biz b{display:block;font-weight:700}
+.biz span{font-size:13px;color:var(--muted)}
+
+/* Predict */
+.stepper{display:flex;align-items:center;gap:16px;margin-top:14px}
+.stepper button{width:54px;height:54px;border-radius:50%;border:2px solid var(--teal);background:#fff;font-size:28px;font-weight:700;color:var(--teal-d)}
+.stepper .num{font-family:var(--display);font-weight:800;font-size:64px;min-width:110px;text-align:center;line-height:1}
+.lockbox{display:flex;align-items:center;gap:14px;margin-top:20px}
+.lock{width:46px;height:46px}
+.lock .shackle{transition:transform .35s cubic-bezier(.3,1.6,.6,1)}
+.locked .lock .shackle{transform:translateY(5px)}
+.numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.numbers div{border-radius:16px;padding:14px;animation:pop .45s cubic-bezier(.3,1.5,.6,1) both}
+.numbers div:nth-child(2){animation-delay:.1s}.numbers div:nth-child(3){animation-delay:.2s}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.numbers small{display:block;color:var(--muted);font-size:13px}
+.numbers b{font-family:var(--display);font-weight:800;font-size:38px}
+@media (max-width:560px){.numbers{grid-template-columns:1fr}}
+
+/* Table */
+.tbl{overflow-x:auto;margin-top:6px}
+table.grid{border-collapse:separate;border-spacing:6px;min-width:520px}
+table.grid th,table.grid td{padding:0;text-align:center}
+table.grid th{background:var(--teal);color:#fff;border-radius:10px;padding:8px 10px;font-weight:700}
+table.grid th.rowh{text-align:left;min-width:130px}
+table.grid th.rowh.c{background:var(--burnt-l);color:var(--ink)}
+table.grid th.rowh.r{background:var(--teal-l);color:var(--ink)}
+table.grid input{width:76px;text-align:center;border:2px solid var(--line);border-radius:10px;padding:8px 4px;font-size:16px}
+table.grid input.okc{border-color:var(--emer);background:var(--emer-l)}
+table.grid input.badc{border-color:var(--crim);background:var(--crim-l)}
+table.grid td.given{font-weight:700;font-size:16px;border:2px dashed var(--line);border-radius:10px;padding:8px}
+
+/* Sales sim */
+.sim{display:grid;gap:12px}
+.sim input[type=range]{width:100%;accent-color:var(--teal);height:28px}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:130px 1fr 70px;align-items:center;gap:10px;font-size:14px}
+.track{height:24px;background:var(--soft);border-radius:8px;overflow:hidden}
+.fill{height:100%;border-radius:8px;transition:width .35s ease}
+.fill.c{background:var(--burnt)}.fill.r{background:var(--teal)}
+.tokens{display:flex;flex-wrap:wrap;gap:5px;min-height:22px}
+.tok{width:18px;height:18px;border-radius:50%;background:var(--orange);box-shadow:inset 0 0 0 3px #fbc35f;animation:drop .3s cubic-bezier(.3,1.6,.6,1) both}
+@keyframes drop{from{transform:translateY(-14px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+.profitline{font-family:var(--display);font-weight:800;font-size:24px}
+.neg{color:var(--crim)}.pos{color:var(--emer)}
+
+/* Spreadsheet */
+.sheet{border:1px solid var(--line);border-radius:14px;overflow:hidden;max-width:560px}
+.sheet .bar0{background:var(--soft);padding:8px 12px;font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.sheet .ln{display:grid;grid-template-columns:70px 1fr;border-top:1px solid var(--line)}
+.sheet .ln span{padding:10px 12px;font-size:13px;color:var(--muted);border-right:1px solid var(--line);background:#fcfdfd}
+.sheet .ln code{padding:10px 12px;font-family:var(--body);font-weight:700;font-size:17px}
+.sheet .ln.flag code{background:var(--crim-l);box-shadow:inset 3px 0 0 var(--crim)}
+
+/* Graph */
+.graphwrap{position:relative;max-width:640px}
+.graphwrap svg{width:100%;height:auto;display:block;touch-action:manipulation;cursor:crosshair;border-radius:12px;background:#fff}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
+.mode{border:2px solid var(--line);border-radius:999px;padding:8px 14px;background:#fff;font-weight:700;font-size:14px}
+.mode.cost.on{border-color:var(--burnt);background:var(--burnt-l)}
+.mode.rev.on{border-color:var(--teal);background:var(--teal-l)}
+.readout{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:8px;padding:3px 8px;font-size:12.5px;transform:translate(-50%,-140%);white-space:nowrap;display:none}
+.drawline{stroke-dasharray:1000;stroke-dashoffset:1000;animation:dash 1.2s ease forwards}
+@keyframes dash{to{stroke-dashoffset:0}}
+.zone{opacity:0;animation:fade .8s .9s ease forwards}
+@keyframes fade{to{opacity:1}}
+.pulse{animation:pulse 1.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes pulse{50%{transform:scale(1.35)}}
+
+/* Pitch */
+textarea.in{border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-height:54px;resize:vertical;font-size:16px}
+textarea.in:focus{border-color:var(--teal);outline:none}
+.frame{display:grid;gap:12px;margin-top:10px}
+.frame label{font-weight:700}
+.mentorbox{border:2px dashed var(--orange);border-radius:16px;padding:16px;margin-top:22px;background:var(--orange-l)}
+.mentorbox label{display:flex;gap:10px;align-items:center;margin-top:8px;font-weight:500}
+.mentorbox input{width:20px;height:20px;accent-color:var(--burnt)}
+
+/* Report */
+.report-head{border-radius:24px;background:var(--teal);color:#fff;padding:28px 26px;position:relative;overflow:hidden}
+.report-head .sun{position:absolute;right:-50px;top:-60px;width:200px;height:200px;border-radius:50%;background:var(--orange)}
+.report-head > *{position:relative}
+.report-head .meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:14.5px}
+.score{display:flex;align-items:flex-end;gap:14px;margin-top:16px;flex-wrap:wrap}
+.score b{font-family:var(--display);font-size:72px;font-weight:800;line-height:.9}
+.score span{font-size:18px;padding-bottom:6px}
+.level{display:inline-block;background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;margin-bottom:8px}
+.areas{display:grid;gap:14px;margin-top:8px}
+.area{display:grid;grid-template-columns:minmax(150px,220px) 1fr 44px;gap:12px;align-items:center}
+@media (max-width:560px){.area{grid-template-columns:1fr 44px}.area .meter{grid-column:1/-1;order:3}}
+.area .nm{font-weight:700}
+.area .nm small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.meter i{height:16px;border-radius:5px;background:var(--line);transform-origin:left;}
+.meter i.on{animation:grow .5s ease both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.area .pts{font-family:var(--display);font-weight:800;font-size:22px;text-align:right}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+@media (max-width:700px){.twocol{grid-template-columns:1fr}}
+.callout{border-radius:16px;padding:16px 18px}
+.callout h3{font-size:17px;margin-bottom:4px}
+.callout.s{background:var(--emer-l)}.callout.f{background:var(--orange-l)}.callout.n{background:var(--teal-l)}
+.quote{font-family:var(--display);font-size:19px;font-weight:600;border-left:4px solid var(--orange);padding:6px 0 6px 14px;margin:10px 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.fact{background:var(--soft);border-radius:14px;padding:12px 14px}
+.fact small{display:block;color:var(--muted);font-size:12.5px}
+.fact b{font-family:var(--display);font-size:22px;font-weight:800}
+.fine{font-size:13px;color:var(--muted);margin-top:18px}
+
+/* Mentor drawer */
+.mentor-btn{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;border-radius:999px;border:2px solid var(--ink);background:#fff;padding:9px 16px;font-weight:700;font-size:14px}
+.drawer{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:20;width:min(360px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:#fff;border:2px solid var(--ink);border-radius:18px;padding:16px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.drawer.open{display:block}
+.drawer h3{font-size:17px}
+.drawer ul{padding-left:18px;margin:8px 0}
+.drawer li{margin:4px 0;font-size:14.5px}
+.drawer .tracks{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <div class="brand"><b>Launch Day</b><span>MyMasteryLab · Maths</span></div>
+  <div class="rail" id="rail" aria-hidden="true"></div>
+  <div class="railtxt" id="railtxt"></div>
+</div></div>
+<div class="layout">
+  <main class="stage" id="stage"></main>
+  <aside class="hq" id="hq" aria-live="polite"></aside>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+'use strict';
+/* ---------- Config ---------- */
+var TRACKS={
+  build:{key:'build',label:'Build',F:20,v:2,p:6,xs:[0,2,5,8,10],lossX:2,sheetX:3,xMax:10,yMax:60,ySnap:2,xTick:1,yTick:10,
+    riseP:8,riseAns:4,finalV:3,finalN:10,target:20,price:7,compP:6,stretch:14,stretchReq:false},
+  core:{key:'core',label:'Core',F:60,v:4,p:10,xs:[0,5,10,15,20],lossX:5,sheetX:5,xMax:20,yMax:200,ySnap:10,xTick:5,yTick:50,
+    riseP:12,riseAns:8,finalV:5,finalN:12,target:36,price:13,compP:12,stretch:14,stretchReq:false},
+  accel:{key:'accel',label:'Accelerate',F:60,v:4,p:10,xs:[0,5,10,15,20],lossX:5,sheetX:5,xMax:20,yMax:200,ySnap:10,xTick:5,yTick:50,
+    riseP:12,riseAns:8,finalV:5,finalN:12,target:36,price:13,compP:12,stretch:14,stretchReq:true,bonus:{p:15,v:9,F:60,ans:10}}
+};
+var BIZ=[
+  {id:'hoodies',name:'Custom hoodies',one:'hoodie',many:'hoodies',tag:'Design and print your own'},
+  {id:'cases',name:'Phone cases',one:'phone case',many:'phone cases',tag:'Custom cases to order'},
+  {id:'gaming',name:'Gaming tournament',one:'entry',many:'entries',tag:'Sell tournament entries'},
+  {id:'bake',name:'Bake stall',one:'cupcake',many:'cupcakes',tag:'Weekend market stall'}
+];
+var STEPS=[
+  {id:'launch',label:'Launch'},{id:'check',label:'Costing check'},{id:'predict',label:'Your numbers'},
+  {id:'m1',label:'Mission 1'},{id:'m2',label:'Mission 2'},{id:'m3',label:'Mission 3'},{id:'m4',label:'Mission 4'},
+  {id:'final',label:'Supplier shock'},{id:'pitch',label:'Investor pitch'},{id:'report',label:'Baseline report'}
+];
+var AREAS=[
+  {id:'concept',name:'Conceptual understanding',where:'Mission 1',focus:'building cost and revenue rules from a real situation'},
+  {id:'accuracy',name:'Accuracy',where:'Mission 2',focus:'working with negative profit and solving for the break-even point'},
+  {id:'reasoning',name:'Reasoning',where:'Mission 3',focus:'spotting errors, especially subtracting a bracket'},
+  {id:'graph',name:'Graph interpretation',where:'Mission 4',focus:'reading an intersection and the loss and profit zones on a graph'},
+  {id:'application',name:'Application',where:'Supplier shock',focus:'solving for a different unknown and rounding in context'},
+  {id:'communication',name:'Communication',where:'Investor pitch',focus:'explaining and defending a mathematical decision'}
+];
+
+/* ---------- State ---------- */
+var KEY='mml-launch-day-v1';
+function fresh(){return {step:0,name:'',biz:null,track:null,diag:{},prediction:5,predLocked:false,q:{},items:0,plots:{cost:[],rev:[]},plotMode:'cost',plotDone:false,pitch:['','',''],rating:[false,false,false],start:Date.now(),end:null,stretchOn:false,confetti:{}};}
+var S=fresh();
+try{var saved=localStorage.getItem(KEY); if(saved){var o=JSON.parse(saved); if(o&&typeof o.step==='number'){S=Object.assign(fresh(),o);}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ---------- Helpers ---------- */
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function T(){return TRACKS[S.track||'core'];}
+function B(){return BIZ.filter(function(b){return b.id===S.biz;})[0]||BIZ[0];}
+function money(n){n=Math.round(n*100)/100; return (n<0?'−$':'$')+Math.abs(n);}
+function signed(n){return n>0?'+$'+n:money(n);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function be(){var t=T();return t.F/(t.p-t.v);}
+function profit(x){var t=T();return t.p*x-(t.F+t.v*x);}
+function parseNum(s){
+  if(s==null) return NaN; s=String(s).trim().replace(/[−–—]/g,'-').replace(/[$£,\s]/g,'').replace(/^\+/,'');
+  s=s.replace(/^-?\$/,function(m){return m.indexOf('-')>=0?'-':'';});
+  if(!/^-?\d*\.?\d+$/.test(s)) return NaN; return parseFloat(s);
+}
+/* tiny expression parser: numbers, x, + - * / ( ), implicit multiplication */
+function parseExpr(str){
+  var s=String(str||'').toLowerCase().replace(/[−–—]/g,'-').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/\s+/g,'').replace(/\$/g,'');
+  s=s.replace(/^[a-z]=/,'');
+  if(!s||!/^[0-9x+\-*/().]+$/.test(s)) return null;
+  var i=0;
+  function peek(){return s[i];}
+  function expr(){var v=term(); while(peek()==='+'||peek()==='-'){var op=s[i++]; var r=term(); v=(function(a,b,o){return o==='+'?function(x){return a(x)+b(x);}:function(x){return a(x)-b(x);};})(v,r,op);} return v;}
+  function term(){var v=factor(); for(;;){var c=peek(); if(c==='*'||c==='/'){i++; var r=factor(); v=(function(a,b,o){return o==='*'?function(x){return a(x)*b(x);}:function(x){return a(x)/b(x);};})(v,r,c);} else if(c==='x'||c==='('||(c&&/[0-9.]/.test(c))){var r2=factor(); v=(function(a,b){return function(x){return a(x)*b(x);};})(v,r2);} else break;} return v;}
+  function factor(){var c=peek(); if(c==='-'){i++; var f=factor(); return function(x){return -f(x);};} if(c==='+'){i++; return factor();}
+    if(c==='('){i++; var e=expr(); if(s[i]!==')') throw 0; i++; return e;}
+    if(c==='x'){i++; return function(x){return x;};}
+    var m=/^[0-9]*\.?[0-9]+/.exec(s.slice(i)); if(!m) throw 0; i+=m[0].length; var n=parseFloat(m[0]); return function(){return n;};}
+  try{var f=expr(); if(i!==s.length) return null; return f;}catch(e){return null;}
+}
+function sameFn(f,g){if(!f) return false; var xs=[0,1,2,3,7,13]; for(var k=0;k<xs.length;k++){var a=f(xs[k]),b=g(xs[k]); if(!isFinite(a)||Math.abs(a-b)>1e-6) return false;} return true;}
+
+/* ---------- Icons ---------- */
+function icon(id,stroke){stroke=stroke||'currentColor';
+  var a={hoodies:'<path d="M18 14l8-6h12l8 6 8 10-7 5-3-3v28H20V26l-3 3-7-5z" fill="none" stroke="'+stroke+'" stroke-width="3" stroke-linejoin="round"/><path d="M26 8c0 6 3 9 6 9s6-3 6-9" fill="none" stroke="'+stroke+'" stroke-width="3"/><path d="M26 40h12" stroke="'+stroke+'" stroke-width="3" stroke-linecap="round"/>',
+    cases:'<rect x="19" y="6" width="26" height="52" rx="6" fill="none" stroke="'+stroke+'" stroke-width="3"/><circle cx="27" cy="15" r="3" fill="'+stroke+'"/><path d="M27 34l5 6 7-10" fill="none" stroke="'+stroke+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+    gaming:'<path d="M14 22h36c5 0 8 4 8 9l-2 14c-1 5-7 6-10 2l-5-6H23l-5 6c-3 4-9 3-10-2L6 31c0-5 3-9 8-9z" fill="none" stroke="'+stroke+'" stroke-width="3" stroke-linejoin="round"/><path d="M20 29v8M16 33h8" stroke="'+stroke+'" stroke-width="3" stroke-linecap="round"/><circle cx="42" cy="31" r="2.5" fill="'+stroke+'"/><circle cx="47" cy="36" r="2.5" fill="'+stroke+'"/>',
+    bake:'<path d="M16 32h32l-5 22H21z" fill="none" stroke="'+stroke+'" stroke-width="3" stroke-linejoin="round"/><path d="M14 32c0-10 8-17 18-17s18 7 18 17" fill="none" stroke="'+stroke+'" stroke-width="3"/><circle cx="32" cy="11" r="3.5" fill="'+stroke+'"/><path d="M26 38l2 12M38 38l-2 12" stroke="'+stroke+'" stroke-width="2.5" stroke-linecap="round"/>'};
+  return '<svg viewBox="0 0 64 64" aria-hidden="true">'+(a[id]||a.hoodies)+'</svg>';}
+
+/* ---------- Question engine ---------- */
+var DEFS={};
+function qs(id){if(!S.q[id]) S.q[id]={attempts:0,hint:false,revealed:false,correct:false,done:false,val:null}; return S.q[id];}
+function points(id){var st=S.q[id]; if(!st||!st.done) return null; if(st.revealed) return 0; var p=3-(st.attempts-1)-(st.hint?1:0); return Math.max(1,Math.min(3,p));}
+function qHTML(d){
+  var st=qs(d.id); var cls='q'+(st.correct?' ok':st.revealed?' rev':'');
+  var h='<div class="'+cls+'" id="q-'+d.id+'"><p class="prompt">'+d.prompt+(d.optional?' <span class="tag">(optional stretch)</span>':'')+'</p>';
+  if(d.type==='num'||d.type==='expr'){
+    h+='<div class="row">'+(d.pre?'<span class="pre">'+d.pre+'</span>':'')+'<input class="in'+(d.type==='expr'?' wide':'')+(st.correct?' okc':'')+'" id="in-'+d.id+'" inputmode="'+(d.type==='num'?'decimal':'text')+'" autocomplete="off" aria-label="Your answer" value="'+esc(st.val||'')+'"'+(st.done?' disabled':'')+' placeholder="'+(d.ph||'')+'">'+(d.post?'<span>'+d.post+'</span>':'')+'</div>';
+  } else if(d.type==='choice'){
+    h+='<div class="choices">'+d.options.map(function(o,k){var c='choice'; if(st.done&&k===d.answer) c+=' okc'; else if(st.val===k&&!st.done) c+=' sel'; return '<button class="'+c+'" data-choice="'+d.id+'" data-k="'+k+'"'+(st.done?' disabled':'')+'>'+o+'</button>';}).join('')+'</div>';
+  } else if(d.type==='custom'){ h+=d.render(); }
+  h+='<div class="row" style="margin-top:10px">';
+  if(!st.done){h+='<button class="btn small" data-check="'+d.id+'">Check</button>'+(d.hint?'<button class="btn ghost small" data-hint="'+d.id+'">Hint</button>':'')+'<button class="btn ghost small" data-reveal="'+d.id+'"'+(st.attempts>=2?'':' hidden')+'>Show me</button>';}
+  h+='</div><div class="hintwrap">'+(st.hint&&d.hint&&!st.done?'<div class="hint">'+d.hint+'</div>':'')+'</div>';
+  h+='<p class="fb '+(st.correct?'good':st.revealed?'note':'')+'" aria-live="polite">'+(st.correct?(d.good||'Correct.'):st.revealed?(d.explain||''):'')+'</p></div>';
+  return h;
+}
+function checkQ(id){
+  var d=DEFS[id], st=qs(id); if(st.done) return;
+  var ok=false, el=$('#q-'+id), fb=$('.fb',el);
+  if(d.type==='num'){var v=$('#in-'+id).value; st.val=v; var n=parseNum(v); if(isNaN(n)){fb.className='fb bad'; fb.textContent='Type a number, for example 25 or −30.'; return;} ok=d.check?d.check(n):Math.abs(n-d.answer)<1e-6;}
+  else if(d.type==='expr'){var v2=$('#in-'+id).value; st.val=v2; var f=parseExpr(v2); if(!f){fb.className='fb bad'; fb.textContent='Write it using numbers and x, for example 3 + 2x.'; return;} ok=sameFn(f,d.fn);}
+  else if(d.type==='choice'){if(st.val==null){fb.className='fb bad'; fb.textContent='Pick an answer first.'; return;} ok=st.val===d.answer;}
+  else if(d.type==='custom'){var r=d.check(); if(r===null) return; ok=r;}
+  st.attempts++;
+  if(ok){st.correct=true; st.done=true; if(d.onCorrect) d.onCorrect();}
+  else{ fb.className='fb bad'; fb.textContent=(d.bad?(typeof d.bad==='function'?d.bad():d.bad):'Not yet. Look again and try once more.');
+    if(d.type==='num'||d.type==='expr'){var inp=$('#in-'+id); inp.classList.remove('badc'); void inp.offsetWidth; inp.classList.add('badc');}
+    if(d.type==='choice'){var b=$('[data-choice="'+id+'"][data-k="'+st.val+'"]'); if(b) b.classList.add('badc');}
+    if(st.attempts>=2){var rv=$('[data-reveal="'+id+'"]'); if(rv) rv.hidden=false;}
+  }
+  save(); if(ok){rerenderQ(id);} updateNav();
+}
+function rerenderQ(id){var el=$('#q-'+id); if(!el) return; var tmp=document.createElement('div'); tmp.innerHTML=qHTML(DEFS[id]); el.parentNode.replaceChild(tmp.firstChild,el); if(DEFS[id].after) DEFS[id].after();}
+function hintQ(id){qs(id).hint=true; save(); var w=$('#q-'+id+' .hintwrap'); w.innerHTML='<div class="hint">'+DEFS[id].hint+'</div>'; var hb=$('[data-hint="'+id+'"]'); if(hb) hb.disabled=true;}
+function revealQ(id){var st=qs(id), d=DEFS[id]; st.revealed=true; st.done=true; if(d.onReveal) d.onReveal(); if(d.type==='num'||d.type==='expr') st.val=d.show||String(d.answer); save(); rerenderQ(id); updateNav();}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-check],[data-hint],[data-reveal],[data-choice]'); if(!t) return;
+  if(t.dataset.check) checkQ(t.dataset.check);
+  else if(t.dataset.hint) hintQ(t.dataset.hint);
+  else if(t.dataset.reveal) revealQ(t.dataset.reveal);
+  else if(t.dataset.choice){var id=t.dataset.choice; qs(id).val=+t.dataset.k; save(); $$('[data-choice="'+id+'"]').forEach(function(b){b.classList.toggle('sel',b===t); b.classList.remove('badc');});}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.matches('input.in')){var q=e.target.closest('.q'); if(q){var b=$('[data-check]',q); if(b) b.click();}}});
+document.addEventListener('input',function(e){if(e.target.matches('input.in')&&e.target.id.indexOf('in-')===0){var id=e.target.id.slice(3); if(S.q[id]) S.q[id].val=e.target.value;}});
+
+/* ---------- Screens ---------- */
+var CURRENT=[]; // required question ids for current screen
+function render(){
+  var step=STEPS[S.step].id; DEFS={}; CURRENT=[];
+  var html=SCREENS[step]();
+  $('#stage').innerHTML='<div class="screen">'+html+'</div>';
+  Object.keys(DEFS).forEach(function(k){if(DEFS[k].after) DEFS[k].after();});
+  if(AFTER[step]) AFTER[step]();
+  renderRail(); renderHQ(); updateNav();
+  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
+}
+function reg(d,required){DEFS[d.id]=d; if(required!==false) CURRENT.push(d.id); return qHTML(d);}
+function nav(label,extra){return '<div class="nav"><button class="btn ghost" id="backBtn"'+(S.step===0?' hidden':'')+'>Back</button><span class="need" id="need"></span><button class="btn warm" id="nextBtn">'+(label||'Continue')+'</button>'+(extra||'')+'</div>';}
+function updateNav(){
+  var nb=$('#nextBtn'); if(!nb) return; var ready=readyNow(); nb.disabled=!ready;
+  var need=$('#need'); if(need) need.textContent=ready?'':needText();
+}
+function needText(){var step=STEPS[S.step].id;
+  if(step==='launch') return 'Type your name and pick a business to continue.';
+  if(step==='check') return 'Answer all three costing questions.';
+  if(step==='predict') return 'Lock in your prediction to continue.';
+  if(step==='m4'&&!S.plotDone) return 'Plot and check both lines first.';
+  return 'Finish each question to continue.';}
+function readyNow(){var step=STEPS[S.step].id;
+  if(step==='launch') return !!(S.biz&&S.name.trim());
+  if(step==='check') return ['d1','d2','d3'].every(function(k){return S.diag[k]!=null;});
+  if(step==='predict') return S.predLocked;
+  if(step==='pitch') return S.pitch.some(function(p){return p.trim();});
+  return CURRENT.every(function(id){return qs(id).done;});
+}
+document.addEventListener('click',function(e){
+  if(e.target.id==='nextBtn'){ if(!readyNow()) return; if(STEPS[S.step].id==='pitch') S.end=Date.now(); S.step=Math.min(S.step+1,STEPS.length-1); save(); render(); }
+  if(e.target.id==='backBtn'){ S.step=Math.max(0,S.step-1); save(); render(); }
+});
+
+var SCREENS={}, AFTER={};
+
+SCREENS.launch=function(){
+  return '<div class="hero"><div class="sun"></div><div class="sun2"></div><p class="kicker">Mission file</p><h1>Launch Day</h1><p class="lead">You’re launching a small business today. Your job: prove, with algebra, when it stops losing money and starts making it.</p></div>'+
+  '<div class="panel"><label for="nm"><h3>What’s your name, founder?</h3></label><div class="row" style="margin-top:10px"><input class="in wide" id="nm" autocomplete="off" placeholder="First name" value="'+esc(S.name)+'"></div></div>'+
+  '<div class="panel"><h3>Pick your business</h3><p style="margin:4px 0 0;color:var(--muted)">The numbers work the same for every choice.</p><div class="bizgrid">'+
+  BIZ.map(function(b){return '<button class="biz'+(S.biz===b.id?' sel':'')+'" data-biz="'+b.id+'" aria-pressed="'+(S.biz===b.id)+'" style="color:var(--teal-d)">'+icon(b.id)+'<b style="color:var(--ink)">'+b.name+'</b><span>'+b.tag+'</span></button>';}).join('')+'</div></div>'+nav('Launch my business');
+};
+AFTER.launch=function(){
+  $('#nm').addEventListener('input',function(e){S.name=e.target.value.slice(0,30); save(); updateNav();});
+  $$('[data-biz]').forEach(function(b){b.addEventListener('click',function(){S.biz=b.dataset.biz; save(); $$('[data-biz]').forEach(function(x){x.classList.toggle('sel',x===b); x.setAttribute('aria-pressed',x===b);}); renderHQ(); updateNav();});});
+};
+
+SCREENS.check=function(){
+  var Q=[{k:'d1',p:'A printer charges <b>$4</b> for each item. How much do <b>8 items</b> cost?',pre:'$',type:'num',a:32},
+         {k:'d2',p:'The printer also charges a <b>$60</b> setup fee, once. Write the total cost of making <b>x</b> items.',pre:'Cost =',type:'expr',fn:function(x){return 60+4*x;},ph:'e.g. 3 + 2x'},
+         {k:'d3',p:'Your total printing bill came to <b>$100</b>. How many items did you make?',type:'num',a:10,post:'items'}];
+  return '<p class="kicker">Before you launch</p><h2>Check the supplier’s quote</h2><p class="lead">Three quick questions so we can set up the right startup kit for you. Just give it your best go.</p>'+
+   Q.map(function(q){var done=S.diag[q.k]!=null; return '<div class="q'+(done?' ok':'')+'" id="dq-'+q.k+'"><p class="prompt">'+q.p+'</p><div class="row">'+(q.pre?'<span class="pre">'+q.pre+'</span>':'')+'<input class="in'+(q.type==='expr'?' wide':'')+'" id="d-'+q.k+'" autocomplete="off" '+(done?'disabled':'')+' placeholder="'+(q.ph||'')+'" value="'+esc((S.diag[q.k+'v'])||'')+'">'+(q.post?'<span>'+q.post+'</span>':'')+'<button class="btn small" data-diag="'+q.k+'"'+(done?' hidden':'')+'>Submit</button></div><p class="fb note">'+(done?'Logged. Thanks!':'')+'</p></div>';}).join('')+
+   '<div id="kitmsg"></div>'+nav('See my startup kit');
+};
+AFTER.check=function(){
+  var A={d1:function(v){return parseNum(v)===32;},d2:function(v){return sameFn(parseExpr(v),function(x){return 60+4*x;});},d3:function(v){return parseNum(v)===10;}};
+  $$('[data-diag]').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.diag, inp=$('#d-'+k); if(!inp.value.trim()) return; S.diag[k]=A[k](inp.value); S.diag[k+'v']=inp.value; inp.disabled=true; b.hidden=true; var q=$('#dq-'+k); q.classList.add('ok'); $('.fb',q).textContent='Logged. Thanks!';
+    if(['d1','d2','d3'].every(function(x){return S.diag[x]!=null;})){var n=['d1','d2','d3'].filter(function(x){return S.diag[x];}).length; S.track=n===3?'accel':n===2?'core':'build'; resetMissions(); $('#kitmsg').innerHTML='<div class="panel tint"><b>Startup kit ready.</b> Your business numbers are on the next screen.</div>';}
+    save(); updateNav();});});
+  $$('[id^="d-"]').forEach(function(inp){inp.addEventListener('keydown',function(e){if(e.key==='Enter'){var b=$('[data-diag="'+inp.id.slice(2)+'"]'); if(b&&!b.hidden) b.click();}});});
+};
+function resetMissions(){S.q={}; S.plots={cost:[],rev:[]}; S.plotDone=false; S.items=0; S.predLocked=false; S.confetti={}; S.stretchOn=false; S.prediction=Math.round(T().F/T().p);}
+
+SCREENS.predict=function(){var t=T(), b=B();
+  return '<p class="kicker">Your startup kit</p><h2>Here are your numbers</h2><div class="numbers">'+
+    '<div style="background:var(--orange-l)"><small>Setup cost, paid once</small><b>'+money(t.F)+'</b></div>'+
+    '<div style="background:var(--burnt-l)"><small>Cost to make each '+b.one+'</small><b>'+money(t.v)+'</b></div>'+
+    '<div style="background:var(--teal-l)"><small>Selling price</small><b>'+money(t.p)+'</b></div></div>'+
+    '<div class="panel" id="lockpanel"><h3>Lock in your prediction</h3><p>You keep <b>'+money(t.p-t.v)+'</b> on every '+b.one+' you sell. How many '+b.many+' must you sell before you stop losing money?</p>'+
+    '<div class="stepper"><button id="minus" aria-label="Fewer"'+(S.predLocked?' disabled':'')+'>−</button><div class="num" id="pnum" aria-live="polite">'+S.prediction+'</div><button id="plus" aria-label="More"'+(S.predLocked?' disabled':'')+'>+</button></div>'+
+    '<div class="lockbox'+(S.predLocked?' locked':'')+'" id="lockbox"><svg class="lock" viewBox="0 0 46 46" aria-hidden="true"><path class="shackle" d="M14 20v-6a9 9 0 0118 0v6" fill="none" stroke="var(--burnt)" stroke-width="4" stroke-linecap="round"/><rect x="8" y="20" width="30" height="22" rx="6" fill="var(--orange)"/><circle cx="23" cy="31" r="3.5" fill="#fff"/></svg><button class="btn" id="lockBtn"'+(S.predLocked?' disabled':'')+'>'+(S.predLocked?'Prediction locked':'Lock it in')+'</button></div></div>'+nav('Start Mission 1');
+};
+AFTER.predict=function(){
+  function upd(d){S.prediction=Math.max(0,Math.min(99,S.prediction+d)); $('#pnum').textContent=S.prediction; save();}
+  $('#minus').addEventListener('click',function(){upd(-1);}); $('#plus').addEventListener('click',function(){upd(1);});
+  $('#lockBtn').addEventListener('click',function(){S.predLocked=true; save(); $('#lockbox').classList.add('locked'); $('#lockBtn').textContent='Prediction locked'; $('#lockBtn').disabled=true; $('#minus').disabled=true; $('#plus').disabled=true; renderHQ(); updateNav();});
+};
+
+SCREENS.m1=function(){var t=T(), b=B();
+  var cells=t.xs.map(function(x,i){return {x:x,c:t.F+t.v*x,r:t.p*x,i:i};});
+  var tbl={id:'m1_table',area:'concept',type:'custom',prompt:'Fill in the cost and revenue for each number of '+b.many+'. The first column is done for you.',
+    hint:'Cost = '+money(t.F)+' setup + '+money(t.v)+' for each '+b.one+'. Revenue = '+money(t.p)+' for each '+b.one+' sold.',
+    good:'All correct. Look at the pattern: cost climbs by '+money(t.v)+' per '+b.one+', revenue by '+money(t.p)+'.',
+    explain:'Cost = '+t.F+' + '+t.v+'x and revenue = '+t.p+'x. Check each value against those rules.',
+    render:function(){var st=qs('m1_table'); var v=st.val||{};
+      return '<div class="tbl"><table class="grid"><tr><th class="rowh">'+b.many.charAt(0).toUpperCase()+b.many.slice(1)+' sold (x)</th>'+cells.map(function(c){return '<th>'+c.x+'</th>';}).join('')+'</tr>'+
+      ['c','r'].map(function(k){return '<tr><th class="rowh '+k+'">'+(k==='c'?'Cost C ($)':'Revenue R ($)')+'</th>'+cells.map(function(c){var id=k+c.i; if(c.i===0) return '<td class="given">'+c[k]+'</td>'; var val=st.done?c[k]:(v[id]||''); return '<td><input data-cell="'+id+'" inputmode="numeric" aria-label="'+(k==='c'?'Cost':'Revenue')+' at '+c.x+'" value="'+esc(val)+'" class="'+(st.done?'okc':'')+'"'+(st.done?' disabled':'')+'></td>';}).join('')+'</tr>';}).join('')+'</table></div>';},
+    check:function(){var st=qs('m1_table'); st.val=st.val||{}; var allOk=true, any=false;
+      $$('[data-cell]').forEach(function(inp){var id=inp.dataset.cell, k=id[0], c=cells[+id.slice(1)]; st.val[id]=inp.value; if(inp.value.trim()) any=true; var ok=parseNum(inp.value)===c[k]; inp.classList.toggle('okc',ok); inp.classList.toggle('badc',!ok); if(!ok) allOk=false;});
+      if(!any){var fb=$('#q-m1_table .fb'); fb.className='fb bad'; fb.textContent='Fill in the table first.'; return null;} return allOk;},
+    bad:'Some cells are not right yet. The red ones need another look.',
+    onReveal:function(){}};
+  return '<p class="kicker">Mission 1</p><h2>Build the model</h2><p class="lead">Every business has costs that stay fixed and costs that grow with every sale. Find the pattern, then turn it into a rule.</p>'+
+    reg(tbl)+
+    reg({id:'m1_c',area:'concept',type:'expr',pre:'C =',ph:'use x',prompt:'Write a rule for the <b>cost</b> of making x '+b.many+'.',fn:function(x){return t.F+t.v*x;},show:t.F+' + '+t.v+'x',answer:t.F+' + '+t.v+'x',
+      hint:'What do you pay even if you sell nothing? Then add '+money(t.v)+' for each of the x '+b.many+'.',good:'Yes: C = '+t.F+' + '+t.v+'x. The '+t.F+' is fixed; the '+t.v+'x grows.',explain:'C = '+t.F+' + '+t.v+'x: the fixed setup plus '+money(t.v)+' per '+b.one+'.'})+
+    reg({id:'m1_r',area:'concept',type:'expr',pre:'R =',ph:'use x',prompt:'Write a rule for the <b>revenue</b> from selling x '+b.many+'.',fn:function(x){return t.p*x;},show:t.p+'x',answer:t.p+'x',
+      hint:'Revenue is the money coming in. Each '+b.one+' brings in '+money(t.p)+'.',good:'Yes: R = '+t.p+'x.',explain:'R = '+t.p+'x: '+money(t.p)+' for each '+b.one+' sold.'})+nav('On to Mission 2');
+};
+AFTER.m1=function(){$$('[data-cell]').forEach(function(inp){inp.addEventListener('input',function(){var st=qs('m1_table'); st.val=st.val||{}; st.val[inp.dataset.cell]=inp.value; save();});});};
+
+SCREENS.m2=function(){var t=T(), b=B();
+  var lp=profit(t.lossX), BE=be();
+  var h='<p class="kicker">Mission 2</p><h2>The loss zone</h2><p class="lead">Profit is what’s left after paying every cost: <b>P = R − C</b>. Drag the slider to sell '+b.many+' and watch your profit meter.</p>'+
+   '<div class="panel sim"><label for="sl"><b>'+b.many.charAt(0).toUpperCase()+b.many.slice(1)+' sold: <span id="slv">'+S.items+'</span></b></label><input type="range" id="sl" min="0" max="'+t.xMax+'" step="1" value="'+S.items+'">'+
+   '<div class="tokens" id="toks" aria-hidden="true"></div><div class="bars"><div class="bar"><span>Money in (revenue)</span><div class="track"><div class="fill r" id="fr"></div></div><b id="vr"></b></div><div class="bar"><span>Money out (cost)</span><div class="track"><div class="fill c" id="fc"></div></div><b id="vc"></b></div></div>'+
+   '<div>Profit: <span class="profitline" id="pl"></span></div></div>';
+  h+=reg({id:'m2_loss',area:'accuracy',type:'num',pre:'$',prompt:'What is your profit if you sell <b>'+t.lossX+' '+(t.lossX===1?b.one:b.many)+'</b>?',answer:lp,show:String(lp),
+    check:function(n){return Math.abs(n-lp)<1e-6;},hint:'Revenue '+t.p+' × '+t.lossX+' = '+t.p*t.lossX+'. Cost '+t.F+' + '+t.v+' × '+t.lossX+' = '+(t.F+t.v*t.lossX)+'. Now subtract: revenue − cost.',
+    bad:function(){var st=qs('m2_loss'); var n=parseNum(st.val); return n===-lp?'Check the sign: revenue minus cost. Is revenue bigger or smaller than cost here?':'Not yet. Work out revenue and cost first, then subtract.';},
+    good:'Right: '+money(lp)+'. The answer is negative.',explain:'Profit = '+t.p*t.lossX+' − '+(t.F+t.v*t.lossX)+' = '+lp+'.'});
+  h+=reg({id:'m2_mean',area:'accuracy',type:'choice',prompt:'What does a negative profit mean?',options:['You made a mistake in the maths','A loss: you’ve spent more than you’ve earned so far','The business gets things for free'],answer:1,
+    hint:'Think about a bank balance that goes below zero.',good:'Exactly. A negative profit is a loss, not a mistake.',explain:'A negative profit means a loss: costs are still bigger than revenue.'});
+  h+=reg({id:'m2_step',area:'accuracy',type:'num',prompt:'Break-even is where revenue = cost: <b>'+t.p+'x = '+t.F+' + '+t.v+'x</b>. Subtract '+t.v+'x from both sides. How many x are left on the left?',pre:'',post:'x = '+t.F,answer:t.p-t.v,
+    hint:t.p+'x − '+t.v+'x = ?',good:'Yes: '+(t.p-t.v)+'x = '+t.F+'.',explain:t.p+'x − '+t.v+'x = '+(t.p-t.v)+'x, so '+(t.p-t.v)+'x = '+t.F+'.'});
+  h+=reg({id:'m2_be',area:'accuracy',type:'num',pre:'x =',post:b.many,prompt:'Now solve it. How many '+b.many+' do you need to sell to break even?',answer:BE,
+    hint:'Divide both sides of '+(t.p-t.v)+'x = '+t.F+' by '+(t.p-t.v)+'.',good:'Break-even found: '+BE+' '+b.many+'. You predicted '+S.prediction+'. Every '+b.one+' keeps '+money(t.p-t.v)+', so it takes '+t.F+' ÷ '+(t.p-t.v)+' = '+BE+' to pay back the '+money(t.F)+' setup.',
+    explain:'x = '+t.F+' ÷ '+(t.p-t.v)+' = '+BE+'. Check: revenue '+t.p*BE+', cost '+(t.F+t.v*BE)+'.',onCorrect:function(){burst();}});
+  if(t.bonus){h+=reg({id:'m2_b',area:'accuracy',type:'num',pre:'x =',post:'items',prompt:'Bonus product: a premium version sells for <b>$15</b>, costs <b>$9</b> to make, with the same <b>$60</b> setup. How many must you sell to break even? Which product breaks even first?',answer:t.bonus.ans,
+    hint:'15x = 60 + 9x.',good:'10 again. Both products keep $6 per sale, so both break even at 10.',explain:'15x = 60 + 9x → 6x = 60 → x = 10. Same profit per item, same break-even.'});}
+  return h+nav('On to Mission 3');
+};
+AFTER.m2=function(){var t=T(); var sl=$('#sl'); var last=S.items;
+  function draw(){var x=S.items, r=t.p*x, c=t.F+t.v*x, mx=Math.max(t.p*t.xMax,t.F+t.v*t.xMax); $('#slv').textContent=x; $('#fr').style.width=(r/mx*100)+'%'; $('#fc').style.width=(c/mx*100)+'%'; $('#vr').textContent=money(r); $('#vc').textContent=money(c); var p=r-c; var pl=$('#pl'); pl.textContent=(p>0?'+':'')+money(p)+(p<0?'  (loss)':p===0?'  (break-even)':'  (profit)'); pl.className='profitline '+(p<0?'neg':p>0?'pos':'');
+    var tk=$('#toks'); var n=tk.children.length; if(x>n){for(var k=n;k<x;k++){var d=document.createElement('i'); d.className='tok'; d.style.animationDelay=((k-n)*30)+'ms'; tk.appendChild(d);}} else {while(tk.children.length>x) tk.removeChild(tk.lastChild);} updateGauge();}
+  sl.addEventListener('input',function(){S.items=+sl.value; save(); draw(); if(profit(S.items)===0&&!S.confetti.slider){S.confetti.slider=true; burst();}});
+  draw();
+};
+
+SCREENS.m3=function(){var t=T(), b=B(); var X=t.sheetX; var wrongK=t.p+t.v, right=profit(X), wrong=wrongK*X-t.F;
+  var lines=['P = '+t.p+'x − ('+t.F+' + '+t.v+'x)','P = '+t.p+'x − '+t.F+' + '+t.v+'x','P = '+wrongK+'x − '+t.F,'At '+X+' '+b.many+':  P = '+wrongK+'('+X+') − '+t.F+' = '+signed(wrong)+' profit!'];
+  var st=qs('m3_line');
+  return '<p class="kicker">Mission 3</p><h2>The investor’s spreadsheet</h2><p class="lead">An investor sent you this spreadsheet. It says you make a profit even when you sell only '+X+' '+b.many+'. Would you trust it?</p>'+
+   '<div class="panel"><div class="sheet"><div class="bar0"><span class="dot" style="background:var(--crim)"></span><span class="dot" style="background:var(--orange)"></span><span class="dot" style="background:var(--leaf)"></span>&nbsp; profit_model.xlsx</div>'+
+   lines.map(function(l,i){return '<div class="ln'+(st.done&&i===1?' flag':'')+'"><span>Line '+(i+1)+'</span><code>'+l+'</code></div>';}).join('')+'</div></div>'+
+   reg({id:'m3_line',area:'reasoning',type:'choice',prompt:'Which line has the mistake?',options:['Line 1','Line 2','Line 3','Line 4'],answer:1,
+     hint:'Compare Line 1 and Line 2 carefully. What happened to the + '+t.v+'x when the bracket was removed?',good:'Line 2. The minus in front of the bracket should apply to both terms.',explain:'Line 2: −('+t.F+' + '+t.v+'x) should become −'+t.F+' − '+t.v+'x.'})+
+   reg({id:'m3_rule',area:'reasoning',type:'expr',pre:'P =',prompt:'Write the correct, simplified profit rule.',fn:function(x){return (t.p-t.v)*x-t.F;},show:(t.p-t.v)+'x − '+t.F,answer:(t.p-t.v)+'x − '+t.F,
+     hint:t.p+'x − '+t.F+' − '+t.v+'x. Now collect the x terms.',good:'Yes: P = '+(t.p-t.v)+'x − '+t.F+'.',explain:'P = '+t.p+'x − '+t.F+' − '+t.v+'x = '+(t.p-t.v)+'x − '+t.F+'.'})+
+   reg({id:'m3_val',area:'reasoning',type:'num',pre:'$',prompt:'Using your correct rule, what is the real profit at '+X+' '+b.many+'?',answer:right,
+     hint:(t.p-t.v)+' × '+X+' − '+t.F+' = ?',good:'Right: '+money(right)+'. The spreadsheet hid a loss. Always test a rule with a value you already know.',explain:(t.p-t.v)+' × '+X+' − '+t.F+' = '+right+'.'})+
+   '<div class="panel tint"><b>Remember:</b> a minus in front of a bracket changes the sign of every term inside: −(a + b) = −a − b.</div>'+nav('On to Mission 4');
+};
+
+/* Graph */
+function graphSVG(){var t=T(); var W=600,H=420,L=56,R=20,Tp=20,Bt=50; var gw=W-L-R, gh=H-Tp-Bt;
+  function X(v){return L+v/t.xMax*gw;} function Y(v){return Tp+gh-v/t.yMax*gh;}
+  var g='<svg viewBox="0 0 '+W+' '+H+'" id="gsvg" role="img" aria-label="Graph of cost and revenue. Click to plot points.">';
+  for(var i=0;i<=t.xMax;i++){g+='<line x1="'+X(i)+'" x2="'+X(i)+'" y1="'+Y(0)+'" y2="'+Y(t.yMax)+'" stroke="'+(i%t.xTick===0?'#d3dbdc':'#eef2f2')+'"/>'; if(i%t.xTick===0) g+='<text x="'+X(i)+'" y="'+(Y(0)+20)+'" text-anchor="middle" font-size="13" fill="#5B6668">'+i+'</text>';}
+  for(var j=0;j<=t.yMax;j+=t.ySnap){g+='<line x1="'+X(0)+'" x2="'+X(t.xMax)+'" y1="'+Y(j)+'" y2="'+Y(j)+'" stroke="'+(j%t.yTick===0?'#d3dbdc':'#eef2f2')+'"/>'; if(j%t.yTick===0) g+='<text x="'+(X(0)-8)+'" y="'+(Y(j)+4)+'" text-anchor="end" font-size="13" fill="#5B6668">'+j+'</text>';}
+  g+='<line x1="'+X(0)+'" x2="'+X(t.xMax)+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="#1A1A1A" stroke-width="1.5"/><line x1="'+X(0)+'" x2="'+X(0)+'" y1="'+Y(0)+'" y2="'+Y(t.yMax)+'" stroke="#1A1A1A" stroke-width="1.5"/>';
+  g+='<text x="'+(L+gw/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="13" fill="#5B6668">'+B().many+' sold (x)</text><text x="14" y="'+(Tp+gh/2)+'" transform="rotate(-90 14 '+(Tp+gh/2)+')" text-anchor="middle" font-size="13" fill="#5B6668">Dollars ($)</text>';
+  if(S.plotDone){var be_=be(), c0=Y(t.F), cE=Y(t.F+t.v*be_), xe=X(be_), xm=X(t.xMax);
+    g+='<polygon class="zone" points="'+X(0)+','+c0+' '+xe+','+cE+' '+X(0)+','+Y(0)+'" fill="#C92426" fill-opacity=".14"/>';
+    g+='<polygon class="zone" points="'+xe+','+cE+' '+xm+','+Y(t.p*t.xMax)+' '+xm+','+Y(t.F+t.v*t.xMax)+'" fill="#047857" fill-opacity=".14"/>';
+    g+='<line class="drawline" x1="'+X(0)+'" y1="'+Y(t.F)+'" x2="'+xm+'" y2="'+Y(t.F+t.v*t.xMax)+'" stroke="#D77F28" stroke-width="3.5" stroke-linecap="round"/>';
+    g+='<line class="drawline" x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+xm+'" y2="'+Y(t.p*t.xMax)+'" stroke="#00A7B2" stroke-width="3.5" stroke-linecap="round"/>';
+    g+='<text class="zone" x="'+(X(be_*0.35))+'" y="'+(Y(t.F*0.75)+4)+'" font-size="13" font-weight="700" fill="#C92426">LOSS</text><text class="zone" x="'+(X(t.xMax-(t.xMax-be_)*0.25))+'" y="'+(Y(t.p*t.xMax*0.86))+'" text-anchor="middle" font-size="13" font-weight="700" fill="#047857">PROFIT</text>';
+    if(qs('m4_cross').done) g+='<circle class="pulse" cx="'+xe+'" cy="'+cE+'" r="8" fill="none" stroke="#1A1A1A" stroke-width="2.5"/>';
+  }
+  ['cost','rev'].forEach(function(k){S.plots[k].forEach(function(pt){var fn=k==='cost'?function(x){return t.F+t.v*x;}:function(x){return t.p*x;}; var ok=Math.abs(fn(pt[0])-pt[1])<1e-6; var col=pt[2]==='bad'?'#C92426':(k==='cost'?'#D77F28':'#00A7B2');
+    g+='<circle cx="'+X(pt[0])+'" cy="'+Y(pt[1])+'" r="7" fill="'+col+'" stroke="#fff" stroke-width="2"/>'; if(pt[2]==='bad') g+='<text x="'+(X(pt[0])+10)+'" y="'+(Y(pt[1])-8)+'" font-size="12" font-weight="700" fill="#C92426">?</text>';});});
+  g+='<rect id="hit" x="'+L+'" y="'+Tp+'" width="'+gw+'" height="'+gh+'" fill="transparent"/></svg>';
+  return g;}
+SCREENS.m4=function(){var t=T(), b=B(); var BE=be(); var riseRaw=t.F/(t.riseP-t.v);
+  var plot={id:'m4_plot',area:'graph',type:'custom',prompt:'Plot at least <b>3 points</b> on each line. Choose a line, then click the grid. Click a point again to remove it.',
+    hint:'Use x values from your Mission 1 table: '+t.xs.join(', ')+'. Cost at x = '+t.xs[1]+' is '+(t.F+t.v*t.xs[1])+'.',
+    render:function(){return '<div class="modes"><button class="mode cost'+(S.plotMode==='cost'?' on':'')+'" data-mode="cost"'+(S.plotDone?' disabled':'')+'>Plot cost: C = '+t.F+' + '+t.v+'x</button><button class="mode rev'+(S.plotMode==='rev'?' on':'')+'" data-mode="rev"'+(S.plotDone?' disabled':'')+'>Plot revenue: R = '+t.p+'x</button></div><div class="graphwrap" id="gwrap">'+graphSVG()+'<div class="readout" id="ro"></div></div>';},
+    check:function(){var bad=0,cnt={cost:0,rev:0};
+      ['cost','rev'].forEach(function(k){var fn=k==='cost'?function(x){return t.F+t.v*x;}:function(x){return t.p*x;}; S.plots[k].forEach(function(pt){if(Math.abs(fn(pt[0])-pt[1])<1e-6){pt[2]='ok'; cnt[k]++;} else {pt[2]='bad'; bad++;}});});
+      if(cnt.cost+cnt.rev+bad===0){var fb=$('#q-m4_plot .fb'); fb.className='fb bad'; fb.textContent='Plot some points first.'; return null;}
+      if(!bad&&(cnt.cost<3||cnt.rev<3)){var fb2=$('#q-m4_plot .fb'); fb2.className='fb bad'; fb2.textContent='Nice so far. You need 3 correct points on each line (cost '+cnt.cost+', revenue '+cnt.rev+').'; redrawGraph(); return null;}
+      redrawGraph(); return bad===0;},
+    bad:'Points marked “?” are not on their line. Check them against your rule, remove them, and try again.',
+    onCorrect:function(){S.plotDone=true;},onReveal:function(){S.plotDone=true; S.plots.cost=t.xs.map(function(x){return [x,t.F+t.v*x,'ok'];}); S.plots.rev=t.xs.map(function(x){return [x,t.p*x,'ok'];});},
+    good:'Both lines plotted. Look where they cross.',explain:'Here are the correct points for both rules.',after:bindGraph};
+  var cross={id:'m4_cross',area:'graph',type:'custom',prompt:'Where do the two lines cross? Type the coordinates.',
+    render:function(){var st=qs('m4_cross'); var v=st.val||{}; return '<div class="row"><span class="pre">(</span><input class="in" style="width:90px" id="cx" inputmode="decimal" aria-label="x coordinate" value="'+esc(st.done?BE:(v.x||''))+'"'+(st.done?' disabled':'')+'><span class="pre">,</span><input class="in" style="width:90px" id="cy" inputmode="decimal" aria-label="y coordinate" value="'+esc(st.done?t.p*BE:(v.y||''))+'"'+(st.done?' disabled':'')+'><span class="pre">)</span></div>';},
+    check:function(){var st=qs('m4_cross'); var a=$('#cx').value,c=$('#cy').value; st.val={x:a,y:c}; if(!a.trim()||!c.trim()) return null; return parseNum(a)===BE&&parseNum(c)===t.p*BE;},
+    hint:'It’s the break-even point you found in Mission 2. What are revenue and cost there?',good:'Yes: ('+BE+', '+t.p*BE+'). Revenue = cost = '+money(t.p*BE)+', so profit is $0.',explain:'They cross at ('+BE+', '+t.p*BE+'): the break-even point.',onCorrect:function(){redrawGraph();},onReveal:function(){redrawGraph();}};
+  var h='<p class="kicker">Mission 4</p><h2>See the business</h2><p class="lead">A graph shows every sales number at once. Plot both rules and find where money in catches up with money out.</p>'+reg(plot)+reg(cross)+
+   reg({id:'m4_zone',area:'graph',type:'choice',prompt:'Which side of the crossing point is the loss zone?',options:['Left: fewer than '+BE+' '+b.many,'Right: more than '+BE+' '+b.many],answer:0,hint:'In the loss zone, the cost line is above the revenue line.',good:'Correct. Left of the crossing, cost is above revenue.',explain:'Left of x = '+BE+': the cost line sits above the revenue line.'})+
+   reg({id:'m4_rise',area:'graph',type:'num',pre:'',post:b.many,prompt:'If you raised your price to <b>'+money(t.riseP)+'</b>, how many '+b.many+' would you need to sell to break even? <span class="tag">(whole '+b.many+')</span>',answer:t.riseAns,
+     hint:t.riseP+'x = '+t.F+' + '+t.v+'x. If the answer isn’t whole, think: can you sell part of a '+b.one+'?',
+     bad:function(){var n=parseNum(qs('m4_rise').val); if(Math.abs(n-riseRaw)<0.01||Math.floor(riseRaw)===n) return 'Close. You can’t sell part of a '+b.one+', and '+Math.floor(riseRaw)+' isn’t enough. Round to the number that actually breaks even.'; return 'Not yet. Set the new revenue equal to cost and solve.';},
+     good:'Yes: x = '+(Math.round(riseRaw*100)/100)+', so '+t.riseAns+' '+b.many+'. A steeper revenue line crosses sooner.',explain:t.riseP+'x = '+t.F+' + '+t.v+'x → x = '+(Math.round(riseRaw*100)/100)+' → '+t.riseAns+' '+b.many+'.'});
+  return h+nav('On to the supplier shock');
+};
+function redrawGraph(){var w=$('#gwrap'); if(!w) return; var ro=$('#ro'); w.innerHTML=graphSVG(); w.appendChild(ro); bindGraph();}
+function bindGraph(){var t=T(); var svg=$('#gsvg'); if(!svg) return; var ro=$('#ro');
+  function pt(e){var p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; var q=p.matrixTransform(svg.getScreenCTM().inverse()); var L=56,gw=600-56-20,Tp=20,gh=420-20-50; var x=Math.round((q.x-L)/gw*t.xMax); var y=Math.round(((Tp+gh-q.y)/gh*t.yMax)/t.ySnap)*t.ySnap; if(x<0||x>t.xMax||y<0||y>t.yMax) return null; return {x:x,y:y,px:L+x/t.xMax*gw,py:Tp+gh-y/t.yMax*gh};}
+  svg.addEventListener('mousemove',function(e){if(S.plotDone){ro.style.display='none';return;} var p=pt(e); if(!p){ro.style.display='none';return;} var r=svg.getBoundingClientRect(); ro.style.display='block'; ro.style.left=(p.px/600*r.width)+'px'; ro.style.top=(p.py/420*r.height)+'px'; ro.textContent='('+p.x+', '+p.y+')';});
+  svg.addEventListener('mouseleave',function(){ro.style.display='none';});
+  svg.addEventListener('click',function(e){if(S.plotDone) return; var p=pt(e); if(!p) return; var arr=S.plots[S.plotMode]; var k=-1; arr.forEach(function(a,i){if(a[0]===p.x&&a[1]===p.y) k=i;}); if(k>=0) arr.splice(k,1); else {arr=arr.filter(function(a){return a[0]!==p.x;}); arr.push([p.x,p.y]); S.plots[S.plotMode]=arr;} save(); redrawGraph();});
+}
+document.addEventListener('click',function(e){modeClick(e);});
+function modeClick(e){var m=e.target.closest('[data-mode]'); if(!m) return; S.plotMode=m.dataset.mode; save(); $$('[data-mode]').forEach(function(b){b.classList.toggle('on',b===m);});}
+
+SCREENS.final=function(){var t=T(), b=B(); var need=t.F+t.finalV*t.finalN+t.target;
+  var sraw=(t.target+t.F)/(t.compP-t.finalV);
+  var h='<p class="kicker">Final challenge</p><h2>Supplier shock</h2><p class="lead">Your supplier just raised prices. Time to work out a new selling price, and this time the unknown is the price, not the number sold.</p>'+
+   '<div class="panel tint">Each '+b.one+' now costs <b>'+money(t.finalV)+'</b> to make. You can realistically sell <b>'+t.finalN+' '+b.many+'</b>. Setup is still <b>'+money(t.F)+'</b>. You want <b>'+money(t.target)+' profit</b>. Let <b>p</b> be your new price.</div>';
+  h+=reg({id:'f_price',area:'application',type:'num',pre:'p = $',prompt:'What price must you charge?',answer:t.price,
+    hint:t.finalN+'p − ('+t.F+' + '+t.finalV+' × '+t.finalN+') = '+t.target+'. Work out the bracket first.',
+    bad:function(){var n=parseNum(qs('f_price').val); if(Math.abs(n*t.finalN-(t.F+t.target))<1e-6) return 'Close, but you forgot the cost of making the '+b.many+'. Every term in the bracket comes off.'; return 'Not yet. Total revenue must cover the setup, the making costs and the profit you want.';},
+    good:'Yes: '+t.finalN+'p = '+need+', so p = '+money(t.price)+'.',explain:t.finalN+'p − '+(t.F+t.finalV*t.finalN)+' = '+t.target+' → '+t.finalN+'p = '+need+' → p = '+t.price+'.'});
+  var stretchShown=t.stretchReq||S.stretchOn||qs('f_stretch').attempts>0;
+  if(stretchShown){h+=reg({id:'f_stretch',area:'application',type:'num',optional:!t.stretchReq,post:b.many,prompt:'A competitor sells at <b>'+money(t.compP)+'</b>. If you match their price (cost still '+money(t.finalV)+' each), how many '+b.many+' must you sell to make at least '+money(t.target)+' profit?',answer:t.stretch,
+    hint:t.compP+'x − ('+t.F+' + '+t.finalV+'x) = '+t.target+'. If x isn’t whole, check the whole numbers either side.',
+    bad:function(){var n=parseNum(qs('f_stretch').val); if(n===Math.floor(sraw)) return 'So close. Check it: '+n+' '+b.many+' gives '+money(t.compP*n-(t.F+t.finalV*n))+'. Is that at least '+money(t.target)+'?'; return 'Not yet. Set the profit rule equal to '+t.target+' and solve.';},
+    good:'Yes: x ≈ '+(Math.round(sraw*10)/10)+', so '+t.stretch+'. Rounding down would fall short of the target.',explain:t.compP+'x − '+t.F+' − '+t.finalV+'x = '+t.target+' → x ≈ '+(Math.round(sraw*10)/10)+' → '+t.stretch+' '+b.many+'.'},t.stretchReq);}
+  else h+='<div class="panel"><b>Want a stretch?</b> A competitor has entered the market. <button class="btn ghost small" id="stretchBtn" style="margin-left:8px">Take the stretch</button></div>';
+  return h+nav('On to the investor pitch');
+};
+AFTER.final=function(){var sb=$('#stretchBtn'); if(sb) sb.addEventListener('click',function(){S.stretchOn=true; save(); render();});};
+
+SCREENS.pitch=function(){var b=B();
+  return '<p class="kicker">Investor pitch</p><h2>Convince your investor</h2><p class="lead">Finish each sentence, then say your pitch out loud in under 90 seconds. Your investor (a parent or your mentor) will ask one question.</p>'+
+   '<div class="panel"><div class="frame">'+
+   ['My recommendation is…','The maths shows…','The biggest risk is…'].map(function(l,i){return '<div><label for="pt'+i+'">'+l+'</label><textarea class="in" id="pt'+i+'" data-pitch="'+i+'" maxlength="220">'+esc(S.pitch[i])+'</textarea></div>';}).join('')+
+   '</div></div><div class="panel tint"><b>Investor’s question:</b> “Why should I believe your break-even number?”</div>'+
+   '<div class="mentorbox"><b>For the investor or mentor:</b> tick what the pitch included.'+
+   ['A clear recommendation','The maths behind it (break-even or price)','A named risk'].map(function(l,i){return '<label><input type="checkbox" data-rate="'+i+'"'+(S.rating[i]?' checked':'')+'> '+l+'</label>';}).join('')+'</div>'+nav('See my Baseline Report');
+};
+AFTER.pitch=function(){$$('[data-pitch]').forEach(function(t){t.addEventListener('input',function(){S.pitch[+t.dataset.pitch]=t.value; save(); updateNav();});}); $$('[data-rate]').forEach(function(c){c.addEventListener('change',function(){S.rating[+c.dataset.rate]=c.checked; save();});});};
+
+/* Report */
+function areaScores(){var t=T(); var map={concept:['m1_table','m1_c','m1_r'],accuracy:['m2_loss','m2_mean','m2_step','m2_be'].concat(t.bonus?['m2_b']:[]),reasoning:['m3_line','m3_rule','m3_val'],graph:['m4_plot','m4_cross','m4_zone','m4_rise'],application:['f_price'].concat((t.stretchReq||(S.q.f_stretch&&S.q.f_stretch.done))?['f_stretch']:[])};
+  var out={}; Object.keys(map).forEach(function(k){var ps=map[k].map(points).filter(function(v){return v!==null;}); out[k]=ps.length?Math.round(ps.reduce(function(a,b){return a+b;},0)/ps.length):0;});
+  out.communication=S.rating.filter(Boolean).length; return out;}
+SCREENS.report=function(){var t=T(), b=B(); var sc=areaScores(); var total=AREAS.reduce(function(a,ar){return a+sc[ar.id];},0);
+  var level=total>=15?{n:'Secure',prog:'Competition Builder',why:'Ready to extend into systems of equations and non-linear models.'}:total>=11?{n:'Developing',prog:'Board Excellence',why:'Consolidate multi-step equations and exam-style application.'}:{n:'Building foundations',prog:'Concept Clarity Program',why:'Rebuild negatives, brackets and equation balance with confidence.'};
+  var sorted=AREAS.slice().sort(function(a,c){return sc[c.id]-sc[a.id];}); var top=sorted[0], low=sorted[sorted.length-1];
+  var hints=Object.keys(S.q).filter(function(k){return S.q[k].hint;}).length; var reveals=Object.keys(S.q).filter(function(k){return S.q[k].revealed;}).length;
+  var mins=Math.max(1,Math.round(((S.end||Date.now())-S.start)/60000)); var diag=['d1','d2','d3'].filter(function(k){return S.diag[k];}).length;
+  var pitch=S.pitch.filter(function(p){return p.trim();});
+  return '<div class="report-head"><div class="sun"></div><p class="kicker" style="color:#fff">Baseline Report</p><h2>'+esc(S.name||'Founder')+'’s Launch Day</h2><div class="meta"><span>'+b.name+'</span><span>Track: '+t.label+'</span><span>'+new Date().toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+'</span></div>'+
+   '<div class="score"><b id="tot">0</b><span>out of 18</span></div><span class="level">'+level.n+'</span></div>'+
+   '<div class="facts"><div class="fact"><small>Prediction</small><b>'+S.prediction+' '+b.many+'</b></div><div class="fact"><small>Proven break-even</small><b>'+be()+' '+b.many+'</b></div><div class="fact"><small>Costing check</small><b>'+diag+' / 3</b></div><div class="fact"><small>Hints used</small><b>'+hints+'</b></div><div class="fact"><small>Time</small><b>'+mins+' min</b></div></div>'+
+   '<div class="panel"><h3>Skills observed</h3><div class="areas">'+AREAS.map(function(a,i){return '<div class="area"><div class="nm">'+a.name+'<small>'+a.where+'</small></div><div class="meter" aria-label="'+sc[a.id]+' out of 3">'+[0,1,2].map(function(k){return '<i class="'+(k<sc[a.id]?'on':'')+'" style="'+(k<sc[a.id]?'background:'+(sc[a.id]===3?'var(--emer)':sc[a.id]===2?'var(--teal)':'var(--orange)')+';animation-delay:'+(i*120+k*80)+'ms':'')+'"></i>';}).join('')+'</div><div class="pts">'+sc[a.id]+'</div></div>';}).join('')+'</div></div>'+
+   '<div class="twocol"><div class="callout s"><h3>Top strength</h3><p style="margin:0">'+top.name+': confident with '+top.focus+'.</p></div><div class="callout f"><h3>Focus area</h3><p style="margin:0">'+low.name+': next step is '+low.focus+'.</p></div></div>'+
+   (pitch.length?'<div class="panel"><h3>The pitch, in '+esc(S.name||'their')+(S.name?'’s':'')+' words</h3>'+pitch.map(function(p){return '<p class="quote">'+esc(p)+'</p>';}).join('')+'</div>':'')+
+   '<p class="fine">This is a trial observation from one 45-minute session, not a full baseline assessment. Scores per area: 3 = correct first try, 2 = after one retry or hint, 1 = after more support, 0 = answer shown. '+(reveals?reveals+' answer'+(reveals>1?'s were':' was')+' shown.':'')+'</p>'+
+   '<div class="nav"><button class="btn ghost" id="backBtn">Back</button><button class="btn" id="restart">Start a new session</button></div>';
+};
+AFTER.report=function(){var sc=areaScores(); var total=AREAS.reduce(function(a,ar){return a+sc[ar.id];},0); var el=$('#tot'); var n=0; var iv=setInterval(function(){n++; if(n>=total){n=total; clearInterval(iv); if(total>=11) burst();} el.textContent=n;},60); if(total===0){clearInterval(iv); el.textContent=0;}
+  $('#restart').addEventListener('click',function(){var b=this; if(!b.dataset.sure){b.dataset.sure='1'; b.textContent='Click again to clear this report'; return;} S=fresh(); save(); render();});};
+
+/* ---------- Rail, HQ, drawer ---------- */
+function renderRail(){$('#rail').innerHTML=STEPS.map(function(s,i){return '<i class="'+(i<S.step?'done':i===S.step?'now':'')+'"></i>';}).join(''); $('#railtxt').textContent=STEPS[S.step].label+' · '+(S.step+1)+' of '+STEPS.length;}
+var gaugeMax=60;
+function renderHQ(){var hq=$('#hq'); if(!S.biz){hq.innerHTML='<div class="hq-empty"><b style="color:var(--ink)">Business HQ</b><br>Pick a business to open your HQ.</div>'; return;}
+  var b=B(); var t=S.track?T():null;
+  var h='<div class="hq-head" style="color:#fff">'+icon(b.id,'#fff')+'<div><b>'+esc(S.name?S.name+'’s '+b.name.toLowerCase():b.name)+'</b><span>Business HQ</span></div></div><div class="hq-body">';
+  if(!t){h+='<p style="margin:0;color:var(--muted);font-size:14px">Your numbers arrive after the costing check.</p></div>'; hq.innerHTML=h; return;}
+  gaugeMax=Math.max(t.F,Math.abs(profit(t.xMax)));
+  h+='<div class="chips"><div class="chip f"><small>Setup</small><b>'+money(t.F)+'</b></div><div class="chip v"><small>Per '+b.one+'</small><b>'+money(t.v)+'</b></div><div class="chip p"><small>Price</small><b>'+money(t.p)+'</b></div></div>'+
+   '<div class="gauge"><svg viewBox="0 0 220 124" aria-hidden="true"><path d="M20 112 A90 90 0 0 1 110 22" fill="none" stroke="#C92426" stroke-opacity=".25" stroke-width="18"/><path d="M110 22 A90 90 0 0 1 200 112" fill="none" stroke="#047857" stroke-opacity=".25" stroke-width="18"/><line x1="110" y1="14" x2="110" y2="30" stroke="#1A1A1A" stroke-width="2"/><g id="needle" style="transform-origin:110px 112px;transition:transform .5s cubic-bezier(.3,1.4,.6,1)"><line x1="110" y1="112" x2="110" y2="36" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round"/></g><circle cx="110" cy="112" r="8" fill="#1A1A1A"/><text x="22" y="122" font-size="11" fill="#C92426" font-weight="700">loss</text><text x="198" y="122" font-size="11" fill="#047857" font-weight="700" text-anchor="end">profit</text></svg><div class="val" id="gval"></div><div class="cap" id="gcap"></div></div>'+
+   '<div class="pred">'+(S.predLocked?'Prediction locked: <b>'+S.prediction+' '+b.many+'</b>':'Prediction not locked yet')+(qs('m2_be').done?'<br>Proven break-even: <b>'+be()+' '+b.many+'</b>':'')+'</div></div>';
+  hq.innerHTML=h; updateGauge();}
+function updateGauge(){var n=$('#needle'); if(!n) return; var p=profit(S.items); var a=Math.max(-90,Math.min(90,p/gaugeMax*90)); n.style.transform='rotate('+a+'deg)'; var gv=$('#gval'); gv.textContent=(p>0?'+':'')+money(p); gv.className='val '+(p<0?'neg':p>0?'pos':''); $('#gcap').textContent='Profit at '+S.items+' '+(S.items===1?B().one:B().many)+' sold';}
+
+function renderDrawer(){var d=$('#drawer'); var step=STEPS[S.step].id; var t=T(), b=B(); var notes=[];
+  if(step==='launch') notes=['Let the learner choose the business and type their name.','Read the hero line aloud; set the scene as a launch, not a test.'];
+  if(step==='check') notes=['Answers: $32 · 60 + 4x · 10 items.','No feedback is given on correctness. Score sets the track: 3 → Accelerate, 2 → Core, 0–1 → Build.'];
+  if(step==='predict') notes=['Do not correct the guess. Common guesses: 1 or '+(t.p-t.v)+'.','Break-even for this track: '+be()+'.'];
+  if(step==='m1') notes=['Cost: '+t.xs.map(function(x){return t.F+t.v*x;}).join(', ')+'.','Revenue: '+t.xs.map(function(x){return t.p*x;}).join(', ')+'.','C = '+t.F+' + '+t.v+'x, R = '+t.p+'x.','Prompt: “What do you pay even if you sell nothing?”'];
+  if(step==='m2') notes=['Loss at '+t.lossX+': '+profit(t.lossX)+'.','Step: '+(t.p-t.v)+'x = '+t.F+'. Break-even: '+be()+'.','Point at the locked prediction when they solve it.'].concat(t.bonus?['Bonus: 15x = 60 + 9x → 10.']:[]);
+  if(step==='m3') notes=['Mistake: Line 2. Correct rule: P = '+(t.p-t.v)+'x − '+t.F+'.','Real profit at '+t.sheetX+': '+profit(t.sheetX)+'.','Ask: “Does making items earn you money or cost you money?”'];
+  if(step==='m4') notes=['Cross at ('+be()+', '+t.p*be()+'). Loss zone: left.','Price '+money(t.riseP)+': x = '+(Math.round(t.F/(t.riseP-t.v)*100)/100)+' → '+t.riseAns+'.','Ask: “Why is the revenue line steeper?”'];
+  if(step==='final') notes=['Price: '+money(t.price)+'.','Stretch: '+t.stretch+' '+b.many+' (round up; '+(t.stretch-1)+' falls short).'];
+  if(step==='pitch') notes=['Invite the parent as investor. Tick the three boxes honestly; they set the Communication score.'];
+  if(step==='report') notes=['Read the strengths aloud first. Use the focus area and the pitch quote in the Mastery Snapshot.'];
+  d.innerHTML='<h3>Mentor notes</h3><ul>'+notes.map(function(n){return '<li>'+n+'</li>';}).join('')+'</ul>'+
+   '<div style="margin-top:10px;font-size:14px"><b>Track:</b> '+(S.track?T().label:'not set')+(S.step<=3?'<div class="tracks">'+['build','core','accel'].map(function(k){return '<button class="btn '+(S.track===k?'':'ghost ')+'small" data-track="'+k+'">'+TRACKS[k].label+'</button>';}).join('')+'</div><div style="font-size:12.5px;color:var(--muted);margin-top:4px">Changing the track resets the missions.</div>':'')+'</div>'+
+   '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost small" id="resetAll">Reset session</button></div>';
+}
+document.addEventListener('click',function(e){var tb=e.target.closest('[data-track]'); if(tb){S.track=tb.dataset.track; resetMissions(); if(S.step>2) S.step=2; save(); render(); $('#drawer').classList.add('open');}
+  if(e.target.id==='resetAll'){var r=e.target; if(!r.dataset.sure){r.dataset.sure='1'; r.textContent='Click again to reset'; return;} S=fresh(); save(); render();}});
+
+/* ---------- Confetti ---------- */
+function burst(){if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cv=$('#confetti'), ctx=cv.getContext('2d'); cv.width=innerWidth; cv.height=innerHeight; var cols=['#00A7B2','#FAA71C','#D77F28','#047857','#66A34E','#32cdc8'];
+  var ps=[]; for(var i=0;i<140;i++) ps.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*0.35,vx:(Math.random()-.5)*12,vy:Math.random()*-12-4,s:Math.random()*7+4,c:cols[i%cols.length],r:Math.random()*6,vr:(Math.random()-.5)*.3});
+  var f=0; (function tick(){ctx.clearRect(0,0,cv.width,cv.height); ps.forEach(function(p){p.vy+=.35; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore();}); if(++f<110) requestAnimationFrame(tick); else ctx.clearRect(0,0,cv.width,cv.height);})();}
+
+render();
+})();
+</script>
+</body>
+</html>
